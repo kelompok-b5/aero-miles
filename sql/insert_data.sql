@@ -31,15 +31,15 @@ INSERT INTO MITRA (email_mitra, id_penyedia, nama_mitra, tanggal_kerja_sama) VAL
   ('mitra@lionair.com', 3, 'Lion Miles', '2021-06-10'),
   ('mitra@sriwijaya.com', 4, 'Sriwijaya Club', '2021-09-05'),
   ('mitra@batik.com', 5, 'Batik Miles', '2022-02-28');
-
+  
 INSERT INTO HADIAH (kode_hadiah, nama, miles, deskripsi, valid_start_date, program_end, id_penyedia) VALUES
-  ('RWD-001', 'Free Ticket Domestik', 15000, 'Tiket gratis rute domestik', '2024-01-01', '2024-12-31', 1),
-  ('RWD-002', 'Upgrade Business Class', 20000, 'Upgrade ke business class', '2024-01-01', '2024-12-31', 2),
-  ('RWD-003', 'Lounge Access', 5000, 'Akses lounge bandara', '2024-01-01', '2024-12-31', 3),
-  ('RWD-004', 'Extra Baggage 20kg', 3000, 'Tambahan bagasi 20kg', '2024-02-01', '2024-12-31', 4),
-  ('RWD-005', 'Hotel Voucher', 25000, 'Voucher hotel bintang 4', '2024-03-01', '2024-12-31', 5),
-  ('RWD-006', 'Free Ticket Internasional', 40000, 'Tiket gratis rute internasional', '2024-01-01', '2025-06-30', 1),
-  ('RWD-007', 'Airport Transfer', 2000, 'Antar jemput bandara', '2024-04-01', '2024-12-31', 2),
-  ('RWD-008', 'Diskon 50% Tiket', 8000, 'Diskon 50% untuk 1 tiket', '2024-05-01', '2025-03-31', 3),
-  ('RWD-009', 'Priority Check-in', 1500, 'Priority check-in & boarding', '2024-01-01', '2024-12-31', 4),
-  ('RWD-010', 'Free Meal Voucher', 1000, 'Voucher makan di bandara', '2024-06-01', '2025-01-31', 5);
+  ('RWD-001', 'Free Ticket Domestik', 15000, 'Tiket gratis rute domestik', '2025-01-01', '2026-06-30', 1),
+  ('RWD-002', 'Upgrade Business Class', 20000, 'Upgrade ke business class', '2025-03-01', '2027-03-01', 2),
+  ('RWD-003', 'Lounge Access', 5000, 'Akses lounge bandara', '2024-07-01', '2026-12-31', 3),
+  ('RWD-004', 'Extra Baggage 20kg', 3000, 'Tambahan bagasi 20kg', '2025-06-01', '2026-06-01', 4),
+  ('RWD-005', 'Hotel Voucher', 25000, 'Voucher hotel bintang 4', '2026-01-01', '2027-01-01', 5),
+  ('RWD-006', 'Free Ticket Internasional', 40000, 'Tiket gratis rute internasional', '2025-01-01', '2027-12-31', 1),
+  ('RWD-007', 'Airport Transfer', 2000, 'Antar jemput bandara', '2026-04-01', '2026-10-31', 2),
+  ('RWD-008', 'Diskon 50% Tiket', 8000, 'Diskon 50% untuk 1 tiket', '2025-09-01', '2026-09-01', 3),
+  ('RWD-009', 'Priority Check-in', 1500, 'Priority check-in & boarding', '2024-11-01', '2026-04-30', 4),
+  ('RWD-010', 'Free Meal Voucher', 1000, 'Voucher makan di bandara', '2026-03-01', '2026-08-31', 5);

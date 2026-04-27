@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beli Award Miles Package — AeroMiles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --muted: #6b8499;
+    }
+
+    /* HERO */
+    .hero-strip {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 2rem 2rem 3.5rem; position: relative; overflow: hidden;
+    }
+    .hero-strip::before {
+      content:''; position:absolute; right:-60px; top:-60px;
+      width:300px; height:300px; border-radius:50%;
+      background:rgba(61,191,191,0.08);
+    }
+    .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+    .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
+    .miles-pill {
+      background:rgba(255,255,255,0.08); border:1px solid rgba(61,191,191,0.3);
+      border-radius:16px; padding:1rem 1.5rem; text-align:right;
+    }
+    .miles-pill .label { font-size:0.7rem; color:rgba(255,255,255,0.5); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:4px; }
+    .miles-pill .value { font-size:1.6rem; font-weight:800; color:var(--teal); }
+    .miles-pill .unit { font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+    /* CONTENT */
+    .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+
+    /* TABS */
+    .tabs-wrap {
+      background:white; border-radius:16px 16px 0 0;
+      padding:0 1.5rem; display:flex;
+      border-bottom:1.5px solid #e8f0f5;
+    }
+    .tab-btn {
+      background:none; border:none; cursor:pointer;
+      font-family:inherit; font-size:0.82rem; font-weight:600;
+      color:var(--muted); padding:1rem 1.25rem;
+      border-bottom:2.5px solid transparent; margin-bottom:-1.5px;
+      transition:all 0.18s;
+    }
+    .tab-btn.active { color:var(--navy); border-bottom-color:var(--teal); }
+    .tab-btn:hover { color:var(--navy); }
+
+    .panels-wrap { background:white; border-radius:0 0 16px 16px; padding:1.5rem; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* GRID */
+    .package-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:1rem; }
+
+    /* PACKAGE CARD — sama persis kayak redeem-hadiah */
+    .package-card {
+      border-radius:16px; overflow:hidden; border:1.5px solid #e8f0f5;
+      transition:all 0.22s; display:flex; flex-direction:column;
+    }
+    .package-card:hover { border-color:var(--teal); transform:translateY(-3px); box-shadow:0 16px 40px rgba(13,33,55,0.1); }
+    .card-header { background:var(--navy); padding:1.1rem 1.25rem; display:flex; justify-content:space-between; align-items:flex-start; }
+    .card-kode { font-size:0.68rem; font-weight:700; color:var(--teal); letter-spacing:0.08em; background:rgba(61,191,191,0.15); border:1px solid rgba(61,191,191,0.3); padding:0.2rem 0.6rem; border-radius:6px; }
+    .card-body { padding:1.1rem 1.25rem; flex:1; display:flex; flex-direction:column; }
+    .card-miles { font-size:1.8rem; font-weight:800; color:var(--navy); letter-spacing:-0.02em; }
+    .card-miles-label { font-size:0.75rem; color:var(--muted); margin-bottom:0.5rem; }
+    .card-footer { padding:0.9rem 1.25rem; background:#f7fafc; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eef3f7; }
+    .card-harga { font-size:1.1rem; font-weight:800; color:var(--navy); }
+    .card-harga small { display:block; font-size:0.68rem; font-weight:400; color:var(--muted); }
+    .btn-beli {
+      background:var(--teal); color:white; border:none;
+      padding:0.5rem 1.2rem; border-radius:10px; cursor:pointer;
+      font-family:inherit; font-size:0.75rem; font-weight:700;
+      letter-spacing:0.05em; transition:all 0.18s;
+    }
+    .btn-beli:hover { background:var(--teal-light); transform:scale(1.04); }
+
+    /* RIWAYAT */
+    .riwayat-wrap { border-radius:12px; overflow:hidden; border:1.5px solid #e8f0f5; }
+    table { width:100%; border-collapse:collapse; }
+    thead { background:var(--navy); }
+    th { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; padding:0.9rem 1.25rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; }
+    td { padding:1rem 1.25rem; font-size:0.83rem; color:var(--navy); border-bottom:1px solid #f0f5f8; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f7fbfd; }
+    .miles-add { color:#27a96c; font-weight:700; }
+    .time-cell { color:var(--muted); font-size:0.78rem; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:white; border-radius:20px; width:420px; max-width:92vw; overflow:hidden; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(16px); } to { opacity:1; transform:none; } }
+    .modal-head { background:var(--navy); padding:1.5rem 1.75rem; }
+    .modal-head h3 { color:white; font-size:1rem; font-weight:700; }
+    .modal-head p { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
+    .modal-body { padding:1.5rem 1.75rem; }
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0; border-bottom:1px solid #f0f5f8; font-size:0.83rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--muted); }
+    .info-val { font-weight:600; color:var(--navy); }
+    .info-val.add { color:#27a96c; }
+    .modal-actions { display:flex; gap:0.75rem; padding:0 1.75rem 1.5rem; justify-content:flex-end; }
+    .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
+    .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
+    .btn-konfirm { background:var(--teal); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-konfirm:hover { background:var(--teal-light); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; right:2rem; z-index:200; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--teal); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); }
+    .toast.show { transform:none; opacity:1; }
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:0.85rem; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-title">Beli Award Miles Package</div>
+      <div class="hero-sub">Tambah award miles Anda dengan membeli paket pilihan</div>
+    </div>
+    <div class="miles-pill">
+      <div class="label">Award Miles Tersedia</div>
+      <div class="value" id="miles-display">32,000</div>
+      <div class="unit">miles</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="tabs-wrap">
+    <button class="tab-btn active" onclick="switchTab('katalog', this)">✦ &nbsp;Katalog Package</button>
+    <button class="tab-btn" onclick="switchTab('riwayat', this)">↩ &nbsp;Riwayat Pembelian</button>
+  </div>
+  <div class="panels-wrap">
+
+    <!-- KATALOG -->
+    <div id="tab-katalog" class="tab-panel active">
+      <div class="package-grid" id="package-grid"></div>
+    </div>
+
+    <!-- RIWAYAT -->
+    <div id="tab-riwayat" class="tab-panel">
+      <div class="riwayat-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID Paket</th>
+              <th>Jumlah Miles</th>
+              <th>Harga</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="riwayat-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Konfirmasi Pembelian</h3>
+      <p>Pastikan detail berikut sudah benar sebelum melanjutkan</p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-batal" onclick="closeModal()">Batal</button>
+      <button class="btn-konfirm" onclick="konfirmasiBeli()">Konfirmasi Pembelian</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
+
+<script>
+  // Simulasi role — nanti diganti dari session/navbar teman
+  const currentRole = 'Member';
+
+  // Cek akses
+  if (currentRole !== 'Member') {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;color:#6b8499;">
+        <div style="font-size:2rem;">🚫</div>
+        <div style="font-weight:700;color:#0d2137;">Akses Ditolak</div>
+        <div style="font-size:0.85rem;">Halaman ini hanya dapat diakses oleh Member.</div>
+      </div>`;
+  }
+
+  let awardMiles = 32000;
+  let selected = null;
+
+  // DATA DUMMY — sesuai tabel AWARD_MILES_PACKAGE
+  // Tambah/ganti data ini kalau teman sudah push data dummy mereka
+  const packages = [
+    { id: 'AMP-001', jumlah_award_miles: 1000,  harga_paket: 150000  },
+    // placeholder — tunggu data dummy dari teman
+  ];
+
+  // Data dummy riwayat — sesuai tabel MEMBER_AWARD_MILES_PACKAGE
+  let riwayat = [];
+
+  function formatRupiah(n) {
+    return 'Rp ' + n.toLocaleString('id-ID');
+  }
+
+  function renderKatalog() {
+    const grid = document.getElementById('package-grid');
+    grid.innerHTML = packages.map(p => `
+      <div class="package-card">
+        <div class="card-header">
+          <span class="card-kode">${p.id}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-miles">${p.jumlah_award_miles.toLocaleString('id-ID')}</div>
+          <div class="card-miles-label">Award Miles</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-harga">
+            ${formatRupiah(p.harga_paket)}
+            <small>harga paket</small>
+          </div>
+          <button class="btn-beli" onclick="openModal('${p.id}')">BELI</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderRiwayat() {
+    const tbody = document.getElementById('riwayat-body');
+    if (!riwayat.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2.5rem;color:#aabbc8;">Belum ada riwayat pembelian.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = riwayat.map(r => `
+      <tr>
+        <td><span style="font-size:0.68rem;font-weight:700;color:var(--teal);background:rgba(61,191,191,0.1);border:1px solid rgba(61,191,191,0.3);padding:0.2rem 0.6rem;border-radius:6px;">${r.id}</span></td>
+        <td class="miles-add">+${r.jumlah_award_miles.toLocaleString('id-ID')}</td>
+        <td>${formatRupiah(r.harga_paket)}</td>
+        <td class="time-cell">${r.timestamp}</td>
+      </tr>
+    `).join('');
+  }
+
+  function openModal(id) {
+    selected = packages.find(p => p.id === id);
+    if (!selected) return;
+    document.getElementById('modal-body').innerHTML = `
+      <div class="info-row"><span class="info-label">ID Paket</span><span class="info-val">${selected.id}</span></div>
+      <div class="info-row"><span class="info-label">Miles didapat</span><span class="info-val add">+${selected.jumlah_award_miles.toLocaleString('id-ID')} miles</span></div>
+      <div class="info-row"><span class="info-label">Harga</span><span class="info-val">${formatRupiah(selected.harga_paket)}</span></div>
+      <div class="info-row"><span class="info-label">Miles setelah beli</span><span class="info-val">${(awardMiles + selected.jumlah_award_miles).toLocaleString('id-ID')} miles</span></div>
+    `;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    selected = null;
+  }
+
+  function konfirmasiBeli() {
+    if (!selected) return;
+    awardMiles += selected.jumlah_award_miles;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    riwayat.unshift({ ...selected, timestamp: now });
+    document.getElementById('miles-display').textContent = awardMiles.toLocaleString('id-ID');
+    closeModal();
+    renderKatalog();
+    renderRiwayat();
+    showToast('Berhasil membeli ' + selected.id + '! +' + selected.jumlah_award_miles.toLocaleString('id-ID') + ' miles');
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function showToast(msg) {
+    document.getElementById('toast-msg').textContent = msg;
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  renderKatalog();
+  renderRiwayat();
+</script>
+</body>
+</html>
