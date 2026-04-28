@@ -54,7 +54,8 @@ CREATE TABLE MITRA (
     email_mitra VARCHAR(100) PRIMARY KEY,
     id_penyedia INT NOT NULL UNIQUE,
     nama_mitra VARCHAR(100) NOT NULL,
-    tanggal_kerja_sama DATE NOT NULL
+    tanggal_kerja_sama DATE NOT NULL,
+    FOREIGN KEY (id_penyedia) REFERENCES PENYEDIA(id) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE hadiah_seq START 1;
