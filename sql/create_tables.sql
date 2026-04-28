@@ -1,3 +1,37 @@
+CREATE TABLE PENGGUNA (
+    email VARCHAR(100) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL,
+    salutation VARCHAR(10) NOT NULL,
+    first_mid_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    country_code VARCHAR(5) NOT NULL,
+    mobile_number VARCHAR(20) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    kewarganegaraan VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE TIER (
+    id_tier VARCHAR(10) PRIMARY KEY,
+    nama VARCHAR(50) NOT NULL,
+    minimal_frekuensi_terbang INT NOT NULL,
+    minimal_tier_miles INT NOT NULL
+);
+
+CREATE SEQUENCE member_seq START 1;
+
+CREATE TABLE MEMBER (
+    email VARCHAR(100) PRIMARY KEY,
+    nomor_member VARCHAR(20) NOT NULL UNIQUE DEFAULT (
+        'M' || LPAD(nextval('member_seq')::TEXT, 4, '0')
+    ),
+    tanggal_bergabung DATE NOT NULL,
+    id_tier VARCHAR(10) NOT NULL,
+    award_miles INT DEFAULT 0,
+    total_miles INT DEFAULT 0,
+    FOREIGN KEY (email) REFERENCES PENGGUNA(email) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (id_tier) REFERENCES TIER(id_tier)
+);
+
 CREATE TABLE PENYEDIA (
     id SERIAL PRIMARY KEY
 );
