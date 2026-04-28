@@ -69,3 +69,43 @@ CREATE TABLE HADIAH (
     id_penyedia INT NOT NULL,
     FOREIGN KEY (id_penyedia) REFERENCES PENYEDIA(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IDENTITAS (
+    nomor VARCHAR(50) PRIMARY KEY,
+    email_member VARCHAR(100) NOT NULL,
+    tanggal_habis DATE NOT NULL,
+    tanggal_terbit DATE NOT NULL,
+    negara_penerbit VARCHAR(50) NOT NULL,
+    jenis VARCHAR(30) NOT NULL CHECK (jenis IN ('Paspor', 'KTP', 'SIM')),
+    FOREIGN KEY (email_member) REFERENCES MEMBER(email) ON DELETE CASCADE
+);
+
+CREATE TABLE CLAIM_MISSING_MILES (
+    id SERIAL PRIMARY KEY,
+    email_member VARCHAR(100) NOT NULL,
+    email_staf VARCHAR(100), 
+      maskapai VARCHAR(10) NOT NULL,
+    bandara_asal VARCHAR(3) NOT NULL,
+    bandara_tujuan VARCHAR(3) NOT NULL,
+    tanggal_penerbangan DATE NOT NULL,
+    flight_number VARCHAR(10) NOT NULL,
+    nomor_tiket VARCHAR(20) NOT NULL,
+    kelas_kabin varchar(20) NOT NULL CHECK (kelas_kabin IN ('Economy', 'Business', 'First')),
+    pnr VARCHAR(10) NOT NULL,
+    status_penerimaan VARCHAR(20) NOT NULL DEFAULT 'Menunggu' CHECK (status_penerimaan IN ('Menunggu', 'Disetujui', 'Ditolak')),
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (email_member) REFERENCES MEMBER(email) ON DELETE CASCADE,
+    FOREIGN KEY (email_staf) REFERENCES STAF(email),
+    FOREIGN KEY (maskapai) REFERENCES MASKAPAI(kode_maskapai),
+    FOREIGN KEY (bandara_asal) REFERENCES BANDARA(iata_code),
+    FOREIGN KEY (bandara_tujuan) REFERENCES BANDARA(iata_code),
+    UNIQUE (email_member, flight_number, tanggal_penerbangan, nomor_tiket)
+)
+
+CREATE SEQUENCE seq_amp START 1;
+
+CREATE TABLE AWARD_MILES_PACKAGE (
+    id VARCHAR(20) PRIMARY KEY DEFAULT 'AMP-' || LPAD(nextval('seq_amp')::TEXT, 3, '0'),
+    harga_paket DECIMAL(15, 2) NOT NULL,
+    jumlah_award_miles INT NOT NULL
+);
