@@ -187,3 +187,95 @@ INSERT INTO HADIAH (kode_hadiah, nama, miles, deskripsi, valid_start_date, progr
   ('RWD-008', 'Diskon 50% Tiket', 8000, 'Diskon 50% untuk 1 tiket', '2025-09-01', '2026-09-01', 3),
   ('RWD-009', 'Priority Check-in', 1500, 'Priority check-in & boarding', '2024-11-01', '2026-04-30', 4),
   ('RWD-010', 'Free Meal Voucher', 1000, 'Voucher makan di bandara', '2026-03-01', '2026-08-31', 5);
+
+INSERT INTO IDENTITAS
+(nomor, email_member, tanggal_habis, tanggal_terbit, negara_penerbit, jenis)
+VALUES
+-- INDONESIA (KTP / SIM / PASPOR)
+('3201011203980001','andika.pratama@mail.com','9999-12-31','2020-03-12','Indonesia','KTP'),
+('3201026107970002','siti.nurhaliza@mail.com','9999-12-31','2021-07-21','Indonesia','KTP'),
+('3201031001950003','budi.santoso@mail.com','2029-01-10','2019-01-10','Indonesia','SIM'),
+('A12345678','dewi.lestari@mail.com','2032-11-05','2022-11-05','Indonesia','Paspor'),
+('3201051806960005','rizky.firmansyah@mail.com','2030-06-18','2020-06-18','Indonesia','SIM'),
+('B23456789','putri.ayu@mail.com','2033-02-14','2023-02-14','Indonesia','Paspor'),
+('3201073009940007','fajar.hidayat@mail.com','9999-12-31','2021-09-30','Indonesia','KTP'),
+('C34567890','amelia.safitri@mail.com','2032-12-22','2022-12-22','Indonesia','Paspor'),
+('3201091704930009','dimas.anggara@mail.com','2030-04-17','2020-04-17','Indonesia','SIM'),
+('3201104808970010','tiara.anindya@mail.com','9999-12-31','2021-08-08','Indonesia','KTP'),
+
+('3201111105950011','galih.prakoso@mail.com','9999-12-31','2020-05-11','Indonesia','KTP'),
+('3201124109990012','intan.permata@mail.com','9999-12-31','2021-10-01','Indonesia','KTP'),
+('3201132503960013','yoga.saputra@mail.com','2032-03-25','2022-03-25','Indonesia','SIM'),
+('3201144606980014','nabila.khansa@mail.com','9999-12-31','2021-06-06','Indonesia','KTP'),
+('3201151901920015','arif.setiawan@mail.com','2030-01-19','2020-01-19','Indonesia','SIM'),
+('3201166702970016','lina.marlina@mail.com','9999-12-31','2023-02-27','Indonesia','KTP'),
+('3201170707950017','farhan.akbar@mail.com','2031-07-07','2021-07-07','Indonesia','SIM'),
+('3201185111930018','ratna.sari@mail.com','9999-12-31','2020-11-11','Indonesia','KTP'),
+('D45678901','kevin.sanjaya@mail.com','2032-01-01','2022-01-01','Indonesia','Paspor'),
+('3201204909960020','citra.dewanti@mail.com','9999-12-31','2021-09-09','Indonesia','KTP'),
+
+-- SINGAPORE (PASPOR)
+('K1234567A','kevin.tan@mail.com','2032-04-11','2022-04-11','Singapore','Paspor'),
+('E2345678B','grace.lim@mail.com','2031-06-12','2021-06-12','Singapore','Paspor'),
+('K3456789C','daniel.ng@mail.com','2030-02-02','2020-02-02','Singapore','Paspor'),
+('E4567890D','michelle.lee@mail.com','2033-09-09','2023-09-09','Singapore','Paspor'),
+('K5678901E','jason.ong@mail.com','2031-08-08','2021-08-08','Singapore','Paspor'),
+
+-- MALAYSIA (PASPOR)
+('A12345001','ahmad.firdaus@mail.com','2030-06-06','2020-06-06','Malaysia','Paspor'),
+('A12345002','nur.aisyah@mail.com','2032-08-08','2022-08-08','Malaysia','Paspor'),
+('A12345003','muhammad.hakim@mail.com','2031-05-05','2021-05-05','Malaysia','Paspor'),
+('A12345004','siti.zulaikha@mail.com','2033-03-03','2023-03-03','Malaysia','Paspor'),
+('A12345005','danial.azman@mail.com','2030-09-09','2020-09-09','Malaysia','Paspor'),
+
+-- JAPAN (PASPOR)
+('TR1234567','aiko.tanaka@mail.com','2031-09-09','2021-09-09','Japan','Paspor'),
+('MS2345678','haruto.sato@mail.com','2030-05-05','2020-05-05','Japan','Paspor'),
+('TR3456789','yuki.nakamura@mail.com','2032-07-07','2022-07-07','Japan','Paspor'),
+('MS4567890','ren.takahashi@mail.com','2031-04-04','2021-04-04','Japan','Paspor'),
+('TR5678901','hina.kobayashi@mail.com','2033-08-08','2023-08-08','Japan','Paspor'),
+
+-- AUSTRALIA (PASPOR)
+('N1234567','sarah.williams@mail.com','2030-01-01','2020-01-01','Australia','Paspor'),
+('R2345678','james.smith@mail.com','2031-02-02','2021-02-02','Australia','Paspor'),
+('N3456789','emily.johnson@mail.com','2032-03-03','2022-03-03','Australia','Paspor'),
+('R4567890','oliver.brown@mail.com','2033-04-04','2023-04-04','Australia','Paspor'),
+('N5678901','ava.jones@mail.com','2031-05-05','2021-05-05','Australia','Paspor');
+
+INSERT INTO CLAIM_MISSING_MILES
+(email_member, email_staf, maskapai, bandara_asal, bandara_tujuan,
+tanggal_penerbangan, flight_number, nomor_tiket, kelas_kabin, pnr, status_penerimaan)
+VALUES
+('andika.pratama@mail.com',NULL,'GA','CGK','DPS','2026-01-10','GA201','TK001','Economy','PNR001','Menunggu'),
+('siti.nurhaliza@mail.com',NULL,'GA','CGK','SIN','2026-01-12','GA822','TK002','Business','PNR002','Menunggu'),
+('budi.santoso@mail.com',NULL,'QG','CGK','SUB','2026-01-15','QG301','TK003','Economy','PNR003','Menunggu'),
+('dewi.lestari@mail.com',NULL,'JT','CGK','KUL','2026-01-18','JT122','TK004','First','PNR004','Menunggu'),
+('rizky.firmansyah@mail.com',NULL,'ID','CGK','DPS','2026-01-20','ID715','TK005','Economy','PNR005','Menunggu'),
+
+('putri.ayu@mail.com',NULL,'SJ','SUB','CGK','2026-01-22','SJ901','TK006','Business','PNR006','Menunggu'),
+('fajar.hidayat@mail.com',NULL,'GA','DPS','CGK','2026-01-25','GA403','TK007','Economy','PNR007','Menunggu'),
+('amelia.safitri@mail.com',NULL,'QG','CGK','SIN','2026-01-27','QG555','TK008','Economy','PNR008','Menunggu'),
+('dimas.anggara@mail.com',NULL,'JT','CGK','BKK','2026-02-01','JT888','TK009','Business','PNR009','Menunggu'),
+('tiara.anindya@mail.com',NULL,'ID','CGK','KUL','2026-02-03','ID220','TK010','Economy','PNR010','Menunggu'),
+
+('galih.prakoso@mail.com',NULL,'GA','CGK','NRT','2026-02-05','GA874','TK011','First','PNR011','Menunggu'),
+('intan.permata@mail.com',NULL,'QG','SUB','DPS','2026-02-08','QG110','TK012','Economy','PNR012','Menunggu'),
+('yoga.saputra@mail.com',NULL,'JT','CGK','SYD','2026-02-10','JT777','TK013','Business','PNR013','Menunggu'),
+('nabila.khansa@mail.com',NULL,'SJ','CGK','SIN','2026-02-12','SJ111','TK014','Economy','PNR014','Menunggu'),
+('arif.setiawan@mail.com',NULL,'GA','CGK','LHR','2026-02-14','GA900','TK015','First','PNR015','Menunggu'),
+
+('lina.marlina@mail.com',NULL,'ID','DPS','CGK','2026-02-16','ID330','TK016','Economy','PNR016','Menunggu'),
+('farhan.akbar@mail.com',NULL,'QG','CGK','SUB','2026-02-18','QG220','TK017','Economy','PNR017','Menunggu'),
+('ratna.sari@mail.com',NULL,'JT','CGK','HKG','2026-02-20','JT600','TK018','Business','PNR018','Menunggu'),
+('kevin.sanjaya@mail.com',NULL,'GA','CGK','DXB','2026-02-22','GA990','TK019','First','PNR019','Menunggu'),
+('citra.dewanti@mail.com',NULL,'SJ','SUB','CGK','2026-02-25','SJ333','TK020','Economy','PNR020','Menunggu');
+
+
+INSERT INTO AWARD_MILES_PACKAGE
+(harga_paket, jumlah_award_miles)
+VALUES
+(250000, 1000),
+(500000, 2500),
+(900000, 5000),
+(1500000, 10000),
+(2500000, 20000);
