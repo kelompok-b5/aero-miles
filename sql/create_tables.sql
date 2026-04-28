@@ -74,7 +74,7 @@ CREATE TABLE IDENTITAS (
     nomor VARCHAR(50) PRIMARY KEY,
     email_member VARCHAR(100) NOT NULL,
     tanggal_habis DATE NOT NULL,
-    tanggal_terbit DATE NOT NULL,
+    tanggal_terbit DATE NOT NULL CHECK (tanggal_habis > tanggal_terbit),
     negara_penerbit VARCHAR(50) NOT NULL,
     jenis VARCHAR(30) NOT NULL CHECK (jenis IN ('Paspor', 'KTP', 'SIM')),
     FOREIGN KEY (email_member) REFERENCES MEMBER(email) ON DELETE CASCADE
@@ -84,7 +84,7 @@ CREATE TABLE CLAIM_MISSING_MILES (
     id SERIAL PRIMARY KEY,
     email_member VARCHAR(100) NOT NULL,
     email_staf VARCHAR(100), 
-      maskapai VARCHAR(10) NOT NULL,
+    maskapai VARCHAR(10) NOT NULL,
     bandara_asal VARCHAR(3) NOT NULL,
     bandara_tujuan VARCHAR(3) NOT NULL,
     tanggal_penerbangan DATE NOT NULL,
@@ -99,13 +99,13 @@ CREATE TABLE CLAIM_MISSING_MILES (
     FOREIGN KEY (maskapai) REFERENCES MASKAPAI(kode_maskapai),
     FOREIGN KEY (bandara_asal) REFERENCES BANDARA(iata_code),
     FOREIGN KEY (bandara_tujuan) REFERENCES BANDARA(iata_code),
-    UNIQUE (email_member, flight_number, tanggal_penerbangan, nomor_tiket)
+    UNIQUE (email_member, flight_number, tanggal_penerbangan, nomor_tiket);
 )
 
 CREATE SEQUENCE seq_amp START 1;
 
 CREATE TABLE AWARD_MILES_PACKAGE (
     id VARCHAR(20) PRIMARY KEY DEFAULT 'AMP-' || LPAD(nextval('seq_amp')::TEXT, 3, '0'),
-    harga_paket DECIMAL(15, 2) NOT NULL,
-    jumlah_award_miles INT NOT NULL
+    harga_paket DECIMAL(15, 2) NOT NULL CHECK (harga_paket > 0),
+    jumlah_award_miles INT NOT NULL CHECK (jumlah_award_miles > 0),
 );
