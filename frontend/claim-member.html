@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Klaim Miles — AeroMiles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --muted: #6b8499;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar { background: var(--navy); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(61,191,191,0.15); box-shadow: 0 4px 24px rgba(13,33,55,0.18); }
+    .navbar-inner { max-width:1280px; margin:0 auto; padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:62px; }
+    .navbar-brand { display:flex; align-items:center; gap:0.6rem; text-decoration:none; }
+    .brand-icon { width:34px; height:34px; background:var(--teal); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; color:var(--navy); flex-shrink:0; }
+    .brand-name { font-size:1.05rem; font-weight:800; color:white; letter-spacing:-0.02em; }
+    .brand-name span { color:var(--teal); }
+    .nav-links { display:flex; align-items:center; gap:0.15rem; }
+    .nav-link { color:rgba(255,255,255,0.6); font-size:0.78rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:8px; text-decoration:none; transition:all 0.18s; white-space:nowrap; }
+    .nav-link:hover { color:white; background:rgba(255,255,255,0.08); }
+    .nav-link.active { color:var(--teal); background:rgba(61,191,191,0.1); }
+    .nav-right { display:flex; align-items:center; gap:0.5rem; }
+    .user-pill { display:flex; align-items:center; gap:0.55rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.35rem 0.75rem 0.35rem 0.45rem; cursor:pointer; }
+    .user-avatar { width:26px; height:26px; border-radius:7px; background:var(--teal); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:var(--navy); }
+    .user-name { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.85); }
+    .user-role { font-size:0.63rem; color:rgba(255,255,255,0.4); }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; padding:0.5rem; border-radius:8px; color:rgba(255,255,255,0.7); }
+    .mobile-menu { display:none; background:var(--navy2); border-top:1px solid rgba(61,191,191,0.1); }
+    .mobile-menu.open { display:block; }
+    .mobile-menu a { display:block; padding:0.75rem 2rem; font-size:0.82rem; font-weight:500; color:rgba(255,255,255,0.65); text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .mobile-menu a.active { color:var(--teal); }
+    .dropdown-wrap { position:relative; }
+    .dropdown-menu { position:absolute; right:0; top:calc(100% + 8px); background:white; border-radius:12px; min-width:160px; box-shadow:0 16px 40px rgba(13,33,55,0.18); border:1.5px solid #e8f0f5; overflow:hidden; display:none; flex-direction:column; z-index:100; }
+    .dropdown-menu.open { display:flex; }
+    .dropdown-item { padding:0.7rem 1rem; font-size:0.8rem; font-weight:500; color:var(--navy); cursor:pointer; display:flex; align-items:center; gap:0.5rem; text-decoration:none; border-bottom:1px solid #f0f5f8; transition:background 0.15s; }
+    .dropdown-item:last-child { border-bottom:none; }
+    .dropdown-item:hover { background:#f0f8fb; }
+    .dropdown-item.danger { color:#e05252; }
+    .dropdown-item.danger:hover { background:#fff5f5; }
+    @media (max-width: 900px) { .nav-links { display:none; } .hamburger { display:flex; } }
+
+    /* ===== HERO ===== */
+    .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2rem 2rem 3.5rem; position:relative; overflow:hidden; }
+    .hero-strip::before { content:''; position:absolute; right:-60px; top:-60px; width:300px; height:300px; border-radius:50%; background:rgba(61,191,191,0.08); }
+    .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+    .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
+    .miles-pill { background:rgba(255,255,255,0.08); border:1px solid rgba(61,191,191,0.3); border-radius:16px; padding:1rem 1.5rem; text-align:right; }
+    .miles-pill .label { font-size:0.7rem; color:rgba(255,255,255,0.5); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:4px; }
+    .miles-pill .value { font-size:1.6rem; font-weight:800; color:var(--teal); }
+    .miles-pill .unit { font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+    /* ===== CONTENT ===== */
+    .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+
+    /* TABS */
+    .tabs-wrap { background:white; border-radius:16px 16px 0 0; padding:0 1.5rem; display:flex; border-bottom:1.5px solid #e8f0f5; }
+    .tab-btn { background:none; border:none; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; color:var(--muted); padding:1rem 1.25rem; border-bottom:2.5px solid transparent; margin-bottom:-1.5px; transition:all 0.18s; white-space:nowrap; }
+    .tab-btn.active { color:var(--navy); border-bottom-color:var(--teal); }
+    .tab-btn:hover { color:var(--navy); }
+    .panels-wrap { background:white; border-radius:0 0 16px 16px; padding:1.5rem; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* FILTER BAR */
+    .filter-bar { display:flex; gap:0.75rem; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; }
+    .filter-select { background:white; border:1.5px solid #d8eaf3; border-radius:10px; padding:0.5rem 0.9rem; font-family:inherit; font-size:0.8rem; color:var(--navy); cursor:pointer; outline:none; transition:border-color 0.18s; }
+    .filter-select:focus { border-color:var(--teal); }
+    .filter-label { font-size:0.78rem; font-weight:600; color:var(--muted); }
+
+    /* TABLE */
+    .table-wrap { border-radius:12px; overflow:hidden; border:1.5px solid #e8f0f5; }
+    table { width:100%; border-collapse:collapse; }
+    thead { background:var(--navy); }
+    th { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; padding:0.9rem 1.25rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; }
+    td { padding:0.9rem 1.25rem; font-size:0.83rem; color:var(--navy); border-bottom:1px solid #f0f5f8; vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f7fbfd; }
+    .time-cell { color:var(--muted); font-size:0.78rem; }
+
+    /* STATUS BADGES */
+    .badge { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.72rem; font-weight:700; padding:0.25rem 0.7rem; border-radius:20px; letter-spacing:0.03em; }
+    .badge-wait { background:rgba(240,165,0,0.1); color:#c47a00; border:1px solid rgba(240,165,0,0.3); }
+    .badge-ok { background:rgba(39,169,108,0.1); color:#1a8a55; border:1px solid rgba(39,169,108,0.3); }
+    .badge-reject { background:rgba(224,82,82,0.1); color:#c03030; border:1px solid rgba(224,82,82,0.3); }
+
+    /* ACTION BUTTONS */
+    .btn-action { border:none; cursor:pointer; font-family:inherit; font-size:0.72rem; font-weight:700; padding:0.35rem 0.75rem; border-radius:7px; transition:all 0.18s; }
+    .btn-edit { background:rgba(61,191,191,0.1); color:var(--teal); }
+    .btn-edit:hover { background:rgba(61,191,191,0.2); }
+    .btn-delete { background:rgba(224,82,82,0.1); color:#e05252; }
+    .btn-delete:hover { background:rgba(224,82,82,0.2); }
+    .btn-disabled { opacity:0.4; cursor:not-allowed; }
+
+    /* FORM */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { display:flex; flex-direction:column; gap:0.4rem; }
+    .form-group.full { grid-column:1 / -1; }
+    label { font-size:0.78rem; font-weight:600; color:var(--navy); }
+    label span { color:#e05252; }
+    .form-control { background:white; border:1.5px solid #d8eaf3; border-radius:10px; padding:0.6rem 0.9rem; font-family:inherit; font-size:0.83rem; color:var(--navy); outline:none; transition:border-color 0.18s; width:100%; }
+    .form-control:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(61,191,191,0.1); }
+    .form-hint { font-size:0.72rem; color:var(--muted); }
+    .btn-submit { background:var(--teal); color:white; border:none; padding:0.7rem 2rem; border-radius:10px; font-family:inherit; font-size:0.85rem; font-weight:700; cursor:pointer; transition:all 0.18s; }
+    .btn-submit:hover { background:var(--teal-light); transform:translateY(-1px); }
+    .btn-cancel-form { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.7rem 1.5rem; border-radius:10px; font-family:inherit; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.18s; }
+    .btn-cancel-form:hover { border-color:#aabbc8; color:var(--navy); }
+    .form-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid #eef3f7; }
+    .section-title { font-size:0.9rem; font-weight:700; color:var(--navy); margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; }
+    .section-divider { height:1.5px; background:#eef3f7; margin:1.5rem 0; }
+    .nomor-klaim-badge { font-size:0.68rem; font-weight:700; color:var(--teal); background:rgba(61,191,191,0.1); border:1px solid rgba(61,191,191,0.3); padding:0.2rem 0.6rem; border-radius:6px; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:white; border-radius:20px; width:460px; max-width:92vw; overflow:hidden; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes popIn { from{opacity:0;transform:scale(0.92) translateY(16px);}to{opacity:1;transform:none;} }
+    .modal-head { background:var(--navy); padding:1.5rem 1.75rem; }
+    .modal-head h3 { color:white; font-size:1rem; font-weight:700; }
+    .modal-head p { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
+    .modal-head.danger { background:#c03030; }
+    .modal-body { padding:1.5rem 1.75rem; }
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0; border-bottom:1px solid #f0f5f8; font-size:0.83rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--muted); }
+    .info-val { font-weight:600; color:var(--navy); }
+    .modal-actions { display:flex; gap:0.75rem; padding:0 1.75rem 1.5rem; justify-content:flex-end; }
+    .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
+    .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
+    .btn-konfirm { background:var(--teal); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-konfirm:hover { background:var(--teal-light); }
+    .btn-konfirm-danger { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-konfirm-danger:hover { background:#c03030; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; right:2rem; z-index:200; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--teal); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); }
+    .toast.show { transform:none; opacity:1; }
+    .toast.error { border-left-color:#e05252; }
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:0.85rem; }
+
+    @media (max-width:640px) { .form-grid { grid-template-columns:1fr; } .hero-inner { flex-direction:column; gap:1rem; align-items:flex-start; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="#" class="navbar-brand">
+      <div class="brand-icon">✈</div>
+      <span class="brand-name">Aero<span>Miles</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard-member.html" class="nav-link">Dashboard</a>
+      <a href="identitas.html" class="nav-link">Identitas Saya</a>
+      <a href="claim-member.html" class="nav-link active">Klaim Miles</a>
+      <a href="transfer-miles.html" class="nav-link">Transfer Miles</a>
+      <a href="redeem-hadiah.html" class="nav-link">Redeem Hadiah</a>
+      <a href="beli-package.html" class="nav-link">Beli Package</a>
+      <a href="info-tier.html" class="nav-link">Info Tier</a>
+    </div>
+    <div class="nav-right">
+      <div class="dropdown-wrap">
+        <div class="user-pill" onclick="toggleDropdown('dd-user')">
+          <div class="user-avatar">AH</div>
+          <div>
+            <div class="user-name">Ahmad Hidayat</div>
+            <div class="user-role">Gold · M0042</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown-menu" id="dd-user">
+          <a href="profil.html" class="dropdown-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Pengaturan Profil
+          </a>
+          <a href="login.html" class="dropdown-item danger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </a>
+        </div>
+      </div>
+      <button class="hamburger" onclick="toggleMobile('mobile-nav')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-nav">
+    <a href="dashboard-member.html">Dashboard</a>
+    <a href="identitas.html">Identitas Saya</a>
+    <a href="claim-member.html" class="active">Klaim Miles</a>
+    <a href="transfer-miles.html">Transfer Miles</a>
+    <a href="redeem-hadiah.html">Redeem Hadiah</a>
+    <a href="beli-package.html">Beli Package</a>
+    <a href="info-tier.html">Info Tier</a>
+    <a href="profil.html">Pengaturan Profil</a>
+    <a href="login.html" style="color:#e05252;">Logout</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-title">Klaim Missing Miles</div>
+      <div class="hero-sub">Ajukan klaim untuk miles penerbangan yang belum tercatat otomatis</div>
+    </div>
+    <div class="miles-pill">
+      <div class="label">Award Miles Tersedia</div>
+      <div class="value" id="miles-display">32,000</div>
+      <div class="unit">miles</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="tabs-wrap">
+    <button class="tab-btn active" onclick="switchTab('riwayat',this)">↩ &nbsp;Riwayat Klaim</button>
+    <button class="tab-btn" onclick="switchTab('ajukan',this)">＋ &nbsp;Ajukan Klaim Baru</button>
+  </div>
+  <div class="panels-wrap">
+
+    <!-- ===== TAB RIWAYAT ===== -->
+    <div id="tab-riwayat" class="tab-panel active">
+      <!-- Filter -->
+      <div class="filter-bar">
+        <span class="filter-label">Filter Status:</span>
+        <select class="filter-select" id="filter-status" onchange="renderRiwayat()">
+          <option value="">Semua Status</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Disetujui">Disetujui</option>
+          <option value="Ditolak">Ditolak</option>
+        </select>
+      </div>
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No. Klaim</th>
+              <th>Maskapai</th>
+              <th>Rute</th>
+              <th>Tgl Penerbangan</th>
+              <th>Flight No.</th>
+              <th>Kelas</th>
+              <th>Status</th>
+              <th>Diajukan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="riwayat-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TAB AJUKAN KLAIM ===== -->
+    <div id="tab-ajukan" class="tab-panel">
+      <div class="section-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        <span id="form-title">Ajukan Klaim Baru</span>
+      </div>
+      <form onsubmit="submitKlaim(event)" id="klaim-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Maskapai <span>*</span></label>
+            <select class="form-control" id="maskapai" required>
+              <option value="">-- Pilih Maskapai --</option>
+              <option value="GA">Garuda Indonesia (GA)</option>
+              <option value="QG">Citilink (QG)</option>
+              <option value="JT">Lion Air (JT)</option>
+              <option value="SJ">Sriwijaya Air (SJ)</option>
+              <option value="ID">Batik Air (ID)</option>
+              <option value="QZ">AirAsia Indonesia (QZ)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kelas Kabin <span>*</span></label>
+            <select class="form-control" id="kelas_kabin" required>
+              <option value="">-- Pilih Kelas --</option>
+              <option value="Economy">Economy</option>
+              <option value="Business">Business</option>
+              <option value="First">First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bandara Asal <span>*</span></label>
+            <select class="form-control" id="bandara_asal" required>
+              <option value="">-- Pilih Bandara Asal --</option>
+              <option value="CGK">CGK — Soekarno-Hatta, Jakarta</option>
+              <option value="DPS">DPS — Ngurah Rai, Bali</option>
+              <option value="SUB">SUB — Juanda, Surabaya</option>
+              <option value="UPG">UPG — Sultan Hasanuddin, Makassar</option>
+              <option value="KNO">KNO — Kualanamu, Medan</option>
+              <option value="BPN">BPN — Sultan Aji Muhammad Sulaiman, Balikpapan</option>
+              <option value="SIN">SIN — Changi, Singapura</option>
+              <option value="KUL">KUL — KLIA, Kuala Lumpur</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bandara Tujuan <span>*</span></label>
+            <select class="form-control" id="bandara_tujuan" required>
+              <option value="">-- Pilih Bandara Tujuan --</option>
+              <option value="CGK">CGK — Soekarno-Hatta, Jakarta</option>
+              <option value="DPS">DPS — Ngurah Rai, Bali</option>
+              <option value="SUB">SUB — Juanda, Surabaya</option>
+              <option value="UPG">UPG — Sultan Hasanuddin, Makassar</option>
+              <option value="KNO">KNO — Kualanamu, Medan</option>
+              <option value="BPN">BPN — Sultan Aji Muhammad Sulaiman, Balikpapan</option>
+              <option value="SIN">SIN — Changi, Singapura</option>
+              <option value="KUL">KUL — KLIA, Kuala Lumpur</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tanggal Penerbangan <span>*</span></label>
+            <input type="date" class="form-control" id="tanggal_penerbangan" required/>
+          </div>
+          <div class="form-group">
+            <label>Flight Number <span>*</span></label>
+            <input type="text" class="form-control" id="flight_number" placeholder="Contoh: GA-405" maxlength="10" required/>
+          </div>
+          <div class="form-group">
+            <label>Nomor Tiket <span>*</span></label>
+            <input type="text" class="form-control" id="nomor_tiket" placeholder="Contoh: 126-1234567890" maxlength="20" required/>
+          </div>
+          <div class="form-group">
+            <label>PNR <span>*</span></label>
+            <input type="text" class="form-control" id="pnr" placeholder="Contoh: ABCD12" maxlength="10" required/>
+            <span class="form-hint">Passenger Name Record — 6 karakter alphanumerik</span>
+          </div>
+        </div>
+        <input type="hidden" id="edit-id" value=""/>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel-form" onclick="resetForm()">Batal</button>
+          <button type="submit" class="btn-submit" id="submit-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:0.35rem;vertical-align:middle;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Ajukan Klaim
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DELETE KONFIRMASI -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-head danger">
+      <h3>Batalkan Klaim?</h3>
+      <p>Tindakan ini tidak dapat diurungkan</p>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:0.85rem;color:var(--muted);line-height:1.6;">
+        Anda akan membatalkan klaim <strong id="delete-klaim-id" style="color:var(--navy);"></strong>. Klaim yang dibatalkan akan dihapus dari sistem secara permanen.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" onclick="closeModal('modal-delete')">Urungkan</button>
+      <button class="btn-konfirm-danger" onclick="eksekusiDelete()">Ya, Batalkan Klaim</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
+
+<script>
+  // ===== DATA DUMMY =====
+  let klaimList = [
+    { id: 1, maskapai:'GA', bandara_asal:'CGK', bandara_tujuan:'DPS', tanggal_penerbangan:'2025-03-10', flight_number:'GA-401', nomor_tiket:'126-9876543210', kelas_kabin:'Business', pnr:'XYZ123', status_penerimaan:'Disetujui', timestamp:'2025-03-12 09:14:22' },
+    { id: 2, maskapai:'JT', bandara_asal:'SUB', bandara_tujuan:'CGK', tanggal_penerbangan:'2025-04-01', flight_number:'JT-692', nomor_tiket:'997-1122334455', kelas_kabin:'Economy', pnr:'PQR456', status_penerimaan:'Menunggu', timestamp:'2025-04-03 14:20:05' },
+    { id: 3, maskapai:'QG', bandara_asal:'DPS', bandara_tujuan:'SUB', tanggal_penerbangan:'2025-03-25', flight_number:'QG-800', nomor_tiket:'890-5566778899', kelas_kabin:'Economy', pnr:'LMN789', status_penerimaan:'Ditolak', timestamp:'2025-03-27 11:45:33' },
+  ];
+  let nextId = 4;
+  let deleteTargetId = null;
+
+  const MASKAPAI_LABEL = { GA:'Garuda Indonesia', QG:'Citilink', JT:'Lion Air', SJ:'Sriwijaya Air', ID:'Batik Air', QZ:'AirAsia Indonesia' };
+
+  function renderRiwayat() {
+    const tbody = document.getElementById('riwayat-body');
+    const filter = document.getElementById('filter-status').value;
+    const filtered = filter ? klaimList.filter(k => k.status_penerimaan === filter) : klaimList;
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Tidak ada data klaim.${filter ? ' Coba ubah filter.' : ''}</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(k => {
+      const canEdit = k.status_penerimaan === 'Menunggu';
+      const badgeClass = k.status_penerimaan === 'Menunggu' ? 'badge-wait' : k.status_penerimaan === 'Disetujui' ? 'badge-ok' : 'badge-reject';
+      const dot = k.status_penerimaan === 'Menunggu' ? '●' : k.status_penerimaan === 'Disetujui' ? '✓' : '✕';
+      return `<tr>
+        <td><span class="nomor-klaim-badge">CLM-${String(k.id).padStart(4,'0')}</span></td>
+        <td><strong>${k.maskapai}</strong><br><span style="font-size:0.72rem;color:var(--muted);">${MASKAPAI_LABEL[k.maskapai]||k.maskapai}</span></td>
+        <td style="white-space:nowrap;">${k.bandara_asal} → ${k.bandara_tujuan}</td>
+        <td>${k.tanggal_penerbangan}</td>
+        <td style="font-weight:600;">${k.flight_number}</td>
+        <td>${k.kelas_kabin}</td>
+        <td><span class="badge ${badgeClass}">${dot} ${k.status_penerimaan}</span></td>
+        <td class="time-cell">${k.timestamp}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn-action btn-edit ${canEdit?'':'btn-disabled'}" onclick="${canEdit?`editKlaim(${k.id})`:''}" ${canEdit?'':'disabled'} title="${canEdit?'Edit klaim':'Klaim sudah diproses, tidak dapat diedit'}">✎ Edit</button>
+          &nbsp;
+          <button class="btn-action btn-delete ${canEdit?'':'btn-disabled'}" onclick="${canEdit?`openDeleteModal(${k.id})`:''}" ${canEdit?'':'disabled'} title="${canEdit?'Batalkan klaim':'Klaim sudah diproses'}">✕ Batal</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function submitKlaim(e) {
+    e.preventDefault();
+    const asal = document.getElementById('bandara_asal').value;
+    const tujuan = document.getElementById('bandara_tujuan').value;
+    if (asal === tujuan) { showToast('Bandara asal dan tujuan tidak boleh sama!', true); return; }
+
+    const editId = document.getElementById('edit-id').value;
+    const data = {
+      maskapai: document.getElementById('maskapai').value,
+      bandara_asal: asal,
+      bandara_tujuan: tujuan,
+      tanggal_penerbangan: document.getElementById('tanggal_penerbangan').value,
+      flight_number: document.getElementById('flight_number').value,
+      nomor_tiket: document.getElementById('nomor_tiket').value,
+      kelas_kabin: document.getElementById('kelas_kabin').value,
+      pnr: document.getElementById('pnr').value,
+    };
+
+    if (editId) {
+      const idx = klaimList.findIndex(k => k.id === parseInt(editId));
+      if (idx !== -1) {
+        klaimList[idx] = { ...klaimList[idx], ...data };
+        showToast('Klaim CLM-' + String(klaimList[idx].id).padStart(4,'0') + ' berhasil diperbarui!');
+      }
+    } else {
+      const now = new Date().toISOString().replace('T',' ').slice(0,19);
+      klaimList.unshift({ id: nextId++, ...data, status_penerimaan:'Menunggu', timestamp: now });
+      showToast('Klaim berhasil diajukan! Status: Menunggu verifikasi.');
+    }
+    resetForm();
+    switchTab('riwayat', document.querySelector('.tab-btn'));
+    renderRiwayat();
+  }
+
+  function editKlaim(id) {
+    const k = klaimList.find(x => x.id === id);
+    if (!k || k.status_penerimaan !== 'Menunggu') return;
+    document.getElementById('maskapai').value = k.maskapai;
+    document.getElementById('kelas_kabin').value = k.kelas_kabin;
+    document.getElementById('bandara_asal').value = k.bandara_asal;
+    document.getElementById('bandara_tujuan').value = k.bandara_tujuan;
+    document.getElementById('tanggal_penerbangan').value = k.tanggal_penerbangan;
+    document.getElementById('flight_number').value = k.flight_number;
+    document.getElementById('nomor_tiket').value = k.nomor_tiket;
+    document.getElementById('pnr').value = k.pnr;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('form-title').textContent = 'Edit Klaim — CLM-' + String(id).padStart(4,'0');
+    document.getElementById('submit-btn').textContent = 'Simpan Perubahan';
+    switchTab('ajukan', document.querySelectorAll('.tab-btn')[1]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    document.getElementById('klaim-form').reset();
+    document.getElementById('edit-id').value = '';
+    document.getElementById('form-title').textContent = 'Ajukan Klaim Baru';
+    document.getElementById('submit-btn').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:0.35rem;vertical-align:middle;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>Ajukan Klaim';
+  }
+
+  function openDeleteModal(id) {
+    deleteTargetId = id;
+    document.getElementById('delete-klaim-id').textContent = 'CLM-' + String(id).padStart(4,'0');
+    document.getElementById('modal-delete').classList.add('open');
+  }
+
+  function eksekusiDelete() {
+    klaimList = klaimList.filter(k => k.id !== deleteTargetId);
+    closeModal('modal-delete');
+    renderRiwayat();
+    showToast('Klaim CLM-' + String(deleteTargetId).padStart(4,'0') + ' berhasil dibatalkan.');
+    deleteTargetId = null;
+  }
+
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+  function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
+  document.addEventListener('click', e => { if (!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open')); });
+
+  function showToast(msg, err=false) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.className = 'toast' + (err?' error':'');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3400);
+  }
+
+  // Batasi tanggal penerbangan maks hari ini
+  document.getElementById('tanggal_penerbangan').max = new Date().toISOString().split('T')[0];
+
+  renderRiwayat();
+</script>
+</body>
+</html>
