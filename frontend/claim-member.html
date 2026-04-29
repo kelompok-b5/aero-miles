@@ -13,6 +13,7 @@
       --navy: #0d2137; --navy2: #163352;
       --teal: #3dbfbf; --teal-light: #5fd6d6;
       --muted: #6b8499;
+      --gold: #f0a500;
     }
 
     /* ===== NAVBAR ===== */
@@ -76,23 +77,45 @@
     .filter-label { font-size:0.78rem; font-weight:600; color:var(--muted); }
 
     /* TABLE */
-    .table-wrap { border-radius:12px; overflow:hidden; border:1.5px solid #e8f0f5; }
-    table { width:100%; border-collapse:collapse; }
+    .table-wrap { border-radius:12px; overflow-x:auto; border:1.5px solid #e8f0f5; }
+    table { width:100%; border-collapse:collapse; min-width: 900px; }
     thead { background:var(--navy); }
-    th { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; padding:0.9rem 1.25rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; }
+    th { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; padding:0.9rem 1.25rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; white-space: nowrap; }
     td { padding:0.9rem 1.25rem; font-size:0.83rem; color:var(--navy); border-bottom:1px solid #f0f5f8; vertical-align:middle; }
     tr:last-child td { border-bottom:none; }
     tr:hover td { background:#f7fbfd; }
-    .time-cell { color:var(--muted); font-size:0.78rem; }
+    .time-cell { color:var(--muted); font-size:0.78rem; white-space: nowrap; }
+
+    /* NOMOR KLAIM BADGE */
+    .nomor-klaim-badge { 
+      font-size:0.68rem; 
+      font-weight:700; 
+      color:var(--teal); 
+      background:rgba(61,191,191,0.1); 
+      border:1px solid rgba(61,191,191,0.3); 
+      padding:0.2rem 0.6rem; 
+      border-radius:6px; 
+      white-space: nowrap; 
+    }
 
     /* STATUS BADGES */
-    .badge { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.72rem; font-weight:700; padding:0.25rem 0.7rem; border-radius:20px; letter-spacing:0.03em; }
+    .badge { 
+      display:inline-flex; 
+      align-items:center; 
+      gap:0.3rem; 
+      font-size:0.72rem; 
+      font-weight:700; 
+      padding:0.25rem 0.7rem; 
+      border-radius:20px; 
+      letter-spacing:0.03em; 
+      white-space: nowrap; 
+    }
     .badge-wait { background:rgba(240,165,0,0.1); color:#c47a00; border:1px solid rgba(240,165,0,0.3); }
     .badge-ok { background:rgba(39,169,108,0.1); color:#1a8a55; border:1px solid rgba(39,169,108,0.3); }
     .badge-reject { background:rgba(224,82,82,0.1); color:#c03030; border:1px solid rgba(224,82,82,0.3); }
 
     /* ACTION BUTTONS */
-    .btn-action { border:none; cursor:pointer; font-family:inherit; font-size:0.72rem; font-weight:700; padding:0.35rem 0.75rem; border-radius:7px; transition:all 0.18s; }
+    .btn-action { border:none; cursor:pointer; font-family:inherit; font-size:0.72rem; font-weight:700; padding:0.35rem 0.75rem; border-radius:7px; transition:all 0.18s; white-space: nowrap; }
     .btn-edit { background:rgba(61,191,191,0.1); color:var(--teal); }
     .btn-edit:hover { background:rgba(61,191,191,0.2); }
     .btn-delete { background:rgba(224,82,82,0.1); color:#e05252; }
@@ -114,8 +137,6 @@
     .btn-cancel-form:hover { border-color:#aabbc8; color:var(--navy); }
     .form-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid #eef3f7; }
     .section-title { font-size:0.9rem; font-weight:700; color:var(--navy); margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; }
-    .section-divider { height:1.5px; background:#eef3f7; margin:1.5rem 0; }
-    .nomor-klaim-badge { font-size:0.68rem; font-weight:700; color:var(--teal); background:rgba(61,191,191,0.1); border:1px solid rgba(61,191,191,0.3); padding:0.2rem 0.6rem; border-radius:6px; }
 
     /* MODAL */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; }
@@ -134,8 +155,6 @@
     .modal-actions { display:flex; gap:0.75rem; padding:0 1.75rem 1.5rem; justify-content:flex-end; }
     .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
     .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
-    .btn-konfirm { background:var(--teal); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
-    .btn-konfirm:hover { background:var(--teal-light); }
     .btn-konfirm-danger { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
     .btn-konfirm-danger:hover { background:#c03030; }
 
@@ -150,7 +169,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="#" class="navbar-brand">
@@ -205,7 +223,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero-strip">
   <div class="hero-inner">
     <div>
@@ -220,7 +237,6 @@
   </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
   <div class="tabs-wrap">
     <button class="tab-btn active" onclick="switchTab('riwayat',this)">↩ &nbsp;Riwayat Klaim</button>
@@ -228,9 +244,7 @@
   </div>
   <div class="panels-wrap">
 
-    <!-- ===== TAB RIWAYAT ===== -->
     <div id="tab-riwayat" class="tab-panel active">
-      <!-- Filter -->
       <div class="filter-bar">
         <span class="filter-label">Filter Status:</span>
         <select class="filter-select" id="filter-status" onchange="renderRiwayat()">
@@ -240,7 +254,6 @@
           <option value="Ditolak">Ditolak</option>
         </select>
       </div>
-      <!-- Table -->
       <div class="table-wrap">
         <table>
           <thead>
@@ -261,7 +274,6 @@
       </div>
     </div>
 
-    <!-- ===== TAB AJUKAN KLAIM ===== -->
     <div id="tab-ajukan" class="tab-panel">
       <div class="section-title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -349,7 +361,6 @@
   </div>
 </div>
 
-<!-- MODAL DELETE KONFIRMASI -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal">
     <div class="modal-head danger">
@@ -368,11 +379,9 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
 
 <script>
-  // ===== DATA DUMMY =====
   let klaimList = [
     { id: 1, maskapai:'GA', bandara_asal:'CGK', bandara_tujuan:'DPS', tanggal_penerbangan:'2025-03-10', flight_number:'GA-401', nomor_tiket:'126-9876543210', kelas_kabin:'Business', pnr:'XYZ123', status_penerimaan:'Disetujui', timestamp:'2025-03-12 09:14:22' },
     { id: 2, maskapai:'JT', bandara_asal:'SUB', bandara_tujuan:'CGK', tanggal_penerbangan:'2025-04-01', flight_number:'JT-692', nomor_tiket:'997-1122334455', kelas_kabin:'Economy', pnr:'PQR456', status_penerimaan:'Menunggu', timestamp:'2025-04-03 14:20:05' },
@@ -509,9 +518,7 @@
     setTimeout(() => t.classList.remove('show'), 3400);
   }
 
-  // Batasi tanggal penerbangan maks hari ini
   document.getElementById('tanggal_penerbangan').max = new Date().toISOString().split('T')[0];
-
   renderRiwayat();
 </script>
 </body>
