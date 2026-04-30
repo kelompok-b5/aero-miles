@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kelola Klaim — AeroMiles Staf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --muted: #6b8499;
+      --gold: #f0a500;
+    }
+
+    /* ===== NAVBAR STAF ===== */
+    .navbar { background: linear-gradient(90deg,var(--navy),var(--navy2)); position:sticky; top:0; z-index:50; border-bottom:1px solid rgba(240,165,0,0.2); box-shadow:0 4px 24px rgba(13,33,55,0.2); }
+    .navbar-inner { max-width:1280px; margin:0 auto; padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:62px; }
+    .navbar-brand { display:flex; align-items:center; gap:0.6rem; text-decoration:none; }
+    .brand-icon { width:34px; height:34px; background:var(--gold); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; color:white; flex-shrink:0; }
+    .brand-name { font-size:1.05rem; font-weight:800; color:white; letter-spacing:-0.02em; }
+    .brand-name span { color:var(--gold); }
+    .brand-badge { font-size:0.58rem; font-weight:700; background:rgba(240,165,0,0.15); border:1px solid rgba(240,165,0,0.3); color:var(--gold); border-radius:5px; padding:0.1rem 0.45rem; letter-spacing:0.07em; vertical-align:middle; margin-left:0.35rem; }
+    .nav-links { display:flex; align-items:center; gap:0.15rem; }
+    .nav-link { color:rgba(255,255,255,0.6); font-size:0.78rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:8px; text-decoration:none; transition:all 0.18s; white-space:nowrap; }
+    .nav-link:hover { color:white; background:rgba(255,255,255,0.08); }
+    .nav-link.active { color:var(--gold); background:rgba(240,165,0,0.1); }
+    .nav-right { display:flex; align-items:center; gap:0.5rem; }
+    .user-pill { display:flex; align-items:center; gap:0.55rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.35rem 0.75rem 0.35rem 0.45rem; cursor:pointer; }
+    .user-avatar { width:26px; height:26px; border-radius:7px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:var(--navy); }
+    .user-name { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.85); }
+    .user-role { font-size:0.63rem; color:rgba(255,255,255,0.4); }
+    .dropdown-wrap { position:relative; }
+    .dropdown-menu { position:absolute; right:0; top:calc(100% + 8px); background:white; border-radius:12px; min-width:180px; box-shadow:0 16px 40px rgba(13,33,55,0.18); border:1.5px solid #e8f0f5; overflow:hidden; display:none; flex-direction:column; z-index:100; }
+    .dropdown-menu.open { display:flex; }
+    .dropdown-item { padding:0.75rem 1rem; font-size:0.8rem; font-weight:500; color:var(--navy); cursor:pointer; display:flex; align-items:center; gap:0.6rem; text-decoration:none; border-bottom:1px solid #f0f5f8; transition:background 0.15s; }
+    .dropdown-item:last-child { border-bottom:none; }
+    .dropdown-item:hover { background:#f0f8fb; }
+    .dropdown-item.danger { color:#e05252; }
+    .dropdown-item.danger:hover { background:#fff5f5; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; padding:0.5rem; border-radius:8px; color:rgba(255,255,255,0.7); }
+    .mobile-menu { display:none; background:var(--navy2); border-top:1px solid rgba(240,165,0,0.1); }
+    .mobile-menu.open { display:block; }
+    .mobile-menu a { display:block; padding:0.75rem 2rem; font-size:0.82rem; font-weight:500; color:rgba(255,255,255,0.65); text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .mobile-menu a.active { color:var(--gold); }
+    @media (max-width:1000px) { .nav-links { display:none; } .hamburger { display:flex; } }
+
+    /* HERO */
+    .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2rem 2rem 3.5rem; position:relative; overflow:hidden; }
+    .hero-strip::before { content:''; position:absolute; right:-40px; top:-80px; width:280px; height:280px; border-radius:50%; background:rgba(240,165,0,0.06); }
+    .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+    .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
+
+    /* STATS CARDS */
+    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .stat-card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:1rem 1.25rem; }
+    .stat-num { font-size:1.8rem; font-weight:800; color:white; }
+    .stat-label { font-size:0.72rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+    .stat-num.gold { color:var(--gold); }
+    .stat-num.green { color:#5ddb9a; }
+    .stat-num.red { color:#ff7c7c; }
+
+    /* CONTENT */
+    .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+
+    /* FILTER PANEL */
+    .filter-panel { background:white; border-radius:16px 16px 0 0; padding:1.25rem 1.5rem; border-bottom:1.5px solid #e8f0f5; }
+    .filter-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; }
+    .filter-label { font-size:0.78rem; font-weight:600; color:var(--muted); white-space:nowrap; }
+    .filter-select, .filter-input { background:white; border:1.5px solid #d8eaf3; border-radius:10px; padding:0.5rem 0.9rem; font-family:inherit; font-size:0.8rem; color:var(--navy); cursor:pointer; outline:none; transition:border-color 0.18s; }
+    .filter-select:focus, .filter-input:focus { border-color:var(--teal); }
+    .filter-input { cursor:text; min-width:150px; }
+    .filter-divider { width:1.5px; height:24px; background:#e8f0f5; }
+    .btn-reset { background:none; border:1.5px solid #d8eaf3; border-radius:10px; padding:0.5rem 1rem; font-family:inherit; font-size:0.78rem; font-weight:600; color:var(--muted); cursor:pointer; transition:all 0.18s; }
+    .btn-reset:hover { border-color:#aabbc8; color:var(--navy); }
+
+    /* TABLE */
+    .table-panel { background:white; border-radius:0 0 16px 16px; overflow:hidden; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; min-width:900px; }
+    thead { background:var(--navy); }
+    th { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; padding:0.9rem 1.1rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; white-space:nowrap; }
+    td { padding:0.9rem 1.1rem; font-size:0.82rem; color:var(--navy); border-bottom:1px solid #f0f5f8; vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f7fbfd; }
+    .time-cell { color:var(--muted); font-size:0.75rem; }
+    .email-cell { font-size:0.75rem; color:var(--muted); }
+    .nomor-klaim-badge { font-size:0.68rem; font-weight:700; color:var(--teal); background:rgba(61,191,191,0.1); border:1px solid rgba(61,191,191,0.3); padding:0.2rem 0.6rem; border-radius:6px; white-space:nowrap; }
+
+    /* STATUS */
+    .badge { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.72rem; font-weight:700; padding:0.25rem 0.7rem; border-radius:20px; white-space:nowrap; }
+    .badge-wait { background:rgba(240,165,0,0.1); color:#c47a00; border:1px solid rgba(240,165,0,0.3); }
+    .badge-ok { background:rgba(39,169,108,0.1); color:#1a8a55; border:1px solid rgba(39,169,108,0.3); }
+    .badge-reject { background:rgba(224,82,82,0.1); color:#c03030; border:1px solid rgba(224,82,82,0.3); }
+
+    /* ACTION */
+    .btn-process { background:var(--teal); color:white; border:none; padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:700; transition:all 0.18s; white-space:nowrap; }
+    .btn-process:hover { background:var(--teal-light); }
+    .btn-processed { background:#e8f0f5; color:var(--muted); border:none; padding:0.4rem 0.9rem; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:default; white-space:nowrap; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding: 20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { 
+      background:white; 
+      border-radius:20px; 
+      width:480px; 
+      max-width:100%; 
+      max-height: 90vh; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); 
+    }
+    @keyframes popIn { from{opacity:0;transform:scale(0.92) translateY(16px);}to{opacity:1;transform:none;} }
+    .modal-head { background:var(--navy); padding:1.5rem 1.75rem; flex-shrink: 0; }
+    .modal-head h3 { color:white; font-size:1rem; font-weight:700; }
+    .modal-head p { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
+    
+    .modal-body-scroll { 
+      overflow-y: auto; /* Aktifkan scroll hanya di bagian konten */
+      flex: 1; 
+      padding: 0;
+    }
+    
+    .modal-body { padding:1.5rem 1.75rem; }
+    .info-row { display:flex; justify-content:space-between; align-items:flex-start; padding:0.65rem 0; border-bottom:1px solid #f0f5f8; font-size:0.83rem; gap:1rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--muted); white-space:nowrap; flex-shrink:0; }
+    .info-val { font-weight:600; color:var(--navy); text-align:right; }
+    
+    .modal-footer { flex-shrink: 0; background: #fff; border-top: 1.5px solid #f0f5f8; }
+    .status-select-wrap { padding:1.25rem 1.75rem 0.5rem; }
+    .status-select-label { font-size:0.78rem; font-weight:700; color:var(--navy); margin-bottom:0.5rem; }
+    .status-btn-group { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .btn-setujui { background:rgba(39,169,108,0.1); border:2px solid transparent; color:#1a8a55; padding:0.8rem; border-radius:12px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-setujui:hover, .btn-setujui.selected { background:#1a8a55; color:white; border-color:#1a8a55; }
+    .btn-tolak { background:rgba(224,82,82,0.1); border:2px solid transparent; color:#c03030; padding:0.8rem; border-radius:12px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-tolak:hover, .btn-tolak.selected { background:#e05252; color:white; border-color:#e05252; }
+    .modal-actions { display:flex; gap:0.75rem; padding:0.5rem 1.75rem 1.5rem; justify-content:flex-end; }
+    .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
+    .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
+    .btn-konfirm { background:var(--navy); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; opacity:0.4; }
+    .btn-konfirm.ready { opacity:1; }
+    .btn-konfirm.ready:hover { background:var(--navy2); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; right:2rem; z-index:200; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--gold); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); }
+    .toast.show { transform:none; opacity:1; }
+    .toast.teal { border-left-color:var(--teal); }
+    .empty-state { text-align:center; padding:3rem; color:var(--muted); font-size:0.85rem; }
+    .pagination { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; background:white; border-top:1.5px solid #f0f5f8; border-radius:0 0 16px 16px; }
+    .page-info { font-size:0.78rem; color:var(--muted); }
+    .page-btns { display:flex; gap:0.4rem; }
+    .page-btn { background:none; border:1.5px solid #d8eaf3; border-radius:8px; padding:0.35rem 0.75rem; font-family:inherit; font-size:0.78rem; font-weight:600; color:var(--muted); cursor:pointer; transition:all 0.18s; }
+    .page-btn.active { background:var(--navy); color:white; border-color:var(--navy); }
+    .page-btn:hover:not(.active) { border-color:var(--teal); color:var(--navy); }
+    @media (max-width:640px) { .stats-row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="#" class="navbar-brand">
+      <div class="brand-icon">✈</div>
+      <span class="brand-name">Aero<span>Miles</span><span class="brand-badge">STAF</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard-staf.html" class="nav-link">Dashboard</a>
+      <a href="kelola-member.html" class="nav-link">Kelola Member</a>
+      <a href="claim-staff.html" class="nav-link active">Kelola Klaim</a>
+      <a href="kelola-hadiah.html" class="nav-link">Kelola Hadiah & Penyedia</a>
+      <a href="kelola-mitra.html" class="nav-link">Kelola Mitra</a>
+      <a href="laporan-transaksi.html" class="nav-link">Laporan Transaksi</a>
+    </div>
+    <div class="nav-right">
+      <div class="dropdown-wrap">
+        <div class="user-pill" onclick="toggleDropdown('dd-staf')">
+          <div class="user-avatar">SR</div>
+          <div>
+            <div class="user-name">Siti Rahayu</div>
+            <div class="user-role">Staf · staf@aeromiles.id</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown-menu" id="dd-staf">
+          <a href="profile-staf.html" class="dropdown-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Pengaturan Profil
+          </a>
+          <a href="login.html" class="dropdown-item danger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </a>
+        </div>
+      </div>
+      <button class="hamburger" onclick="toggleMobile('mobile-nav')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-nav">
+    <a href="dashboard-staf.html">Dashboard</a>
+    <a href="kelola-member.html">Kelola Member</a>
+    <a href="claim-staf.html" class="active">Kelola Klaim</a>
+    <a href="kelola-hadiah.html">Kelola Hadiah & Penyedia</a>
+    <a href="kelola-mitra.html">Kelola Mitra</a>
+    <a href="laporan.html">Laporan Transaksi</a>
+    <a href="profile-staf.html">Pengaturan Profil</a>
+    <a href="login.html" style="color:#e05252;">Logout</a>
+  </div>
+</nav>
+
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-title">Kelola Klaim Missing Miles</div>
+      <div class="hero-sub">Proses dan verifikasi klaim miles dari seluruh Member</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num gold" id="stat-menunggu">0</div>
+        <div class="stat-label">Menunggu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num green" id="stat-disetujui">0</div>
+        <div class="stat-label">Disetujui</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num red" id="stat-ditolak">0</div>
+        <div class="stat-label">Ditolak</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="filter-panel">
+    <div class="filter-row">
+      <span class="filter-label">Filter:</span>
+      <select class="filter-select" id="f-status" onchange="applyFilter()">
+        <option value="">Semua Status</option>
+        <option value="Menunggu">Menunggu</option>
+        <option value="Disetujui">Disetujui</option>
+        <option value="Ditolak">Ditolak</option>
+      </select>
+      <select class="filter-select" id="f-maskapai" onchange="applyFilter()">
+        <option value="">Semua Maskapai</option>
+        <option value="GA">Garuda Indonesia (GA)</option>
+        <option value="QG">Citilink (QG)</option>
+        <option value="JT">Lion Air (JT)</option>
+        <option value="SJ">Sriwijaya Air (SJ)</option>
+        <option value="ID">Batik Air (ID)</option>
+        <option value="QZ">AirAsia (QZ)</option>
+      </select>
+      <div class="filter-divider"></div>
+      <span class="filter-label">Tgl Pengajuan:</span>
+      <input type="date" class="filter-input" id="f-dari" onchange="applyFilter()" placeholder="Dari"/>
+      <span style="font-size:0.78rem;color:var(--muted);">s/d</span>
+      <input type="date" class="filter-input" id="f-sampai" onchange="applyFilter()" placeholder="Sampai"/>
+      <button class="btn-reset" onclick="resetFilter()">Reset</button>
+    </div>
+  </div>
+
+  <div class="table-panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID Klaim</th>
+            <th>Member</th>
+            <th>Maskapai</th>
+            <th>Rute</th>
+            <th>Tgl Penerbangan</th>
+            <th>Flight</th>
+            <th>Kelas</th>
+            <th>Tgl Pengajuan</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="klaim-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span class="page-info" id="page-info">Menampilkan 0 dari 0 klaim</span>
+      <div class="page-btns" id="page-btns"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-proses">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Proses Klaim</h3>
+      <p>Tinjau detail klaim dan tentukan keputusan</p>
+    </div>
+    
+    <div class="modal-body-scroll">
+      <div class="modal-body" id="modal-detail">
+        </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="status-select-wrap">
+        <div class="status-select-label">Keputusan Klaim <span style="color:#e05252">*</span></div>
+        <div class="status-btn-group">
+          <button class="btn-setujui" id="btn-setujui" onclick="selectStatus('Disetujui')">
+            ✓ &nbsp;Setujui Klaim
+          </button>
+          <button class="btn-tolak" id="btn-tolak" onclick="selectStatus('Ditolak')">
+            ✕ &nbsp;Tolak Klaim
+          </button>
+        </div>
+        <div id="status-note" style="margin-top:0.75rem;font-size:0.75rem;color:var(--muted);display:none;"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-batal" onclick="closeModal()">Batal</button>
+        <button class="btn-konfirm" id="btn-konfirm" onclick="eksekusiProses()">Konfirmasi Keputusan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">★</span><span id="toast-msg"></span></div>
+
+<script>
+  const STAF_EMAIL = 'siti.rahayu@aeromiles.id';
+  const MASKAPAI_LABEL = { GA:'Garuda Indonesia', QG:'Citilink', JT:'Lion Air', SJ:'Sriwijaya Air', ID:'Batik Air', QZ:'AirAsia Indonesia' };
+
+  let klaimList = [
+    { id:1, email_member:'ahmad@email.com', nama_member:'Ahmad Hidayat', maskapai:'GA', bandara_asal:'CGK', bandara_tujuan:'DPS', tanggal_penerbangan:'2025-03-10', flight_number:'GA-401', kelas_kabin:'Business', timestamp:'2025-03-12 09:14:22', status_penerimaan:'Disetujui', email_staf:'prev.staf@aeromiles.id' },
+    { id:2, email_member:'budi@email.com', nama_member:'Budi Santoso', maskapai:'JT', bandara_asal:'SUB', bandara_tujuan:'CGK', tanggal_penerbangan:'2025-04-01', flight_number:'JT-692', kelas_kabin:'Economy', timestamp:'2025-04-03 14:20:05', status_penerimaan:'Menunggu', email_staf:null },
+    { id:3, email_member:'citra@email.com', nama_member:'Citra Dewi', maskapai:'QG', bandara_asal:'DPS', bandara_tujuan:'SUB', tanggal_penerbangan:'2025-03-25', flight_number:'QG-800', kelas_kabin:'Economy', timestamp:'2025-03-27 11:45:33', status_penerimaan:'Ditolak', email_staf:'prev.staf@aeromiles.id' },
+    { id:4, email_member:'dedi@email.com', nama_member:'Dedi Kurniawan', maskapai:'GA', bandara_asal:'CGK', bandara_tujuan:'KNO', tanggal_penerbangan:'2025-04-10', flight_number:'GA-180', kelas_kabin:'First', timestamp:'2025-04-12 08:30:00', status_penerimaan:'Menunggu', email_staf:null },
+    { id:5, email_member:'eka@email.com', nama_member:'Eka Putri', maskapai:'ID', bandara_asal:'UPG', bandara_tujuan:'CGK', tanggal_penerbangan:'2025-04-05', flight_number:'ID-6803', kelas_kabin:'Business', timestamp:'2025-04-07 16:00:12', status_penerimaan:'Menunggu', email_staf:null },
+  ];
+
+  let filteredList = [...klaimList];
+  let selectedStatus = null;
+  let prosesTargetId = null;
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+
+  function updateStats() {
+    document.getElementById('stat-menunggu').textContent = klaimList.filter(k=>k.status_penerimaan==='Menunggu').length;
+    document.getElementById('stat-disetujui').textContent = klaimList.filter(k=>k.status_penerimaan==='Disetujui').length;
+    document.getElementById('stat-ditolak').textContent = klaimList.filter(k=>k.status_penerimaan==='Ditolak').length;
+  }
+
+  function applyFilter() {
+    const st = document.getElementById('f-status').value;
+    const mk = document.getElementById('f-maskapai').value;
+    const dari = document.getElementById('f-dari').value;
+    const sampai = document.getElementById('f-sampai').value;
+    filteredList = klaimList.filter(k => {
+      if (st && k.status_penerimaan !== st) return false;
+      if (mk && k.maskapai !== mk) return false;
+      if (dari && k.timestamp.slice(0,10) < dari) return false;
+      if (sampai && k.timestamp.slice(0,10) > sampai) return false;
+      return true;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  function resetFilter() {
+    document.getElementById('f-status').value = '';
+    document.getElementById('f-maskapai').value = '';
+    document.getElementById('f-dari').value = '';
+    document.getElementById('f-sampai').value = '';
+    filteredList = [...klaimList];
+    currentPage = 1;
+    renderTable();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('klaim-tbody');
+    const total = filteredList.length;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = Math.min(start + PAGE_SIZE, total);
+    const pageData = filteredList.slice(start, end);
+
+    if (!total) {
+      tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Tidak ada data klaim yang sesuai filter.</td></tr>`;
+    } else {
+      tbody.innerHTML = pageData.map(k => {
+        const canProcess = k.status_penerimaan === 'Menunggu';
+        const badgeClass = k.status_penerimaan === 'Menunggu' ? 'badge-wait' : k.status_penerimaan === 'Disetujui' ? 'badge-ok' : 'badge-reject';
+        const dot = k.status_penerimaan === 'Menunggu' ? '●' : k.status_penerimaan === 'Disetujui' ? '✓' : '✕';
+        return `<tr>
+          <td><span class="nomor-klaim-badge">CLM-${String(k.id).padStart(4,'0')}</span></td>
+          <td>
+            <div style="font-weight:600;">${k.nama_member}</div>
+            <div class="email-cell">${k.email_member}</div>
+          </td>
+          <td><strong>${k.maskapai}</strong><br><span style="font-size:0.72rem;color:var(--muted);">${MASKAPAI_LABEL[k.maskapai]||k.maskapai}</span></td>
+          <td style="white-space:nowrap;font-weight:600;">${k.bandara_asal} → ${k.bandara_tujuan}</td>
+          <td>${k.tanggal_penerbangan}</td>
+          <td>${k.flight_number}</td>
+          <td>${k.kelas_kabin}</td>
+          <td class="time-cell">${k.timestamp}</td>
+          <td><span class="badge ${badgeClass}">${dot} ${k.status_penerimaan}</span></td>
+          <td>
+            ${canProcess
+              ? `<button class="btn-process" onclick="openProses(${k.id})">Proses</button>`
+              : `<button class="btn-processed" disabled>Selesai${k.email_staf ? '<br><span style="font-size:0.65rem;color:#aabbc8;">'+k.email_staf.split('@')[0]+'</span>' : ''}</button>`
+            }
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('page-info').textContent = total ? `Menampilkan ${start+1}–${end} dari ${total} klaim` : 'Tidak ada data';
+    renderPagination(total);
+    updateStats();
+  }
+
+  function renderPagination(total) {
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const wrap = document.getElementById('page-btns');
+    if (totalPages <= 1) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = Array.from({length:totalPages},(_,i)=>
+      `<button class="page-btn${currentPage===i+1?' active':''}" onclick="goPage(${i+1})">${i+1}</button>`
+    ).join('');
+  }
+
+  function goPage(p) { currentPage = p; renderTable(); }
+
+  function openProses(id) {
+    prosesTargetId = id;
+    selectedStatus = null;
+    document.getElementById('btn-setujui').classList.remove('selected');
+    document.getElementById('btn-tolak').classList.remove('selected');
+    document.getElementById('btn-konfirm').classList.remove('ready');
+    document.getElementById('status-note').style.display = 'none';
+    const k = klaimList.find(x => x.id === id);
+    document.getElementById('modal-detail').innerHTML = `
+      <div class="info-row"><span class="info-label">ID Klaim</span><span class="info-val"><span class="nomor-klaim-badge">CLM-${String(k.id).padStart(4,'0')}</span></span></div>
+      <div class="info-row"><span class="info-label">Member</span><span class="info-val">${k.nama_member}<br><span style="font-size:0.75rem;color:var(--muted);">${k.email_member}</span></span></div>
+      <div class="info-row"><span class="info-label">Maskapai</span><span class="info-val">${MASKAPAI_LABEL[k.maskapai]||k.maskapai} (${k.maskapai})</span></div>
+      <div class="info-row"><span class="info-label">Rute</span><span class="info-val">${k.bandara_asal} → ${k.bandara_tujuan}</span></div>
+      <div class="info-row"><span class="info-label">Tgl Penerbangan</span><span class="info-val">${k.tanggal_penerbangan}</span></div>
+      <div class="info-row"><span class="info-label">Flight Number</span><span class="info-val">${k.flight_number}</span></div>
+      <div class="info-row"><span class="info-label">Kelas Kabin</span><span class="info-val">${k.kelas_kabin}</span></div>
+      <div class="info-row"><span class="info-label">Tgl Pengajuan</span><span class="info-val">${k.timestamp}</span></div>
+    `;
+    document.getElementById('modal-proses').classList.add('open');
+  }
+
+  function selectStatus(s) {
+    selectedStatus = s;
+    document.getElementById('btn-setujui').classList.toggle('selected', s === 'Disetujui');
+    document.getElementById('btn-tolak').classList.toggle('selected', s === 'Ditolak');
+    document.getElementById('btn-konfirm').classList.add('ready');
+    const note = document.getElementById('status-note');
+    note.style.display = 'block';
+    note.textContent = s === 'Disetujui'
+      ? '✓ Miles akan otomatis ditambahkan ke akun Member setelah disetujui.'
+      : '⚠ Klaim akan ditolak. Member dapat melihat status terbaru di halaman mereka.';
+  }
+
+  function eksekusiProses() {
+    if (!selectedStatus) return;
+    const idx = klaimList.findIndex(k => k.id === prosesTargetId);
+    if (idx !== -1) {
+      klaimList[idx].status_penerimaan = selectedStatus;
+      klaimList[idx].email_staf = STAF_EMAIL;
+    }
+    closeModal();
+    filteredList = filteredList.map(k => k.id === prosesTargetId ? { ...k, status_penerimaan: selectedStatus, email_staf: STAF_EMAIL } : k);
+    renderTable();
+    const icon = selectedStatus === 'Disetujui' ? '✓' : '✕';
+    const color = selectedStatus === 'Disetujui' ? 'teal' : '';
+    showToast(`${icon} Klaim CLM-${String(prosesTargetId).padStart(4,'0')} berhasil ${selectedStatus === 'Disetujui' ? 'disetujui' : 'ditolak'}.`, color);
+    prosesTargetId = null;
+    selectedStatus = null;
+  }
+
+  function closeModal() { document.getElementById('modal-proses').classList.remove('open'); }
+  function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+  function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
+  document.addEventListener('click', e => { if (!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open')); });
+
+  function showToast(msg, cls='') {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.className = 'toast' + (cls ? ' '+cls : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3400);
+  }
+
+  filteredList = [...klaimList];
+  renderTable();
+</script>
+</body>
+</html>
