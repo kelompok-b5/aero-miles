@@ -1,14 +1,14 @@
 const NAV_ITEMS = {
   member: [
-    { key: 'dashboard',         label: 'Dashboard',          href: 'dashboard-member.html' },
-    { key: 'identitas',         label: 'Identitas Saya',     href: 'identitas.html'        },
-    { key: 'klaim-miles',       label: 'Klaim Miles',        href: 'claim-member.html'     },
-    { key: 'transfer-miles',    label: 'Transfer Miles',     href: 'transfer-miles.html'   },
-    { key: 'redeem-hadiah',     label: 'Redeem Hadiah',      href: 'redeem-hadiah.html'    },
-    { key: 'beli-package',      label: 'Beli Package',       href: 'beli-package.html'     },
-    { key: 'info-tier',         label: 'Info Tier',          href: 'info-tier.html'        },
+    { key: 'dashboard',      label: 'Dashboard',      href: '/member/dashboard/' },
+    { key: 'identitas',      label: 'Identitas Saya', href: '/member/identitas/' },
+    { key: 'klaim-miles',    label: 'Klaim Miles',    href: '/member/claim/' },
+    { key: 'transfer-miles', label: 'Transfer Miles', href: '/member/transfer-miles/' },
+    { key: 'redeem-hadiah',  label: 'Redeem Hadiah',  href: '/member/redeem-hadiah/' },
+    { key: 'beli-package',   label: 'Beli Package',   href: '/member/beli-package/' },
+    { key: 'info-tier',      label: 'Info Tier',      href: '/member/info-tier/' },
   ],
-  staf: [
+  staff: [
     { key: 'dashboard',          label: 'Dashboard',                href: 'dashboard-staf.html'      },
     { key: 'kelola-member',      label: 'Kelola Member',            href: 'kelola-member.html'       },
     { key: 'kelola-klaim',       label: 'Kelola Klaim',             href: 'claim-staff.html'         },
@@ -45,8 +45,8 @@ const CSS = `
     background: var(--navy);
     border-bottom: 1px solid rgba(61,191,191,0.15);
   }
-  /* ── STAF ────────────────────────────── */
-  nav.staf {
+  /* ── STAFF ────────────────────────────── */
+  nav.staff {
     background: linear-gradient(90deg, var(--navy), var(--navy2));
     border-bottom: 1px solid rgba(240,165,0,0.2);
   }
@@ -81,12 +81,12 @@ const CSS = `
     font-size: 1.1rem; font-weight: 800;
   }
   nav.member .brand-icon, nav.guest .brand-icon { background: var(--teal); color: var(--navy); }
-  nav.staf   .brand-icon                        { background: var(--gold); color: white;       }
+  nav.staff   .brand-icon                        { background: var(--gold); color: white;       }
   .brand-name {
     font-size: 1.05rem; font-weight: 800; color: white; letter-spacing: -0.02em;
   }
   nav.member .brand-accent, nav.guest .brand-accent { color: var(--teal); }
-  nav.staf   .brand-accent                          { color: var(--gold); }
+  nav.staff   .brand-accent                          { color: var(--gold); }
   .brand-badge {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.07em;
     background: rgba(240,165,0,0.15); border: 1px solid rgba(240,165,0,0.3);
@@ -114,7 +114,7 @@ const CSS = `
   }
   .link:hover { color: white; background: rgba(255,255,255,0.08); }
   nav.member .link.active { color: var(--teal); background: rgba(61,191,191,0.1); }
-  nav.staf   .link.active { color: var(--gold); background: rgba(240,165,0,0.1);  }
+  nav.staff   .link.active { color: var(--gold); background: rgba(240,165,0,0.1);  }
 
   /* right side */
   .right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
@@ -149,7 +149,7 @@ const CSS = `
     font-size: 0.65rem; font-weight: 800;
   }
   nav.member .avatar, nav.guest .avatar { background: var(--teal); color: var(--navy); }
-  nav.staf   .avatar                    { background: var(--gold); color: var(--navy); }
+  nav.staff   .avatar                    { background: var(--gold); color: var(--navy); }
   .uname { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85); }
   .urole { font-size: 0.63rem; color: rgba(255,255,255,0.4); }
   .chevron { flex-shrink: 0; transition: transform 0.2s; }
@@ -190,7 +190,7 @@ const CSS = `
     background: var(--navy2);
     border-top: 1px solid rgba(61,191,191,0.1);
   }
-  nav.staf .mobile-menu {
+  nav.staff .mobile-menu {
     background: var(--navy2);
     border-top: 1px solid rgba(240,165,0,0.1);
   }
@@ -203,7 +203,7 @@ const CSS = `
   }
   .mobile-link:hover { color: white; background: rgba(255,255,255,0.05); }
   nav.member .mobile-link.active { color: var(--teal); }
-  nav.staf   .mobile-link.active { color: var(--gold); }
+  nav.staff   .mobile-link.active { color: var(--gold); }
   .mobile-link.logout { color: #e05252; }
 
   @media (max-width: 900px) {
@@ -246,7 +246,7 @@ class AeroNavbar extends HTMLElement {
     const role = this._role;
     if (role === 'guest')  return this._navGuest();
     if (role === 'member') return this._navMember();
-    if (role === 'staf')   return this._navStaf();
+    if (role === 'staff')   return this._navStaff();
     return '';
   }
 
@@ -315,24 +315,24 @@ class AeroNavbar extends HTMLElement {
     `;
   }
 
-  // ──────────────── STAF ────────────────
-  _navStaf() {
+  // ──────────────── STAFF ────────────────
+  _navStaff() {
     const user = this._user || { nama: 'Siti Nurhaliza', singkatan: 'SN', sub: 'Staff · siti.nurhaliza@mail.com' };
-    const links = NAV_ITEMS.staf.map(item => `
+    const links = NAV_ITEMS.staff.map(item => `
       <a class="link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
     `).join('');
-    const mobileLinks = NAV_ITEMS.staf.map(item => `
+    const mobileLinks = NAV_ITEMS.staff.map(item => `
       <a class="mobile-link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
     `).join('');
 
     return `
-      <nav class="staf">
+      <nav class="staff">
         <div class="inner">
-          ${this._brand('staf')}
+          ${this._brand('staff')}
           <div class="links">${links}</div>
           <div class="right">
             <div class="user-pill" data-toggle="dropdown">
@@ -343,7 +343,7 @@ class AeroNavbar extends HTMLElement {
               </div>
               ${this._chevron()}
               <div class="dropdown" data-dropdown>
-                <a class="dd-item" href="profile-staf.html">
+                <a class="dd-item" href="profile-staff.html">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
                 <a class="dd-item danger" href="login.html" data-logout>
@@ -358,7 +358,7 @@ class AeroNavbar extends HTMLElement {
         </div>
         <div class="mobile-menu" data-mobile>
           ${mobileLinks}
-          <a class="mobile-link" href="profile-staf.html">Pengaturan Profil</a>
+          <a class="mobile-link" href="profile-staff.html">Pengaturan Profil</a>
           <a class="mobile-link logout" href="login.html">Logout</a>
         </div>
       </nav>
@@ -367,9 +367,9 @@ class AeroNavbar extends HTMLElement {
 
   // ──────────────── HELPERS ────────────────
   _brand(role) {
-    const badge = role === 'staf' ? '<span class="brand-badge">STAF</span>' : '';
+    const badge = role === 'staff' ? '<span class="brand-badge">STAFF</span>' : '';
     return `
-      <a class="brand" href="${role === 'staf' ? 'dashboard-staf.html' : role === 'member' ? 'dashboard-member.html' : 'index.html'}">
+      <a class="brand" href="${role === 'staff' ? 'dashboard-staff.html' : role === 'member' ? 'dashboard-member.html' : 'index.html'}">
         <div class="brand-icon">✈</div>
         <span class="brand-name">Aero<span class="brand-accent">Miles</span>${badge}</span>
       </a>

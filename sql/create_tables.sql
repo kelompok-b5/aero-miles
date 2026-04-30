@@ -112,15 +112,15 @@ CREATE TABLE CLAIM_MISSING_MILES (
     FOREIGN KEY (maskapai) REFERENCES MASKAPAI(kode_maskapai),
     FOREIGN KEY (bandara_asal) REFERENCES BANDARA(iata_code),
     FOREIGN KEY (bandara_tujuan) REFERENCES BANDARA(iata_code),
-    UNIQUE (email_member, flight_number, tanggal_penerbangan, nomor_tiket);
-)
+    UNIQUE (email_member, flight_number, tanggal_penerbangan, nomor_tiket)
+);
 
 CREATE SEQUENCE seq_amp START 1;
 
 CREATE TABLE AWARD_MILES_PACKAGE (
     id VARCHAR(20) PRIMARY KEY DEFAULT 'AMP-' || LPAD(nextval('seq_amp')::TEXT, 3, '0'),
     harga_paket DECIMAL(15, 2) NOT NULL CHECK (harga_paket > 0),
-    jumlah_award_miles INT NOT NULL CHECK (jumlah_award_miles > 0),
+    jumlah_award_miles INT NOT NULL CHECK (jumlah_award_miles > 0)
 );
 
 CREATE TABLE MEMBER_AWARD_MILES_PACKAGE (
