@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Management Member — AeroMiles</title>
+  <title>Management Member - AeroMiles</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../../statics/navbar-components.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -38,7 +38,7 @@
     .stat-label { font-size:0.72rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
     .stat-num.gold { color:var(--gold); }
     .stat-num.green { color:#5ddb9a; }
-    .stat-num.purple { color:#b39dfa; }
+    .stat-num.blue { color:#9dbcfa; }
 
     /* CONTENT */
     .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
@@ -89,10 +89,11 @@
 
     /* TIER BADGE */
     .tier-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.22rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
-    .tier-blue { background:#e8f4ff; color:#1a6fba; }
     .tier-silver { background:#f0f0f0; color:#555; }
     .tier-gold { background:#fff8e1; color:#c47d00; }
     .tier-platinum { background:#f3e8ff; color:#7c3aed; }
+    .tier-diamond { background:#e8f4ff; color:#1a6fba; }
+
 
     /* MILES */
     .miles-total { font-weight:700; color:var(--navy); }
@@ -169,7 +170,7 @@
   <div class="hero-inner">
     <div>
       <div class="hero-title">Kelola Member</div>
-      <div class="hero-sub">Masuk sebagai Mr. Admin Aero · Staf</div>
+      <div class="hero-sub">Atur informasi dan aktivitas member untuk mendukung operasional yang optimal</div>
     </div>
     <div class="stats-row">
       <div class="stat-card">
@@ -181,8 +182,8 @@
         <div class="stat-label">Aktif (Miles &gt; 0)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num purple" id="stat-platinum">0</div>
-        <div class="stat-label">Platinum</div>
+        <div class="stat-num blue" id="stat-diamond">0</div>
+        <div class="stat-label">Diamond</div>
       </div>
     </div>
   </div>
@@ -198,10 +199,10 @@
     </div>
     <select class="filter-select" id="filter-tier" onchange="renderTable()">
       <option value="">Semua Tier</option>
-      <option value="Blue">Blue</option>
       <option value="Silver">Silver</option>
       <option value="Gold">Gold</option>
       <option value="Platinum">Platinum</option>
+      <option value="Diamond">Diamond</option>
     </select>
     <button class="btn-tambah" onclick="openModalTambah()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -301,10 +302,10 @@
         <div class="form-group" id="f-tier-group">
           <label class="form-label">Tier</label>
           <select class="form-select" id="f-tier">
-            <option value="Blue">Blue</option>
             <option value="Silver">Silver</option>
             <option value="Gold">Gold</option>
             <option value="Platinum">Platinum</option>
+            <option value="Diamond">Diamond</option>
           </select>
         </div>
       </div>
@@ -336,23 +337,100 @@
 
 <script>
   let members = [
-    { email:'john@example.com', nomor:'M0001', salutation:'Mr.', fname:'John William', lname:'Doe', nation:'Indonesia', cc:'+62', phone:'81234567890', dob:'1990-05-15', tier:'Gold', total_miles:45000, award_miles:32000, tgl_bergabung:'2024-01-15' },
-    { email:'jane@example.com', nomor:'M0002', salutation:'Mrs.', fname:'Jane', lname:'Smith', nation:'Indonesia', cc:'+62', phone:'81234567891', dob:'1992-03-10', tier:'Silver', total_miles:20000, award_miles:15000, tgl_bergabung:'2024-03-10' },
-    { email:'budi@example.com', nomor:'M0003', salutation:'Mr.', fname:'Budi Anto', lname:'Santoso', nation:'Indonesia', cc:'+62', phone:'81234567892', dob:'1988-08-20', tier:'Blue', total_miles:5000, award_miles:3500, tgl_bergabung:'2024-06-20' },
-    { email:'johnnewton@gmail.com', nomor:'M0004', salutation:'Mr.', fname:'John', lname:'Lennon', nation:'United Kingdom', cc:'+44', phone:'7911123456', dob:'1976-12-01', tier:'Blue', total_miles:0, award_miles:0, tgl_bergabung:'2026-04-12' },
-    { email:'sari@example.com', nomor:'M0005', salutation:'Ms.', fname:'Sari', lname:'Dewi', nation:'Indonesia', cc:'+62', phone:'81298765432', dob:'1995-07-25', tier:'Platinum', total_miles:95000, award_miles:72000, tgl_bergabung:'2023-12-01' },
-  ];
+  // DIAMOND (1)
+  {
+    email: 'andika.pratama@mail.com',
+    nomor: 'M0001',
+    salutation: 'Mr.',
+    fname: 'Andika',
+    lname: 'Pratama',
+    nation: 'Indonesia',
+    cc: '+62',
+    phone: '81234567801',
+    dob: '1998-03-12',
+    tier: 'Diamond',
+    total_miles: 80000,
+    award_miles: 50000,
+    tgl_bergabung: '2022-01-15'
+  },
+
+  // PLATINUM (1)
+  {
+    email: 'budi.santoso@mail.com',
+    nomor: 'M0005',
+    salutation: 'Mr.',
+    fname: 'Budi',
+    lname: 'Santoso',
+    nation: 'Indonesia',
+    cc: '+62',
+    phone: '81234567803',
+    dob: '1995-01-10',
+    tier: 'Platinum',
+    total_miles: 30000,
+    award_miles: 20000,
+    tgl_bergabung: '2023-06-10'
+  },
+
+  // GOLD (1)
+  {
+    email: 'galih.prakoso@mail.com',
+    nomor: 'M0011',
+    salutation: 'Mr.',
+    fname: 'Galih',
+    lname: 'Prakoso',
+    nation: 'Indonesia',
+    cc: '+62',
+    phone: '81234567811',
+    dob: '1995-05-11',
+    tier: 'Gold',
+    total_miles: 20000,
+    award_miles: 15000,
+    tgl_bergabung: '2024-01-10'
+  },
+
+  // SILVER (2)
+  {
+    email: 'kevin.tan@mail.com',
+    nomor: 'M0021',
+    salutation: 'Mr.',
+    fname: 'Kevin',
+    lname: 'Tan',
+    nation: 'Singapore',
+    cc: '+65',
+    phone: '81234567',
+    dob: '1995-04-11',
+    tier: 'Silver',
+    total_miles: 8000,
+    award_miles: 6000,
+    tgl_bergabung: '2024-06-01'
+  },
+  {
+    email: 'grace.lim@mail.com',
+    nomor: 'M0022',
+    salutation: 'Ms.',
+    fname: 'Grace',
+    lname: 'Lim',
+    nation: 'Singapore',
+    cc: '+65',
+    phone: '82345678',
+    dob: '1996-06-12',
+    tier: 'Silver',
+    total_miles: 5000,
+    award_miles: 4000,
+    tgl_bergabung: '2024-06-02'
+  }
+];
 
   let editingEmail = null;
   let deletingEmail = null;
   let isEdit = false;
 
-  const tierClass = { Blue:'tier-blue', Silver:'tier-silver', Gold:'tier-gold', Platinum:'tier-platinum' };
+  const tierClass = { Silver:'tier-silver', Gold:'tier-gold', Platinum:'tier-platinum', Diamond:'tier-diamond' };
 
   function updateStats() {
     document.getElementById('stat-total').textContent = members.length;
     document.getElementById('stat-active').textContent = members.filter(m => m.total_miles > 0).length;
-    document.getElementById('stat-platinum').textContent = members.filter(m => m.tier === 'Platinum').length;
+    document.getElementById('stat-diamond').textContent = members.filter(m => m.tier === 'Diamond').length;
   }
 
   function renderTable() {

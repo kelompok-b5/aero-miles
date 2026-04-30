@@ -248,11 +248,11 @@ VALUES
 ('TR5678901','hina.kobayashi@mail.com','2033-08-08','2023-08-08','Japan','Paspor'),
 
 -- AUSTRALIA (PASPOR)
-('N1234567','sarah.williams@mail.com','2030-01-01','2020-01-01','Australia','Paspor'),
-('R2345678','james.smith@mail.com','2031-02-02','2021-02-02','Australia','Paspor'),
-('N3456789','emily.johnson@mail.com','2032-03-03','2022-03-03','Australia','Paspor'),
-('R4567890','oliver.brown@mail.com','2033-04-04','2023-04-04','Australia','Paspor'),
-('N5678901','ava.jones@mail.com','2031-05-05','2021-05-05','Australia','Paspor');
+('N1234567','cheryl.goh@mail.com','2030-01-01','2020-01-01','Australia','Paspor'),
+('R2345678','adrian.tay@mail.com','2031-02-02','2021-02-02','Australia','Paspor'),
+('N3456789','vanessa.koh@mail.com','2032-03-03','2022-03-03','Australia','Paspor'),
+('R4567890','ethan.chan@mail.com','2033-04-04','2023-04-04','Australia','Paspor'),
+('N5678901','olivia.teo@mail.com','2031-05-05','2021-05-05','Australia','Paspor');
 
 INSERT INTO CLAIM_MISSING_MILES
 (email_member, email_staf, maskapai, bandara_asal, bandara_tujuan,
