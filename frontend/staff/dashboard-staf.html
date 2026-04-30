@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — AeroMiles Staf</title>
+  <script src="../../statics/navbar-components.js" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --gold: #f0a500;
+      --muted: #6b8499;
+    }
+
+
+    /* HERO */
+    .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2.5rem 2rem 4rem; position:relative; overflow:hidden; }
+    .hero-strip::before { content:''; position:absolute; right:-60px; top:-60px; width:300px; height:300px; border-radius:50%; background:rgba(240,165,0,0.06); }
+    .hero-inner { max-width:1280px; margin:0 auto; position:relative; z-index:1; }
+    .hero-greeting { color:rgba(255,255,255,0.5); font-size:0.85rem; margin-bottom:0.35rem; }
+    .hero-name { color:white; font-size:1.75rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:1.75rem; }
+    .hero-name span { color:var(--gold); }
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    .stat-card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:1.1rem 1.3rem; backdrop-filter:blur(8px); transition:all 0.2s; }
+    .stat-card:hover { background:rgba(255,255,255,0.12); transform:translateY(-2px); }
+    .stat-label { font-size:0.68rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:6px; }
+    .stat-value { font-size:1.5rem; font-weight:800; color:white; line-height:1; }
+    .stat-value.gold { color:var(--gold); }
+    .stat-value.green { color:#5ddb9a; }
+    .stat-value.red { color:#ff7c7c; }
+    .stat-value.teal { color:var(--teal); }
+    .stat-sub { font-size:0.7rem; color:rgba(255,255,255,0.35); margin-top:4px; }
+    @media (max-width:768px) { .stats-row { grid-template-columns:repeat(2,1fr); } }
+
+    /* CONTENT */
+    .content { max-width:1280px; margin:-1.75rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+    .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    @media (max-width:900px) { .content-grid { grid-template-columns:1fr; } }
+
+    /* CARD */
+    .card { background:white; border-radius:16px; border:1.5px solid #e8f0f5; overflow:hidden; }
+    .card-head { padding:1.1rem 1.5rem; border-bottom:1.5px solid #f0f5f8; display:flex; justify-content:space-between; align-items:center; }
+    .card-title { font-size:0.88rem; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:0.5rem; }
+    .card-body { padding:1.25rem 1.5rem; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; }
+    .info-item label { font-size:0.7rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px; display:block; }
+    .info-item .val { font-size:0.88rem; font-weight:600; color:var(--navy); }
+
+    /* CLAIM SUMMARY */
+    .claim-row { display:flex; align-items:center; justify-content:space-between; padding:0.85rem 0; border-bottom:1px solid #f0f5f8; }
+    .claim-row:last-child { border-bottom:none; }
+    .claim-info { display:flex; align-items:center; gap:0.75rem; }
+    .claim-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .claim-dot.wait { background:#f0a500; }
+    .claim-dot.ok { background:#27a96c; }
+    .claim-dot.reject { background:#e05252; }
+    .claim-name { font-size:0.83rem; font-weight:600; color:var(--navy); }
+    .claim-sub { font-size:0.72rem; color:var(--muted); margin-top:1px; }
+    .claim-count { font-size:1.1rem; font-weight:800; }
+    .claim-count.wait { color:#f0a500; }
+    .claim-count.ok { color:#27a96c; }
+    .claim-count.reject { color:#e05252; }
+
+    .id-staf-chip { font-size:0.72rem; font-weight:700; color:var(--gold); background:rgba(240,165,0,0.1); border:1px solid rgba(240,165,0,0.3); padding:0.2rem 0.7rem; border-radius:6px; letter-spacing:0.05em; }
+    .link-btn { font-size:0.75rem; font-weight:600; color:var(--teal); text-decoration:none; display:flex; align-items:center; gap:0.3rem; transition:all 0.18s; }
+    .link-btn:hover { color:var(--teal-light); gap:0.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR STAF -->
+<aero-navbar role="staf" active="dashboard"></aero-navbar>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div class="hero-greeting">Masuk sebagai Dr. Sarah Williams · Staf</div>
+    <div class="hero-name">Selamat Datang, <span>Dr. Sarah Williams</span> 👋</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">ID Staf</div>
+        <div class="stat-value" style="font-size:1.2rem;letter-spacing:0.05em;">S0001</div>
+        <div class="stat-sub">Garuda Indonesia</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Klaim Menunggu</div>
+        <div class="stat-value gold" id="s-menunggu">2</div>
+        <div class="stat-sub">Seluruh staf</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Klaim Disetujui</div>
+        <div class="stat-value green" id="s-disetujui">1</div>
+        <div class="stat-sub">Oleh Anda</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Klaim Ditolak</div>
+        <div class="stat-value red" id="s-ditolak">1</div>
+        <div class="stat-sub">Oleh Anda</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="content-grid">
+
+    <!-- INFORMASI PRIBADI STAF -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Informasi Pribadi
+        </div>
+        <span class="id-staf-chip">S0001</span>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nama Lengkap</label>
+            <div class="val">Dr. Sarah Williams</div>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <div class="val">sarah.williams@mail.com</div>
+          </div>
+          <div class="info-item">
+            <label>Telepon</label>
+            <div class="val">+61 0412345678</div>
+          </div>
+          <div class="info-item">
+            <label>Kewarganegaraan</label>
+            <div class="val">Australia</div>
+          </div>
+          <div class="info-item">
+            <label>Tanggal Lahir</label>
+            <div class="val">01 Januari 1990</div>
+          </div>
+          <div class="info-item">
+            <label>Maskapai</label>
+            <div class="val">Garuda Indonesia (GA)</div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #f0f5f8;display:flex;justify-content:flex-end;">
+          <a href="profil-staf.html" class="link-btn">
+            Edit Profil
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RINGKASAN KLAIM -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+          Ringkasan Klaim Missing Miles
+        </div>
+        <a href="claim-staff.html" class="link-btn">Lihat Semua →</a>
+      </div>
+      <div class="card-body">
+        <div class="claim-row">
+          <div class="claim-info">
+            <div class="claim-dot wait"></div>
+            <div>
+              <div class="claim-name">Klaim Menunggu</div>
+              <div class="claim-sub">Belum diproses oleh staf manapun</div>
+            </div>
+          </div>
+          <div class="claim-count wait" id="c-menunggu">2</div>
+        </div>
+        <div class="claim-row">
+          <div class="claim-info">
+            <div class="claim-dot ok"></div>
+            <div>
+              <div class="claim-name">Klaim Disetujui</div>
+              <div class="claim-sub">Diproses & disetujui oleh Anda</div>
+            </div>
+          </div>
+          <div class="claim-count ok" id="c-disetujui">1</div>
+        </div>
+        <div class="claim-row">
+          <div class="claim-info">
+            <div class="claim-dot reject"></div>
+            <div>
+              <div class="claim-name">Klaim Ditolak</div>
+              <div class="claim-sub">Diproses & ditolak oleh Anda</div>
+            </div>
+          </div>
+          <div class="claim-count reject" id="c-ditolak">1</div>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #f0f5f8;">
+          <a href="claim-staff.html" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--navy);color:white;font-size:0.78rem;font-weight:700;padding:0.6rem 1.25rem;border-radius:10px;text-decoration:none;transition:all 0.18s;" onmouseover="this.style.background='#163352'" onmouseout="this.style.background='var(--navy)'">
+            Proses Klaim Menunggu
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+  function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+  });
+</script>
+</body>
+</html>

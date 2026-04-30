@@ -267,7 +267,7 @@ class AeroNavbar extends HTMLElement {
 
   // ──────────────── MEMBER ────────────────
   _navMember() {
-    const user = this._user || { nama: 'Ahmad Hidayat', singkatan: 'AH', sub: 'Gold · M0042' };
+    const user = this._user || { nama: 'Mr. Andika Pratama', singkatan: 'AP', sub: 'Diamond · M0001' };
     const links = NAV_ITEMS.member.map(item => `
       <a class="link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
@@ -317,7 +317,7 @@ class AeroNavbar extends HTMLElement {
 
   // ──────────────── STAF ────────────────
   _navStaf() {
-    const user = this._user || { nama: 'Siti Nurhaliza', singkatan: 'SN', sub: 'Staff · siti.nurhaliza@mail.com' };
+    const user = this._user || { nama: 'Dr. Sarah Williams', singkatan: 'SW', sub: 'Staff · sarah.williams@mail.com' };
     const links = NAV_ITEMS.staf.map(item => `
       <a class="link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
