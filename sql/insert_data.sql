@@ -152,6 +152,18 @@ INSERT INTO MASKAPAI (kode_maskapai, nama_maskapai, id_penyedia) VALUES
   ('SJ', 'Sriwijaya Air', 4),
   ('ID', 'Batik Air', 5);
 
+INSERT INTO STAF (email, id_staf, kode_maskapai) VALUES
+('sarah.williams@mail.com',  'S0001', 'GA'),
+('james.smith@mail.com',     'S0002', 'GA'),
+('emily.johnson@mail.com',   'S0003', 'QG'),
+('oliver.brown@mail.com',    'S0004', 'QG'),
+('ava.jones@mail.com',       'S0005', 'JT'),
+('noah.miller@mail.com',     'S0006', 'JT'),
+('mia.davis@mail.com',       'S0007', 'SJ'),
+('liam.garcia@mail.com',     'S0008', 'SJ'),
+('isabella.martin@mail.com', 'S0009', 'ID'),
+('lucas.thompson@mail.com',  'S0010', 'ID');
+
 INSERT INTO BANDARA (iata_code, nama, kota, negara) VALUES
   ('CGK', 'Soekarno-Hatta International Airport', 'Tangerang', 'Indonesia'),
   ('DPS', 'Ngurah Rai International Airport', 'Denpasar', 'Indonesia'),
@@ -279,3 +291,71 @@ VALUES
 (900000, 5000),
 (1500000, 10000),
 (2500000, 20000);
+
+INSERT INTO MEMBER_AWARD_MILES_PACKAGE
+(id_award_miles_package, email_member, timestamp)
+VALUES
+('AMP-001', 'andika.pratama@mail.com',   '2026-01-05 09:00:00'),
+('AMP-002', 'andika.pratama@mail.com',   '2026-01-10 10:30:00'),
+('AMP-003', 'siti.nurhaliza@mail.com',   '2026-01-12 11:00:00'),
+('AMP-004', 'siti.nurhaliza@mail.com',   '2026-01-15 14:00:00'),
+('AMP-005', 'budi.santoso@mail.com',     '2026-01-18 15:30:00'),
+('AMP-001', 'budi.santoso@mail.com',     '2026-01-20 09:00:00'),
+('AMP-002', 'dewi.lestari@mail.com',     '2026-01-22 10:00:00'),
+('AMP-003', 'dewi.lestari@mail.com',     '2026-01-25 11:00:00'),
+('AMP-004', 'rizky.firmansyah@mail.com', '2026-01-27 12:00:00'),
+('AMP-005', 'rizky.firmansyah@mail.com', '2026-01-29 13:00:00'),
+('AMP-001', 'fajar.hidayat@mail.com',    '2026-02-01 09:00:00'),
+('AMP-002', 'dimas.anggara@mail.com',    '2026-02-03 10:00:00'),
+('AMP-003', 'tiara.anindya@mail.com',    '2026-02-05 11:00:00'),
+('AMP-004', 'galih.prakoso@mail.com',    '2026-02-07 12:00:00'),
+('AMP-005', 'intan.permata@mail.com',    '2026-02-09 13:00:00'),
+('AMP-001', 'yoga.saputra@mail.com',     '2026-02-11 14:00:00'),
+('AMP-002', 'nabila.khansa@mail.com',    '2026-02-13 15:00:00'),
+('AMP-003', 'arif.setiawan@mail.com',    '2026-02-15 09:00:00'),
+('AMP-004', 'lina.marlina@mail.com',     '2026-02-17 10:00:00'),
+('AMP-005', 'farhan.akbar@mail.com',     '2026-02-19 11:00:00');
+
+INSERT INTO TRANSFER
+(email_member_1, email_member_2, timestamp, jumlah, catatan)
+VALUES
+('andika.pratama@mail.com', 'siti.nurhaliza@mail.com',  '2026-01-06 08:00:00', 5000,  'Hadiah ulang tahun'),
+('budi.santoso@mail.com',   'dewi.lestari@mail.com',    '2026-01-08 09:15:00', 3000,  'Bantuan miles'),
+('fajar.hidayat@mail.com',  'dimas.anggara@mail.com',   '2026-01-10 10:00:00', 7000,  'Transfer keluarga'),
+('rizky.firmansyah@mail.com','putri.ayu@mail.com',      '2026-01-12 11:30:00', 2500,  NULL),
+('amelia.safitri@mail.com', 'tiara.anindya@mail.com',   '2026-01-14 13:00:00', 4000,  'Berbagi miles'),
+('galih.prakoso@mail.com',  'intan.permata@mail.com',   '2026-01-16 14:00:00', 1500,  NULL),
+('yoga.saputra@mail.com',   'nabila.khansa@mail.com',   '2026-01-18 15:30:00', 2000,  'Transfer teman'),
+('arif.setiawan@mail.com',  'lina.marlina@mail.com',    '2026-01-20 16:00:00', 3500,  NULL),
+('farhan.akbar@mail.com',   'ratna.sari@mail.com',      '2026-01-22 09:00:00', 1000,  'Titip miles'),
+('kevin.sanjaya@mail.com',  'citra.dewanti@mail.com',   '2026-01-24 10:00:00', 4500,  NULL),
+('kevin.tan@mail.com',      'grace.lim@mail.com',       '2026-02-01 11:00:00', 2000,  'Transfer Singapore'),
+('daniel.ng@mail.com',      'michelle.lee@mail.com',    '2026-02-03 12:00:00', 1500,  NULL),
+('ahmad.firdaus@mail.com',  'nur.aisyah@mail.com',      '2026-02-05 13:00:00', 3000,  'Transfer Malaysia'),
+('aiko.tanaka@mail.com',    'haruto.sato@mail.com',     '2026-02-07 14:00:00', 2500,  NULL),
+('yuki.nakamura@mail.com',  'ren.takahashi@mail.com',   '2026-02-09 15:00:00', 1800,  'Transfer Japan');
+
+
+INSERT INTO REDEEM
+(email_member, kode_hadiah, timestamp)
+VALUES
+('andika.pratama@mail.com',  'RWD-001', '2026-01-07 09:00:00'),
+('siti.nurhaliza@mail.com',  'RWD-002', '2026-01-09 10:00:00'),
+('budi.santoso@mail.com',    'RWD-003', '2026-01-11 11:00:00'),
+('dewi.lestari@mail.com',    'RWD-004', '2026-01-13 12:00:00'),
+('rizky.firmansyah@mail.com','RWD-005', '2026-01-15 13:00:00'),
+('putri.ayu@mail.com',       'RWD-006', '2026-01-17 14:00:00'),
+('fajar.hidayat@mail.com',   'RWD-007', '2026-01-19 09:30:00'),
+('amelia.safitri@mail.com',  'RWD-008', '2026-01-21 10:30:00'),
+('dimas.anggara@mail.com',   'RWD-009', '2026-01-23 11:30:00'),
+('tiara.anindya@mail.com',   'RWD-010', '2026-01-25 12:30:00'),
+('galih.prakoso@mail.com',   'RWD-001', '2026-01-27 13:30:00'),
+('intan.permata@mail.com',   'RWD-002', '2026-01-29 14:30:00'),
+('yoga.saputra@mail.com',    'RWD-003', '2026-02-01 09:00:00'),
+('nabila.khansa@mail.com',   'RWD-004', '2026-02-03 10:00:00'),
+('arif.setiawan@mail.com',   'RWD-005', '2026-02-05 11:00:00'),
+('lina.marlina@mail.com',    'RWD-006', '2026-02-07 12:00:00'),
+('farhan.akbar@mail.com',    'RWD-007', '2026-02-09 13:00:00'),
+('ratna.sari@mail.com',      'RWD-008', '2026-02-11 14:00:00'),
+('kevin.sanjaya@mail.com',   'RWD-009', '2026-02-13 15:00:00'),
+('citra.dewanti@mail.com',   'RWD-010', '2026-02-15 16:00:00');

@@ -43,6 +43,18 @@ CREATE TABLE MASKAPAI (
     FOREIGN KEY (id_penyedia) REFERENCES PENYEDIA(id)
 );
 
+CREATE SEQUENCE staf_seq START 1;
+
+CREATE TABLE STAF (
+    email VARCHAR(100) PRIMARY KEY,
+    id_staf VARCHAR(20) NOT NULL UNIQUE DEFAULT (
+        'S' || LPAD(nextval('staf_seq')::TEXT, 4, '0')
+    ),
+    kode_maskapai VARCHAR(10) NOT NULL,
+    FOREIGN KEY (email) REFERENCES PENGGUNA(email) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (kode_maskapai) REFERENCES MASKAPAI(kode_maskapai)
+);
+
 CREATE TABLE BANDARA (
     iata_code CHAR(3) PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
@@ -109,4 +121,34 @@ CREATE TABLE AWARD_MILES_PACKAGE (
     id VARCHAR(20) PRIMARY KEY DEFAULT 'AMP-' || LPAD(nextval('seq_amp')::TEXT, 3, '0'),
     harga_paket DECIMAL(15, 2) NOT NULL CHECK (harga_paket > 0),
     jumlah_award_miles INT NOT NULL CHECK (jumlah_award_miles > 0),
+);
+
+CREATE TABLE MEMBER_AWARD_MILES_PACKAGE (
+    id_award_miles_package VARCHAR(20) NOT NULL,
+    email_member VARCHAR(100) NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id_award_miles_package, email_member, timestamp),
+    FOREIGN KEY (id_award_miles_package) REFERENCES AWARD_MILES_PACKAGE(id),
+    FOREIGN KEY (email_member) REFERENCES MEMBER(email) ON DELETE CASCADE
+);
+
+CREATE TABLE TRANSFER (
+    email_member_1 VARCHAR(100) NOT NULL,
+    email_member_2 VARCHAR(100) NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    jumlah INT NOT NULL CHECK (jumlah > 0),
+    catatan VARCHAR(255),
+    PRIMARY KEY (email_member_1, email_member_2, timestamp),
+    FOREIGN KEY (email_member_1) REFERENCES MEMBER(email) ON DELETE CASCADE,
+    FOREIGN KEY (email_member_2) REFERENCES MEMBER(email) ON DELETE CASCADE,
+    CHECK (email_member_1 <> email_member_2)
+);
+
+CREATE TABLE REDEEM (
+    email_member VARCHAR(100) NOT NULL,
+    kode_hadiah VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (email_member, kode_hadiah, timestamp),
+    FOREIGN KEY (email_member) REFERENCES MEMBER(email) ON DELETE CASCADE,
+    FOREIGN KEY (kode_hadiah) REFERENCES HADIAH(kode_hadiah)
 );
