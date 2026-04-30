@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Management Identitas — AeroMiles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../statics/navbar-components.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --muted: #6b8499;
+    }
+
+    hero-strip {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 2rem 2rem 3.5rem; position: relative; overflow: hidden;
+    }
+    .hero-strip::before {
+      content:''; position:absolute; right:-60px; top:-60px;
+      width:300px; height:300px; border-radius:50%; background:rgba(61,191,191,0.08);
+    }
+    .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+    .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
+    .miles-pill { background:rgba(255,255,255,0.08); border:1px solid rgba(61,191,191,0.3); border-radius:16px; padding:1rem 1.5rem; text-align:right; }
+    .miles-pill .label { font-size:0.7rem; color:rgba(255,255,255,0.5); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:4px; }
+    .miles-pill .value { font-size:1.6rem; font-weight:800; color:var(--teal); }
+    .miles-pill .unit { font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+    .content { max-width:1100px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+
+    /* NAVBAR */
+    .navbar { background: var(--navy); position:sticky; top:0; z-index:50; border-bottom:1px solid rgba(61,191,191,0.15); box-shadow:0 4px 24px rgba(13,33,55,0.18); }
+    .navbar-inner { max-width:1280px; margin:0 auto; padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:62px; }
+    .navbar-brand { display:flex; align-items:center; gap:0.6rem; text-decoration:none; }
+    .brand-icon { width:34px; height:34px; background:var(--teal); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; color:var(--navy); flex-shrink:0; }
+    .brand-name { font-size:1.05rem; font-weight:800; color:white; letter-spacing:-0.02em; }
+    .brand-name span { color:var(--teal); }
+    .nav-links { display:flex; align-items:center; gap:0.15rem; }
+    .nav-link { color:rgba(255,255,255,0.6); font-size:0.78rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:8px; text-decoration:none; transition:all 0.18s; white-space:nowrap; }
+    .nav-link:hover { color:white; background:rgba(255,255,255,0.08); }
+    .nav-link.active { color:var(--teal); background:rgba(61,191,191,0.1); }
+    .nav-right { display:flex; align-items:center; gap:0.5rem; }
+    .user-pill { display:flex; align-items:center; gap:0.55rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.35rem 0.75rem 0.35rem 0.45rem; cursor:pointer; }
+    .user-avatar { width:26px; height:26px; border-radius:7px; background:var(--teal); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; color:var(--navy); }
+    .user-name { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.85); }
+    .user-role { font-size:0.63rem; color:rgba(255,255,255,0.4); }
+    .dropdown-wrap { position:relative; }
+    .dropdown-menu { position:absolute; right:0; top:calc(100% + 8px); background:white; border-radius:12px; min-width:160px; box-shadow:0 16px 40px rgba(13,33,55,0.18); border:1.5px solid #e8f0f5; overflow:hidden; display:none; flex-direction:column; z-index:100; }
+    .dropdown-menu.open { display:flex; }
+    .dropdown-item { padding:0.7rem 1rem; font-size:0.8rem; font-weight:500; color:var(--navy); cursor:pointer; display:flex; align-items:center; gap:0.5rem; text-decoration:none; border-bottom:1px solid #f0f5f8; transition:background 0.15s; }
+    .dropdown-item:last-child { border-bottom:none; }
+    .dropdown-item:hover { background:#f0f8fb; }
+    .dropdown-item.danger { color:#e05252; }
+    .dropdown-item.danger:hover { background:#fff5f5; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; padding:0.5rem; border-radius:8px; color:rgba(255,255,255,0.7); }
+    .mobile-menu { display:none; background:var(--navy2); border-top:1px solid rgba(61,191,191,0.1); }
+    .mobile-menu.open { display:block; }
+    .mobile-menu a { display:block; padding:0.75rem 2rem; font-size:0.82rem; font-weight:500; color:rgba(255,255,255,0.65); text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .mobile-menu a.active { color:var(--teal); }
+    @media (max-width:900px) { .nav-links { display:none; } .hamburger { display:flex; } }
+
+    /* HERO */
+    .hero-strip {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 2rem 2rem 3.5rem; position: relative; overflow: hidden;
+    }
+    .hero-strip::before {
+      content:''; position:absolute; right:-60px; top:-60px;
+      width:300px; height:300px; border-radius:50%; background:rgba(61,191,191,0.08);
+    }
+    .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; flex-wrap:wrap; gap:1rem; }
+    .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+    .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
+
+    /* CONTENT */
+    .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+
+    /* TOOLBAR */
+    .toolbar {
+      background:white; border-radius:16px 16px 0 0;
+      padding:1.1rem 1.5rem; display:flex; align-items:center;
+      justify-content:space-between; gap:1rem; border-bottom:1.5px solid #e8f0f5; flex-wrap:wrap;
+    }
+    .toolbar-title { font-size:1rem; font-weight:800; color:var(--navy); }
+    .btn-tambah {
+      background:var(--teal); color:white; border:none; padding:0.55rem 1.1rem;
+      border-radius:10px; font-size:0.8rem; font-weight:700; font-family:inherit;
+      cursor:pointer; display:flex; align-items:center; gap:0.4rem;
+      transition:all 0.18s; white-space:nowrap;
+    }
+    .btn-tambah:hover { background:var(--teal-light); }
+
+    /* TABLE */
+    .table-wrap { background:white; border-radius:0 0 16px 16px; overflow:hidden; }
+    table { width:100%; border-collapse:collapse; }
+    thead { background:var(--navy); }
+    th { color:rgba(255,255,255,0.6); font-size:0.7rem; font-weight:600; padding:0.9rem 1.1rem; text-align:left; letter-spacing:0.06em; text-transform:uppercase; white-space:nowrap; }
+    td { padding:0.9rem 1.1rem; font-size:0.82rem; color:var(--navy); border-bottom:1px solid #f0f5f8; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f7fbfd; }
+
+    .doc-no { font-size:0.8rem; font-weight:700; color:var(--navy); font-family:monospace; }
+    .jenis-badge { display:inline-flex; align-items:center; padding:0.22rem 0.65rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .jenis-paspor { background:#e8f4ff; color:#1a6fba; }
+    .jenis-ktp { background:#f0faf5; color:#1e7a4e; }
+    .jenis-sim { background:#fff8e1; color:#c47d00; }
+
+    .status-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.22rem 0.7rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .status-aktif { background:#f0faf5; color:#1e7a4e; }
+    .status-expired { background:#fff0f0; color:#c0392b; }
+    .status-soon { background:#fff8e1; color:#c47d00; }
+
+    .action-group { display:flex; gap:0.4rem; }
+    .btn-icon { width:30px; height:30px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+    .btn-edit { background:#e8f4ff; color:#1a6fba; }
+    .btn-edit:hover { background:#1a6fba; color:white; }
+    .btn-del { background:#fff0f0; color:#c0392b; }
+    .btn-del:hover { background:#c0392b; color:white; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:white; border-radius:20px; width:480px; max-width:94vw; overflow:hidden; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(16px); } to { opacity:1; transform:none; } }
+    .modal-head { background:var(--navy); padding:1.5rem 1.75rem; }
+    .modal-head h3 { color:white; font-size:1rem; font-weight:700; }
+    .modal-head p { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
+    .modal-body { padding:1.5rem 1.75rem; }
+    .modal-actions { display:flex; gap:0.75rem; padding:0 1.75rem 1.5rem; justify-content:flex-end; }
+    .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
+    .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
+    .btn-simpan { background:var(--teal); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-simpan:hover { background:var(--teal-light); }
+    .btn-hapus-confirm { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-hapus-confirm:hover { background:#c0392b; }
+
+    /* FORM */
+    .form-group { margin-bottom:1.1rem; }
+    .form-group:last-child { margin-bottom:0; }
+    .form-label { display:block; font-size:0.75rem; font-weight:600; color:var(--navy); margin-bottom:0.4rem; }
+    .form-label .req { color:#e05252; margin-left:2px; }
+    .form-input { width:100%; padding:0.6rem 0.85rem; border:1.5px solid #d8e5ee; border-radius:10px; font-size:0.83rem; font-family:inherit; color:var(--navy); outline:none; transition:all 0.18s; }
+    .form-input:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(61,191,191,0.12); }
+    .form-input:disabled { background:#f4f8fb; color:var(--muted); cursor:not-allowed; }
+    .form-input::placeholder { color:#a0b4c0; }
+    .form-select { width:100%; padding:0.6rem 2.2rem 0.6rem 0.85rem; border:1.5px solid #d8e5ee; border-radius:10px; font-size:0.83rem; font-family:inherit; color:var(--navy); background:white; outline:none; cursor:pointer; appearance:none; transition:all 0.18s; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b8499' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.9rem center; }
+    .form-select:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(61,191,191,0.12); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; margin-bottom:1.1rem; }
+    .form-row > .form-group { margin-bottom:0; }
+
+    /* DELETE CONFIRM */
+    .confirm-icon { width:56px; height:56px; border-radius:50%; background:#fff0f0; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 1rem; }
+    .confirm-title { text-align:center; font-size:1rem; font-weight:800; color:var(--navy); }
+    .confirm-sub { text-align:center; font-size:0.82rem; color:var(--muted); margin-top:0.4rem; line-height:1.55; }
+    .confirm-warning { background:#fff5f5; border:1.5px solid #fdd; border-radius:10px; padding:0.75rem 1rem; margin-top:1rem; font-size:0.78rem; color:#c0392b; }
+
+    /* EMPTY */
+    .empty-state { text-align:center; padding:3rem 1rem; }
+    .empty-icon { font-size:2.5rem; margin-bottom:0.75rem; }
+    .empty-title { font-size:0.95rem; font-weight:700; color:var(--navy); }
+    .empty-sub { font-size:0.82rem; color:var(--muted); margin-top:0.4rem; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; right:2rem; z-index:200; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--teal); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); }
+    .toast.show { transform:none; opacity:1; }
+    .toast.error { border-left-color:#e05252; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<aero-navbar role="member" active="identitas"></aero-navbar>
+
+<!-- HERO -->
+ 
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-title">Identitas Saya</div>
+      <div class="hero-sub">Masuk sebagai Mr. John William Doe · Member</div>
+    </div>
+    <div class="miles-pill">
+      <div class="label">Award Miles Tersedia</div>
+      <div class="value" id="miles-display">32,000</div>
+      <div class="unit">miles</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="toolbar">
+    <div class="toolbar-title">Dokumen Identitas</div>
+    <button class="btn-tambah" onclick="openModalTambah()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Identitas
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>No. Dokumen</th>
+          <th>Jenis</th>
+          <th>Negara Penerbit</th>
+          <th>Tanggal Terbit</th>
+          <th>Tanggal Habis</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="identitas-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH / EDIT -->
+<div class="modal-overlay" id="modal-form">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-form-title">Tambah Identitas Baru</h3>
+      <p id="modal-form-sub">Isi data dokumen identitas</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nomor Dokumen <span class="req">*</span></label>
+        <input type="text" class="form-input" id="f-nomor" placeholder="Contoh: A12345678"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Dokumen <span class="req">*</span></label>
+        <select class="form-select" id="f-jenis">
+          <option value="">Pilih jenis</option>
+          <option value="Paspor">Paspor</option>
+          <option value="KTP">KTP</option>
+          <option value="SIM">SIM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Negara Penerbit <span class="req">*</span></label>
+        <select class="form-select" id="f-negara">
+          <option value="">Pilih negara</option>
+          <option>Indonesia</option><option>Malaysia</option><option>Singapore</option>
+          <option>Australia</option><option>Japan</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tanggal Terbit <span class="req">*</span></label>
+          <input type="date" class="form-input" id="f-terbit"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Habis <span class="req">*</span></label>
+          <input type="date" class="form-input" id="f-habis"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" onclick="closeModal('modal-form')">Batal</button>
+      <button class="btn-simpan" onclick="saveForm()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HAPUS -->
+<div class="modal-overlay" id="modal-hapus">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-body" style="padding:2rem 1.75rem 1rem;">
+      <div class="confirm-icon">🗑️</div>
+      <div class="confirm-title">Hapus Identitas?</div>
+      <div class="confirm-sub">Dokumen identitas ini akan dihapus secara permanen.</div>
+      <div class="confirm-warning">⚠️ Tindakan ini tidak dapat dibatalkan.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-batal" onclick="closeModal('modal-hapus')">Batal</button>
+      <button class="btn-hapus-confirm" onclick="confirmHapus()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
+
+<script>
+  // ---- DATA DUMMY ----
+  let identitas = [
+    { nomor:'A12345678', jenis:'Paspor', negara:'Indonesia', terbit:'2020-01-15', habis:'2030-01-15' },
+    { nomor:'3275012345678901', jenis:'KTP', negara:'Indonesia', terbit:'2019-06-01', habis:'2024-06-01' },
+    { nomor:'SIM0001', jenis:'SIM', negara:'Indonesia', terbit:'2022-03-10', habis:'2027-03-10' },
+  ];
+
+  let editingNomor = null;
+  let deletingNomor = null;
+  let isEdit = false;
+
+  const jenisClass = { Paspor:'jenis-paspor', KTP:'jenis-ktp', SIM:'jenis-sim' };
+
+  function getStatus(habisStr) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const habis = new Date(habisStr);
+    if (habis < today) return { label:'Kedaluwarsa', cls:'status-expired' };
+    const diff = (habis - today) / (1000*60*60*24);
+    if (diff <= 90) return { label:'Segera Habis', cls:'status-soon' };
+    return { label:'Aktif', cls:'status-aktif' };
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('identitas-tbody');
+    if (!identitas.length) {
+      tbody.innerHTML = `
+        <tr><td colspan="7">
+          <div class="empty-state">
+            <div class="empty-icon">🪪</div>
+            <div class="empty-title">Belum ada identitas</div>
+            <div class="empty-sub">Tambahkan dokumen identitas Anda seperti Paspor, KTP, atau SIM.</div>
+          </div>
+        </td></tr>`;
+      return;
+    }
+    tbody.innerHTML = identitas.map(d => {
+      const st = getStatus(d.habis);
+      return `
+        <tr>
+          <td><span class="doc-no">${d.nomor}</span></td>
+          <td><span class="jenis-badge ${jenisClass[d.jenis]||''}">${d.jenis}</span></td>
+          <td>${d.negara}</td>
+          <td>${d.terbit}</td>
+          <td>${d.habis}</td>
+          <td><span class="status-badge ${st.cls}">${st.label}</span></td>
+          <td>
+            <div class="action-group">
+              <button class="btn-icon btn-edit" onclick="openModalEdit('${d.nomor}')" title="Edit">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn-icon btn-del" onclick="openModalHapus('${d.nomor}')" title="Hapus">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function openModalTambah() {
+    isEdit = false; editingNomor = null;
+    document.getElementById('modal-form-title').textContent = 'Tambah Identitas Baru';
+    document.getElementById('modal-form-sub').textContent = 'Isi data dokumen identitas Anda';
+    document.getElementById('f-nomor').value = '';
+    document.getElementById('f-nomor').disabled = false;
+    document.getElementById('f-jenis').value = '';
+    document.getElementById('f-negara').value = '';
+    document.getElementById('f-terbit').value = '';
+    document.getElementById('f-habis').value = '';
+    document.getElementById('modal-form').classList.add('open');
+  }
+
+  function openModalEdit(nomor) {
+    isEdit = true; editingNomor = nomor;
+    const d = identitas.find(x=>x.nomor===nomor); if(!d) return;
+    document.getElementById('modal-form-title').textContent = 'Edit Identitas';
+    document.getElementById('modal-form-sub').textContent = d.nomor + ' · ' + d.jenis;
+    document.getElementById('f-nomor').value = d.nomor;
+    document.getElementById('f-nomor').disabled = true; // Nomor tidak bisa diubah
+    document.getElementById('f-jenis').value = d.jenis;
+    document.getElementById('f-negara').value = d.negara;
+    document.getElementById('f-terbit').value = d.terbit;
+    document.getElementById('f-habis').value = d.habis;
+    document.getElementById('modal-form').classList.add('open');
+  }
+
+  function saveForm() {
+    const nomor = document.getElementById('f-nomor').value.trim();
+    const jenis = document.getElementById('f-jenis').value;
+    const negara = document.getElementById('f-negara').value;
+    const terbit = document.getElementById('f-terbit').value;
+    const habis = document.getElementById('f-habis').value;
+
+    if (!jenis || !negara || !terbit || !habis) {
+      showToast('Harap isi semua field yang wajib.', true); return;
+    }
+    if (new Date(habis) <= new Date(terbit)) {
+      showToast('Tanggal habis harus setelah tanggal terbit.', true); return;
+    }
+
+    if (!isEdit) {
+      if (!nomor) { showToast('Nomor dokumen harus diisi.', true); return; }
+      if (identitas.find(d=>d.nomor===nomor)) { showToast('Nomor dokumen sudah terdaftar.', true); return; }
+      identitas.push({ nomor, jenis, negara, terbit, habis });
+      showToast('Identitas berhasil ditambahkan!');
+    } else {
+      const idx = identitas.findIndex(d=>d.nomor===editingNomor);
+      if (idx < 0) return;
+      identitas[idx] = { ...identitas[idx], jenis, negara, terbit, habis };
+      showToast('Identitas berhasil diperbarui!');
+    }
+    closeModal('modal-form');
+    renderTable();
+  }
+
+  function openModalHapus(nomor) {
+    deletingNomor = nomor;
+    document.getElementById('modal-hapus').classList.add('open');
+  }
+
+  function confirmHapus() {
+    identitas = identitas.filter(d=>d.nomor!==deletingNomor);
+    closeModal('modal-hapus');
+    renderTable();
+    showToast('Identitas berhasil dihapus.');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function toggleDropdown(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.dropdown-wrap')) {
+      document.querySelectorAll('.dropdown-menu').forEach(d=>d.classList.remove('open'));
+    }
+  });
+  function toggleMobile(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  function showToast(msg, isErr=false) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast-icon').textContent = isErr ? '✕' : '✓';
+    t.classList.toggle('error', isErr);
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 3200);
+  }
+
+  renderTable();
+</script>
+</body>
+</html>
