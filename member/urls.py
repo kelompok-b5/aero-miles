@@ -7,4 +7,8 @@ urlpatterns = [
     path('info-tier/', views.info_tier, name='info-tier'),
     path('transfer-miles/', views.transfer_miles, name='transfer-miles'),
     path('claim-member/', views.claim_member, name='claim-member'),
+    path('profil/', views.profil, name='profil'),
+    path('login/', views.login, name='login'),
+    path('dashboard-member/', views.dashboard_member, name='dashboard-member'),
+    path('identitas/', views.identitas, name='identitas'),
 ]

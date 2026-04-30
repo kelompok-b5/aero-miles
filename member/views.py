@@ -14,3 +14,15 @@ def transfer_miles(request):
 
 def claim_member(request):
     return render(request, 'member/claim-member.html')
+
+def profil(request):
+    return render(request, 'member/profil.html')
+
+def login(request):
+    return render(request, 'member/login.html')
+
+def dashboard_member(request):
+    return render(request, 'member/dashboard-member.html')
+
+def identitas(request):
+    return render(request, 'member/identitas.html')

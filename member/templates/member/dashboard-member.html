@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - AeroMiles Member</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="{% static 'navbar-components.js' %}" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
+    :root {
+      --navy: #0d2137; --navy2: #163352;
+      --teal: #3dbfbf; --teal-light: #5fd6d6;
+      --muted: #6b8499;
+    }
+
+    /* HERO */
+    .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2.5rem 2rem 4rem; position:relative; overflow:hidden; }
+    .hero-strip::before { content:''; position:absolute; right:-80px; top:-80px; width:360px; height:360px; border-radius:50%; background:rgba(61,191,191,0.07); }
+    .hero-strip::after { content:''; position:absolute; left:-40px; bottom:-60px; width:220px; height:220px; border-radius:50%; background:rgba(61,191,191,0.04); }
+    .hero-inner { max-width:1280px; margin:0 auto; position:relative; z-index:1; }
+    .hero-greeting { color:rgba(255,255,255,0.5); font-size:0.85rem; margin-bottom:0.35rem; }
+    .hero-name { color:white; font-size:1.75rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:1.75rem; }
+    .hero-name span { color:var(--teal); }
+
+    /* STATS ROW */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    .stat-card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:1.1rem 1.3rem; backdrop-filter:blur(8px); transition:all 0.2s; }
+    .stat-card:hover { background:rgba(255,255,255,0.12); transform:translateY(-2px); }
+    .stat-card-label { font-size:0.68rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:6px; display:flex; align-items:center; gap:0.4rem; }
+    .stat-card-value { font-size:1.5rem; font-weight:800; color:white; line-height:1; }
+    .stat-card-value.teal { color:var(--teal); }
+    .stat-card-sub { font-size:0.7rem; color:rgba(255,255,255,0.35); margin-top:4px; }
+    @media (max-width:768px) { .stats-row { grid-template-columns:repeat(2,1fr); } }
+
+    /* CONTENT */
+    .content { max-width:1280px; margin:-1.75rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
+    .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    @media (max-width:900px) { .content-grid { grid-template-columns:1fr; } }
+
+    /* CARDS */
+    .card { background:white; border-radius:16px; border:1.5px solid #e8f0f5; overflow:hidden; }
+    .card-head { padding:1.1rem 1.5rem; border-bottom:1.5px solid #f0f5f8; display:flex; justify-content:space-between; align-items:center; }
+    .card-title { font-size:0.88rem; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:0.5rem; }
+    .card-body { padding:1.25rem 1.5rem; }
+
+    /* PROFIL INFO */
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; }
+    .info-item label { font-size:0.7rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px; display:block; }
+    .info-item .val { font-size:0.88rem; font-weight:600; color:var(--navy); }
+
+    /* TIER BADGE */
+    .tier-badge { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; padding:0.3rem 0.8rem; border-radius:20px; }
+    .tier-diamond  { background:#dceef8; color:#1a6090; }
+    .tier-silver   { background:#ebebeb; color:#555; }
+    .tier-gold     { background:#fef0cc; color:#8a5a00; }
+    .tier-platinum { background:#ede8f5; color:#5a3a8a; }
+
+    /* TRANSACTION TABLE */
+    .tx-list { display:flex; flex-direction:column; gap:0; }
+    .tx-row { display:flex; justify-content:space-between; align-items:center; padding:0.85rem 0; border-bottom:1px solid #f0f5f8; }
+    .tx-row:last-child { border-bottom:none; }
+    .tx-left { display:flex; align-items:center; gap:0.75rem; }
+    .tx-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+    .tx-icon.transfer { background:#fff0e0; }
+    .tx-icon.redeem { background:#fce8e8; }
+    .tx-icon.package { background:#e0f0ff; }
+    .tx-icon.klaim { background:#e0f5e8; }
+    .tx-label { font-size:0.82rem; font-weight:600; color:var(--navy); }
+    .tx-time { font-size:0.72rem; color:var(--muted); margin-top:2px; }
+    .tx-amount { font-size:0.88rem; font-weight:700; }
+    .tx-amount.plus { color:#27a96c; }
+    .tx-amount.minus { color:#e05252; }
+
+    /* LINK BTN */
+    .link-btn { font-size:0.75rem; font-weight:600; color:var(--teal); text-decoration:none; display:flex; align-items:center; gap:0.3rem; transition:all 0.18s; }
+    .link-btn:hover { color:var(--teal-light); gap:0.5rem; }
+    .empty-state { text-align:center; padding:2rem; color:var(--muted); font-size:0.82rem; }
+
+    /* MEMBER NUMBER */
+    .nomor-member-chip { font-size:0.72rem; font-weight:700; color:var(--teal); background:rgba(61,191,191,0.1); border:1px solid rgba(61,191,191,0.3); padding:0.2rem 0.7rem; border-radius:6px; letter-spacing:0.05em; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<aero-navbar role="member" active="dashboard"></aero-navbar>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div class="hero-greeting">Masuk sebagai Mr. Andika Pratama · Member</div>
+    <div class="hero-name">Selamat Datang, <span>Mr. Andika Pratama</span> 👋</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Nomor Member
+        </div>
+        <div class="stat-card-value" style="font-size:1.2rem;letter-spacing:0.05em;">M0001</div>
+        <div class="stat-card-sub">Bergabung 15 Jan 2024</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Tier Saat Ini
+        </div>
+        <div class="stat-card-value" style="font-size:1.15rem;">Diamond</div>
+        <div class="stat-card-sub">Min. 50,000 miles</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          Total Miles
+        </div>
+        <div class="stat-card-value teal">80,000</div>
+        <div class="stat-card-sub">Akumulasi penerbangan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+          Award Miles
+        </div>
+        <div class="stat-card-value teal">50,000</div>
+        <div class="stat-card-sub">Bisa digunakan redeem</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="content-grid">
+
+    <!-- INFORMASI PRIBADI -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Informasi Pribadi
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="nomor-member-chip">M0001</span>
+          <span class="tier-badge tier-diamond">💎 Diamond</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nama Lengkap</label>
+            <div class="val">Mr. Andika Pratama</div>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <div class="val">andika.pratama@mail.com</div>
+          </div>
+          <div class="info-item">
+            <label>Telepon</label>
+            <div class="val">+62 081234567801</div>
+          </div>
+          <div class="info-item">
+            <label>Kewarganegaraan</label>
+            <div class="val">Indonesia</div>
+          </div>
+          <div class="info-item">
+            <label>Tanggal Lahir</label>
+            <div class="val">12 Maret 1998</div>
+          </div>
+          <div class="info-item">
+            <label>Tanggal Bergabung</label>
+            <div class="val">15 Januari 2022</div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #f0f5f8;display:flex;justify-content:flex-end;">
+          <a href="profil.html" class="link-btn">
+            Edit Profil
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 TRANSAKSI TERBARU -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          5 Transaksi Miles Terbaru
+        </div>
+        <span style="font-size:0.7rem;color:var(--muted);">Riwayat terakhir</span>
+      </div>
+      <div class="card-body">
+        <div class="tx-list" id="tx-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const transactions = [
+    { type:'package',  label:'Package 2025-03-01 08:00', time:'2025-03-01 08:00', amount:+10000 }, //[cite: 1]
+    { type:'redeem',   label:'Redeem 2025-01-20 16:00',  time:'2025-01-20 16:00', amount:-3000 },  //[cite: 1]
+    { type:'transfer', label:'Transfer 2025-01-15 10:30', time:'2025-01-15 10:30', amount:-5000 }  //[cite: 1]
+  ];
+  const icons = { transfer:'⇄', redeem:'↩', package:'↓', klaim:'↑' };
+
+  document.getElementById('tx-list').innerHTML = transactions.map(t => `
+    <div class="tx-row">
+      <div class="tx-left">
+        <div class="tx-icon ${t.type}">${icons[t.type]}</div>
+        <div>
+          <div class="tx-label">${t.label}</div>
+          <div class="tx-time">${t.time}</div>
+        </div>
+      </div>
+      <div class="tx-amount ${t.amount > 0 ? 'plus':'minus'}">${t.amount > 0 ? '+':''}${t.amount.toLocaleString('id-ID')}</div>
+    </div>
+  `).join('');
+
+  function toggleDropdown(id) { document.getElementById(id).classList.toggle('open'); }
+  function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+  });
+</script>
+</body>
+</html>
