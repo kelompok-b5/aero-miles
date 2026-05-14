@@ -157,7 +157,7 @@
   </style>
 </head>
 <body>
-
+<form style="display:none">{% csrf_token %}</form>
 <!-- NAVBAR -->
 <aero-navbar role="guest"></aero-navbar>
 
@@ -378,30 +378,45 @@
     let ok = true;
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      fieldError('login-email', 'err-login-email', 'Masukkan email yang valid.'); ok = false;
+        fieldError('login-email', 'err-login-email', 'Masukkan email yang valid.'); ok = false;
     }
     if (!pass) {
-      fieldError('login-password', 'err-login-pass', 'Password harus diisi.'); ok = false;
+        fieldError('login-password', 'err-login-pass', 'Password harus diisi.'); ok = false;
     }
     if (!ok) return;
 
-    const user = users.find(u => u.email === email && u.password === pass);
-    if (!user) {
-      showAlert('login-alert', 'Email atau password salah. Silakan coba lagi.');
-      return;
-    }
+    fetch('/auth/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ email, password: pass })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            showAlert('login-alert', data.error);
+        } else {
+            showToast('Login berhasil! Mengalihkan...');
+            setTimeout(() => window.location.href = data.redirect, 1200);
+        }
+    })
+    .catch(() => showAlert('login-alert', 'Terjadi kesalahan, coba lagi.'));
 
-    // Save session
-    sessionStorage.setItem('am_user', JSON.stringify(user));
-    showToast('Login berhasil! Mengalihkan...');
-    setTimeout(() => {
-      if (user.role === 'member') {
-        window.location.href = 'dashboard-member.html';
-      } else {
-        window.location.href = 'dashboard-staf.html';
-      }
-    }, 1200);
-  }
+    // Tambahkan helper function ini
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+}
 
   function doRegister() {
     hideAlerts();

@@ -5,8 +5,10 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 def redeem_hadiah(request):
-    # Hardcode dulu, nanti diganti session login
-    email_member = 'andika.pratama@mail.com'
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+    
+    email_member = request.session.get('email')
     
     conn = get_connection()
     cursor = conn.cursor()
@@ -75,7 +77,7 @@ def redeem_hadiah(request):
 @csrf_exempt
 def redeem_hadiah_post(request):
     if request.method == 'POST':
-        email_member = 'andika.pratama@mail.com'
+        email_member = request.session.get('email')
         data = json.loads(request.body)
         kode_hadiah = data.get('kode_hadiah')
 
@@ -105,7 +107,10 @@ def redeem_hadiah_post(request):
 
 @csrf_exempt
 def beli_package(request):
-    email_member = 'andika.pratama@mail.com'  # hardcode dulu
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+
+    email_member = request.session.get('email')
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -163,7 +168,7 @@ def beli_package(request):
 @csrf_exempt
 def beli_package_post(request):
     if request.method == 'POST':
-        email_member = 'andika.pratama@mail.com'
+        email_member = request.session.get('email')
         data = json.loads(request.body)
         id_package = data.get('id_package')
 
@@ -192,7 +197,10 @@ def beli_package_post(request):
             conn.close()
 
 def info_tier(request):
-    email_member = 'andika.pratama@mail.com'
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+
+    email_member = request.session.get('email')
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -232,6 +240,7 @@ def info_tier(request):
     })
 
 def transfer_miles(request):
+
     return render(request, 'member/transfer-miles.html')
 
 def claim_member(request):
