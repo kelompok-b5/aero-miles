@@ -359,3 +359,16 @@ VALUES
 ('ratna.sari@mail.com',      'RWD-008', '2026-02-11 14:00:00'),
 ('kevin.sanjaya@mail.com',   'RWD-009', '2026-02-13 15:00:00'),
 ('citra.dewanti@mail.com',   'RWD-010', '2026-02-15 16:00:00');
+
+-- UPDATE DUMMY DATA award miles dan total miles untuk setiap member sesuai dengan tier masing-masing
+-- Diamond tier members (total miles tinggi)
+UPDATE MEMBER SET award_miles = 55000, total_miles = 55000 WHERE id_tier = 'T004';
+
+-- Platinum
+UPDATE MEMBER SET award_miles = 30000, total_miles = 30000 WHERE id_tier = 'T003';
+
+-- Gold
+UPDATE MEMBER SET award_miles = 12000, total_miles = 12000 WHERE id_tier = 'T002';
+
+-- Silver
+UPDATE MEMBER SET award_miles = 6000, total_miles = 6000 WHERE id_tier = 'T001';
