@@ -136,7 +136,7 @@
     </div>
     <div class="miles-pill">
       <div class="label">Award Miles Tersedia</div>
-      <div class="value" id="miles-display">32,000</div>
+      <div class="value" id="miles-display">{{ award_miles|floatformat:0 }}</div>
       <div class="unit">miles</div>
     </div>
   </div>
@@ -181,8 +181,7 @@
 <div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
 
 <script>
-  // DATA DUMMY — sesuai INSERT SQL yang sudah dibuat
-  // PENYEDIA: id 1=Garuda, 2=Citilink, 3=Lion Air, 4=Sriwijaya, 5=Batik Air
+  // sesuai data dummy
   const penyedia = {
     1: 'Garuda Indonesia',
     2: 'Citilink Indonesia',
@@ -191,26 +190,10 @@
     5: 'Batik Air'
   };
 
-  // Sesuai INSERT INTO HADIAH di insert_data.sql
-  const hadiah = [
-    { kode:'RWD-001', nama:'Free Ticket Domestik',       id_penyedia:1, miles:15000, desc:'Tiket gratis untuk rute domestik pilihan Anda tanpa biaya tambahan.',         start:'2025-01-01', end:'2026-06-30' },
-    { kode:'RWD-002', nama:'Upgrade Business Class',      id_penyedia:2, miles:20000, desc:'Nikmati kursi business class yang lebih lega dari economy class Anda.',        start:'2025-03-01', end:'2027-03-01' },
-    { kode:'RWD-003', nama:'Lounge Access',               id_penyedia:3, miles:5000,  desc:'Akses eksklusif ke airport lounge di seluruh bandara partner kami.',            start:'2024-07-01', end:'2026-12-31' },
-    { kode:'RWD-004', nama:'Extra Baggage 20kg',          id_penyedia:4, miles:3000,  desc:'Tambahan bagasi 20kg untuk penerbangan berikutnya.',                            start:'2025-06-01', end:'2026-06-01' },
-    { kode:'RWD-005', nama:'Hotel Voucher Bintang 4',     id_penyedia:5, miles:25000, desc:'Voucher menginap 1 malam di hotel bintang 4 partner kami.',                     start:'2026-01-01', end:'2027-01-01' },
-    { kode:'RWD-006', nama:'Free Ticket Internasional',   id_penyedia:1, miles:40000, desc:'Tiket gratis untuk rute internasional ke destinasi pilihan.',                   start:'2025-01-01', end:'2027-12-31' },
-    { kode:'RWD-007', nama:'Airport Transfer',            id_penyedia:2, miles:2000,  desc:'Layanan antar jemput bandara ke hotel atau sebaliknya.',                        start:'2026-04-01', end:'2026-10-31' },
-    { kode:'RWD-008', nama:'Diskon 50% Tiket',            id_penyedia:3, miles:8000,  desc:'Diskon 50% untuk pembelian 1 tiket penerbangan pilihan.',                       start:'2025-09-01', end:'2026-09-01' },
-    { kode:'RWD-009', nama:'Priority Check-in',           id_penyedia:4, miles:1500,  desc:'Layanan priority check-in dan boarding di semua penerbangan.',                  start:'2024-11-01', end:'2026-04-30' },
-    { kode:'RWD-010', nama:'Free Meal Voucher',           id_penyedia:5, miles:1000,  desc:'Voucher makan gratis di restoran partner di area bandara.',                     start:'2026-03-01', end:'2026-08-31' },
-  ];
+  const hadiah = JSON.parse('{{ hadiah_json|escapejs }}');
+  let riwayat = JSON.parse('{{ riwayat_json|escapejs }}');
+  let awardMiles = parseInt("{{ award_miles }}");
 
-  // Data dummy riwayat sesuai tabel REDEEM di database  (soon)
-  let riwayat = [
-    { nama:'Lounge Access', timestamp:'2025-01-20 16:00', miles:5000 },
-  ];
-
-  let awardMiles = 32000; // Sesuai award_miles member dummy
   let selected = null;
   const today = new Date();
 
@@ -282,13 +265,33 @@
   }
 
   function konfirmasiRedeem() {
-    if (!selected || awardMiles < selected.miles) return;
-    awardMiles -= selected.miles;
+      if (!selected || awardMiles < selected.miles) return;
+      
+      fetch('/member/redeem-hadiah/post/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kode_hadiah: selected.kode })
+})
+.then(res => res.json())
+.then(data => {
+    if (data.error) {
+        showToast('Gagal: ' + data.error);
+        return;
+    }
+    awardMiles = data.sisa_miles;
     const now = new Date().toISOString().replace('T',' ').slice(0,16);
+    const namaHadiah = selected.nama;  // simpan dulu sebelum closeModal()
     riwayat.unshift({ nama: selected.nama, timestamp: now, miles: selected.miles });
     document.getElementById('miles-display').textContent = awardMiles.toLocaleString('id-ID');
-    closeModal(); renderKatalog(); renderRiwayat();
-    showToast('Redeem ' + selected.nama + ' berhasil!');
+    closeModal();
+    renderKatalog();
+    renderRiwayat();
+    showToast('Redeem ' + namaHadiah + ' berhasil!');  // pakai variabel lokal
+})
+.catch(err => {
+    console.error('Error detail:', err);
+    showToast('Terjadi kesalahan, coba lagi.');
+});
   }
 
   function switchTab(tab, btn) {
