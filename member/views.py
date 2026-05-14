@@ -192,7 +192,44 @@ def beli_package_post(request):
             conn.close()
 
 def info_tier(request):
-    return render(request, 'member/info-tier.html')
+    email_member = 'andika.pratama@mail.com'
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id_tier, nama, minimal_frekuensi_terbang, minimal_tier_miles
+        FROM TIER
+        ORDER BY minimal_tier_miles ASC
+    """)
+    tier_rows = cursor.fetchall()
+    tiers = [
+        {
+            'id_tier': r[0],
+            'nama': r[1],
+            'minimal_frekuensi_terbang': r[2],
+            'minimal_tier_miles': r[3],
+        }
+        for r in tier_rows
+    ]
+
+    cursor.execute("""
+        SELECT m.id_tier, m.total_miles
+        FROM MEMBER m
+        WHERE m.email = %s
+    """, [email_member])
+    member = cursor.fetchone()
+    id_tier_sekarang = member[0]
+    total_miles = member[1]
+
+    cursor.close()
+    conn.close()
+
+    return render(request, 'member/info-tier.html', {
+        'tiers_json': json.dumps(tiers),
+        'id_tier_sekarang': id_tier_sekarang,
+        'total_miles': total_miles,
+    })
 
 def transfer_miles(request):
     return render(request, 'member/transfer-miles.html')

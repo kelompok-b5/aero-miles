@@ -129,63 +129,64 @@
 </div>
 
 <script>
-  const member = {
-    nama: 'Mr. Andika Pratama',
-    total_miles: 80000,
-    id_tier: 'T004',
+  console.log('raw:', '{{ tiers_json|escapejs }}');
+  const tiersFromDB = JSON.parse('{{ tiers_json|escapejs }}');
+
+  // Benefits tetap hardcode karena tidak ada di database
+  const benefitsMap = {
+    'T001': [
+      { title:'Akumulasi Miles', sub:'Kumpulkan miles di setiap penerbangan.' },
+      { title:'Akses Penawaran Member', sub:'Dapatkan penawaran eksklusif khusus member.' },
+    ],
+    'T002': [
+      { title:'Semua benefit Silver', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
+      { title:'Bonus Miles 25%', sub:'Dapatkan 25% ekstra miles di setiap penerbangan.' },
+      { title:'Priority Check-in', sub:'Antrean check-in khusus di semua bandara partner.' },
+    ],
+    'T003': [
+      { title:'Semua benefit Gold', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
+      { title:'Bonus Miles 50%', sub:'Dapatkan 50% ekstra miles di setiap penerbangan.' },
+      { title:'Priority Boarding', sub:'Boarding lebih awal di semua penerbangan.' },
+      { title:'Akses Lounge Premium', sub:'Masuk lounge eksklusif di bandara partner.' },
+      { title:'Extra Bagasi 10kg', sub:'Tambahan bagasi gratis di setiap penerbangan.' },
+    ],
+    'T004': [
+      { title:'Semua benefit Platinum', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
+      { title:'Bonus Miles 100%', sub:'Gandakan miles di setiap penerbangan Anda.' },
+      { title:'Upgrade Gratis', sub:'Upgrade kelas kabin gratis sesuai ketersediaan.' },
+      { title:'Akses First Class Lounge', sub:'Lounge eksklusif first class di seluruh dunia.' },
+      { title:'Extra Bagasi 20kg', sub:'Tambahan bagasi 20kg di setiap penerbangan.' },
+      { title:'Dedicated Hotline', sub:'Layanan pelanggan prioritas 24/7.' },
+    ],
   };
 
-  const tiers = [
-    {
-      id_tier:'T001', nama:'Silver', minimal_frekuensi_terbang:5, minimal_tier_miles:5000, icon:'⚪',
-      benefits: [
-        { title:'Akumulasi Miles', sub:'Kumpulkan miles di setiap penerbangan.' },
-        { title:'Akses Penawaran Member', sub:'Dapatkan penawaran eksklusif khusus member.' },
-      ]
-    },
-    {
-      id_tier:'T002', nama:'Gold', minimal_frekuensi_terbang:10, minimal_tier_miles:10000, icon:'🟡',
-      benefits: [
-        { title:'Semua benefit Gold', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
-        { title:'Bonus Miles 25%', sub:'Dapatkan 25% ekstra miles di setiap penerbangan.' },
-        { title:'Priority Check-in', sub:'Antrean check-in khusus di semua bandara partner.' },
-      ]
-    },
-    {
-      id_tier:'T003', nama:'Platinum', minimal_frekuensi_terbang:20, minimal_tier_miles:25000, icon:'🟣',
-      benefits: [
-        { title:'Semua benefit Platinum', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
-        { title:'Bonus Miles 50%', sub:'Dapatkan 50% ekstra miles di setiap penerbangan.' },
-        { title:'Priority Boarding', sub:'Boarding lebih awal di semua penerbangan.' },
-        { title:'Akses Lounge Premium', sub:'Masuk lounge eksklusif di bandara partner.' },
-        { title:'Extra Bagasi 10kg', sub:'Tambahan bagasi gratis di setiap penerbangan.' },
-      ]
-    },
-    {
-      id_tier:'T004', nama:'Diamond', minimal_frekuensi_terbang:35, minimal_tier_miles:50000, icon:'🔵',
-      benefits: [
-        { title:'Semua benefit Diamond', sub:'Nikmati seluruh keuntungan tier sebelumnya.' },
-        { title:'Bonus Miles 100%', sub:'Gandakan miles di setiap penerbangan Anda.' },
-        { title:'Upgrade Gratis', sub:'Upgrade kelas kabin gratis sesuai ketersediaan.' },
-        { title:'Akses First Class Lounge', sub:'Lounge eksklusif first class di seluruh dunia.' },
-        { title:'Extra Bagasi 20kg', sub:'Tambahan bagasi 20kg di setiap penerbangan.' },
-        { title:'Dedicated Hotline', sub:'Layanan pelanggan prioritas 24/7.' },
-      ]
-    },
-  ];
-
+  const iconMap  = { Silver:'⚪', Gold:'🟡', Platinum:'🟣', Diamond:'🔵' };
   const iconClass = { Silver:'silver', Gold:'gold', Platinum:'platinum', Diamond:'diamond' };
+
+  // Gabungkan data DB dengan benefits & icon
+  const tiers = tiersFromDB.map(t => ({
+    ...t,
+    icon: iconMap[t.nama] || '⭐',
+    benefits: benefitsMap[t.id_tier] || [],
+  }));
+
+  const member = {
+    total_miles: parseInt("{{ total_miles }}"),
+    id_tier: "{{ id_tier_sekarang }}",
+  };
 
   function renderProgress() {
     const currentIdx = tiers.findIndex(t => t.id_tier === member.id_tier);
-    const current = tiers[currentIdx];
     const next = tiers[currentIdx + 1];
     const card = document.getElementById('progress-card');
 
     if (!next) {
       card.innerHTML = `
         <div class="progress-top">
-          <div><div class="progress-heading">🏆 Anda sudah di tier tertinggi!</div><div class="progress-sub">Selamat, Anda adalah member Diamond.</div></div>
+          <div>
+            <div class="progress-heading">🏆 Anda sudah di tier tertinggi!</div>
+            <div class="progress-sub">Selamat, Anda adalah member ${tiers[currentIdx].nama}.</div>
+          </div>
         </div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"><span class="plane-marker">✈️</span></div></div>
       `;
@@ -219,10 +220,7 @@
     const grid = document.getElementById('tier-grid');
     grid.innerHTML = tiers.map(t => {
       const isActive = t.id_tier === member.id_tier;
-      const tercapai = !isActive && member.total_miles >= t.minimal_tier_miles;
-      const locked = !isActive && !tercapai;
-      const cls = iconClass[t.nama];
-
+      const cls = iconClass[t.nama] || 'silver';
       return `
         <div class="tier-card ${isActive ? 'active' : ''}">
           <div class="tier-card-header">
