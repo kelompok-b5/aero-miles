@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from pyexpat.errors import messages
+
+from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from aeromiles.db import get_connection
 import json
@@ -13,14 +15,12 @@ def redeem_hadiah(request):
     conn = get_connection()
     cursor = conn.cursor()
     
-    # Ambil award_miles member
     cursor.execute("""
         SELECT award_miles FROM MEMBER WHERE email = %s
     """, [email_member])
     member = cursor.fetchone()
     award_miles = member[0] if member else 0
-    
-    # Ambil katalog hadiah yang masih valid
+
     cursor.execute("""
         SELECT h.kode_hadiah, h.nama, h.miles, h.deskripsi,
                h.valid_start_date, h.program_end, p.id,
@@ -84,7 +84,7 @@ def redeem_hadiah_post(request):
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            # Langsung insert — trigger yang handle validasi & potong miles
+            # Langsung insert, trigger yang bakal handle validasi & potong miles
             cursor.execute("""
                 INSERT INTO REDEEM (email_member, kode_hadiah)
                 VALUES (%s, %s)
@@ -176,7 +176,6 @@ def beli_package_post(request):
         cursor = conn.cursor()
         try:
             # Insert ke MEMBER_AWARD_MILES_PACKAGE
-            # trigger sync_miles_after_package otomatis nambah award_miles
             cursor.execute("""
                 INSERT INTO MEMBER_AWARD_MILES_PACKAGE (id_award_miles_package, email_member)
                 VALUES (%s, %s)
@@ -239,12 +238,228 @@ def info_tier(request):
         'total_miles': total_miles,
     })
 
-def transfer_miles(request):
+# CLAIM MISSING MILES 
 
-    return render(request, 'member/transfer-miles.html')
+def claim_view(request):
+    email = request.session['email']
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT award_miles FROM MEMBER WHERE email = %s", (email,))
+        member = cur.fetchone()
 
-def claim_member(request):
-    return render(request, 'member/claim-member.html')
+        # Ambil semua maskapai & bandara untuk dropdown
+        cur.execute("SELECT kode_maskapai, nama_maskapai FROM MASKAPAI")
+        maskapai_list = cur.fetchall()
+        cur.execute("SELECT iata_code, nama, kota FROM BANDARA")
+        bandara_list = cur.fetchall()
+
+        # Ambil riwayat klaim member
+        filter_status = request.GET.get('status', '')
+        if filter_status:
+            cur.execute("""
+                SELECT id, maskapai, bandara_asal, bandara_tujuan, tanggal_penerbangan,
+                       flight_number, kelas_kabin, status_penerimaan, timestamp
+                FROM CLAIM_MISSING_MILES
+                WHERE email_member = %s AND status_penerimaan = %s
+                ORDER BY timestamp DESC
+            """, (email, filter_status))
+        else:
+            cur.execute("""
+                SELECT id, maskapai, bandara_asal, bandara_tujuan, tanggal_penerbangan,
+                       flight_number, kelas_kabin, status_penerimaan, timestamp
+                FROM CLAIM_MISSING_MILES
+                WHERE email_member = %s
+                ORDER BY timestamp DESC
+            """, (email,))
+        klaim_list = cur.fetchall()
+
+        return render(request, 'claim-member.html', {
+            'member': member,
+            'klaim_list': klaim_list,
+            'maskapai_list': maskapai_list,
+            'bandara_list': bandara_list,
+            'filter_status': filter_status,
+        })
+    finally:
+        cur.close()
+        conn.close()
+
+
+def claim_create(request):
+    if request.method != 'POST':
+        return redirect('member:claim-member')
+
+    email = request.session['email']
+    data = (
+        email,
+        request.POST.get('maskapai'),
+        request.POST.get('bandara_asal'),
+        request.POST.get('bandara_tujuan'),
+        request.POST.get('tanggal_penerbangan'),
+        request.POST.get('flight_number'),
+        request.POST.get('nomor_tiket'),
+        request.POST.get('kelas_kabin'),
+        request.POST.get('pnr'),
+    )
+
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO CLAIM_MISSING_MILES
+                (email_member, maskapai, bandara_asal, bandara_tujuan,
+                 tanggal_penerbangan, flight_number, nomor_tiket, kelas_kabin, pnr)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, data)
+        conn.commit()
+        messages.success(request, 'Klaim berhasil diajukan! Status: Menunggu verifikasi.')
+    except Exception as e:
+        conn.rollback()
+        # Pesan error dari PostgreSQL
+        messages.error(request, f'Gagal mengajukan klaim: {e}')
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect('member:claim-member')
+
+
+def claim_edit(request, klaim_id):
+    if request.method != 'POST':
+        return redirect('member:claim-member')
+
+    email = request.session['email']
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT id FROM CLAIM_MISSING_MILES
+            WHERE id = %s AND email_member = %s AND status_penerimaan = 'Menunggu'
+        """, (klaim_id, email))
+        if not cur.fetchone():
+            messages.error(request, 'Klaim tidak dapat diedit.')
+            return redirect('member:claim-member')
+
+        cur.execute("""
+            UPDATE CLAIM_MISSING_MILES SET
+                maskapai = %s, bandara_asal = %s, bandara_tujuan = %s,
+                tanggal_penerbangan = %s, flight_number = %s,
+                nomor_tiket = %s, kelas_kabin = %s, pnr = %s
+            WHERE id = %s AND email_member = %s
+        """, (
+            request.POST.get('maskapai'),
+            request.POST.get('bandara_asal'),
+            request.POST.get('bandara_tujuan'),
+            request.POST.get('tanggal_penerbangan'),
+            request.POST.get('flight_number'),
+            request.POST.get('nomor_tiket'),
+            request.POST.get('kelas_kabin'),
+            request.POST.get('pnr'),
+            klaim_id, email
+        ))
+        conn.commit()
+        messages.success(request, f'Klaim CLM-{str(klaim_id).zfill(4)} berhasil diperbarui.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal memperbarui klaim: {e}')
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect('member:claim-member')
+r
+def claim_delete(request, klaim_id):
+    if request.method != 'POST':
+        return redirect('member:claim-member')
+
+    email = request.session['email']
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            DELETE FROM CLAIM_MISSING_MILES
+            WHERE id = %s AND email_member = %s AND status_penerimaan = 'Menunggu'
+        """, (klaim_id, email))
+        conn.commit()
+        messages.success(request, f'Klaim CLM-{str(klaim_id).zfill(4)} berhasil dibatalkan.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal membatalkan klaim: {e}')
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect('member:claim-member')
+
+
+# TRANSFER MILES 
+def transfer_view(request):
+    email = request.session['email']
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT award_miles FROM MEMBER WHERE email = %s", (email,))
+        member = cur.fetchone()
+
+        cur.execute("""
+            SELECT t.timestamp,
+                   CASE WHEN t.email_member_1 = %s
+                        THEN p2.first_mid_name || ' ' || p2.last_name
+                        ELSE p1.first_mid_name || ' ' || p1.last_name END AS nama_lawan,
+                   CASE WHEN t.email_member_1 = %s
+                        THEN t.email_member_2
+                        ELSE t.email_member_1 END AS email_lawan,
+                   t.jumlah,
+                   t.catatan,
+                   CASE WHEN t.email_member_1 = %s THEN 'Kirim' ELSE 'Terima' END AS tipe
+            FROM TRANSFER t
+            JOIN PENGGUNA p1 ON p1.email = t.email_member_1
+            JOIN PENGGUNA p2 ON p2.email = t.email_member_2
+            WHERE t.email_member_1 = %s OR t.email_member_2 = %s
+            ORDER BY t.timestamp DESC
+        """, (email, email, email, email, email))
+        riwayat = cur.fetchall()
+
+        return render(request, 'transfer.html', {
+            'member': member,
+            'riwayat': riwayat,
+        })
+    finally:
+        cur.close()
+        conn.close()
+
+def transfer_create(request):
+    if request.method != 'POST':
+        return redirect('member:transfer-miles')
+
+    email_pengirim = request.session['email']
+    email_penerima = request.POST.get('email_penerima', '').strip()
+    jumlah = request.POST.get('jumlah_miles')
+    catatan = request.POST.get('catatan', '')
+
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Trigger validasi_dan_catat_transfer akan otomatis jalan
+        cur.execute("""
+            INSERT INTO TRANSFER (email_member_1, email_member_2, jumlah, catatan)
+            VALUES (%s, %s, %s, %s)
+        """, (email_pengirim, email_penerima, jumlah, catatan))
+        conn.commit()
+
+        # Ambil pesan SUKSES dari trigger lewat conn.notices
+        pesan = conn.notices[-1].strip() if conn.notices else 'Transfer berhasil.'
+        messages.success(request, pesan)
+    except Exception as e:
+        conn.rollback()
+      
+        messages.error(request, str(e).split('\n')[0])
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect('member:transfer-miles')
 
 def profil(request):
     return render(request, 'member/profil.html')
