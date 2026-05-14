@@ -73,7 +73,7 @@ INSERT INTO PENGGUNA
 ('lucas.thompson@mail.com','pass123','Mr.','Lucas','Thompson','+61','0401234567','1998-10-10','Australia');
 
 INSERT INTO TIER (id_tier, nama, minimal_frekuensi_terbang, minimal_tier_miles) VALUES 
-('T001', 'Silver', 5, 5000), 
+('T001', 'Silver', 0, 0), 
 ('T002', 'Gold', 10, 10000), 
 ('T003', 'Platinum', 20, 25000), 
 ('T004', 'Diamond', 35, 50000);
