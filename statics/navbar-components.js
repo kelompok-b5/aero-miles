@@ -300,9 +300,9 @@ class AeroNavbar extends HTMLElement {
                 <a class="dd-item" href="/member/profil/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <button class="dd-item danger" data-logout type="button">
+                <a class="dd-item danger" href="/auth/logout/" data-logout>
                   ${this._iconLogout()} Logout
-                </button>
+                </a>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
@@ -350,9 +350,9 @@ class AeroNavbar extends HTMLElement {
                 <a class="dd-item" href="/staf/profile-staf/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <button class="dd-item danger" data-logout type="button">
+                <a class="dd-item danger" href="/auth/logout/" data-logout>
                   ${this._iconLogout()} Logout
-                </button>
+                </a>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
