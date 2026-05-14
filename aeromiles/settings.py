@@ -29,6 +29,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Tambahkan / pastikan ini ada
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/member/dashboard-member/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
 
 # Application definition
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'member',
     'staf',
+    'authentication',
 ]
 
 MIDDLEWARE = [

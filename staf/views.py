@@ -18,8 +18,5 @@ def kelola_mitra(request):
 def laporan_transaksi(request):
     return render(request, 'staf/laporan-transaksi.html')
 
-def login(request):
-    return render(request, 'staf/login.html')
-
 def profile_staf(request):
     return render(request, 'staf/profile-staf.html')

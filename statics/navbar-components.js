@@ -8,7 +8,7 @@ const NAV_ITEMS = {
     { key: 'beli-package',          label: 'Beli Package',   href: '/member/beli-package/' },
     { key: 'info-tier',             label: 'Info Tier',      href: '/member/info-tier/' },
     { key: 'profil',                label: 'Profil Saya',    href: '/member/profil/' },
-    { key: 'login',                 label: 'Login',          href: '/member/login/' },
+    { key: 'login',                 label: 'Login',          href: '/auth/login/' },
   ],
   staf: [
     { key: 'dashboard',          label: 'Dashboard',                href: '/staf/dashboard-staf/'      },
@@ -17,7 +17,7 @@ const NAV_ITEMS = {
     { key: 'kelola-hadiah',      label: 'Kelola Hadiah & Penyedia', href: '/staf/kelola-hadiah/'       },
     { key: 'kelola-mitra',       label: 'Kelola Mitra',             href: '/staf/kelola-mitra/'        },
     { key: 'laporan-transaksi',  label: 'Laporan Transaksi',        href: '/staf/laporan-transaksi/'   },
-    { key: 'login',              label: 'Login',                    href: '/staf/login/'               },
+    { key: 'login',              label: 'Login',                    href: '/auth/login/'               },
     { key: 'profile',            label: 'Profile',                  href: '/staf/profile-staf/'        },
   ],
 };
@@ -254,15 +254,15 @@ class AeroNavbar extends HTMLElement {
     return '';
   }
 
-  // ──────────────── GUEST ────────────────
+// ──────────────── GUEST ────────────────
   _navGuest() {
     return `
       <nav class="guest">
         <div class="inner">
           ${this._brand('guest')}
           <div class="right">
-            <a class="btn-outline" href="login.html">Login</a>
-            <a class="btn-solid"   href="register.html">Registrasi</a>
+            <a class="btn-outline" href="/auth/login/">Login</a>
+            <a class="btn-solid"   href="/auth/register/">Registrasi</a>
           </div>
         </div>
       </nav>
@@ -297,12 +297,12 @@ class AeroNavbar extends HTMLElement {
               </div>
               ${this._chevron()}
               <div class="dropdown" data-dropdown>
-                <a class="dd-item" href="profil.html">
+                <a class="dd-item" href="/member/profil/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <a class="dd-item danger" href="login.html" data-logout>
+                <button class="dd-item danger" data-logout type="button">
                   ${this._iconLogout()} Logout
-                </a>
+                </button>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
@@ -312,8 +312,8 @@ class AeroNavbar extends HTMLElement {
         </div>
         <div class="mobile-menu" data-mobile>
           ${mobileLinks}
-          <a class="mobile-link" href="profil.html">Pengaturan Profil</a>
-          <a class="mobile-link logout" href="login.html">Logout</a>
+          <a class="mobile-link" href="/member/profil/">Pengaturan Profil</a>
+          <a class="mobile-link logout" href="/auth/logout/">Logout</a>
         </div>
       </nav>
     `;
@@ -347,12 +347,12 @@ class AeroNavbar extends HTMLElement {
               </div>
               ${this._chevron()}
               <div class="dropdown" data-dropdown>
-                <a class="dd-item" href="profile-staf.html">
+                <a class="dd-item" href="/staf/profile-staf/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <a class="dd-item danger" href="login.html" data-logout>
+                <button class="dd-item danger" data-logout type="button">
                   ${this._iconLogout()} Logout
-                </a>
+                </button>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
@@ -362,18 +362,22 @@ class AeroNavbar extends HTMLElement {
         </div>
         <div class="mobile-menu" data-mobile>
           ${mobileLinks}
-          <a class="mobile-link" href="profile-staf.html">Pengaturan Profil</a>
-          <a class="mobile-link logout" href="login.html">Logout</a>
+          <a class="mobile-link" href="/staf/profile-staf/">Pengaturan Profil</a>
+          <a class="mobile-link logout" href="/auth/logout/">Logout</a>
         </div>
       </nav>
     `;
   }
-
+  
   // ──────────────── HELPERS ────────────────
   _brand(role) {
     const badge = role === 'staf' ? '<span class="brand-badge">STAF</span>' : '';
     return `
-      <a class="brand" href="${role === 'staf' ? 'dashboard-staf.html' : role === 'member' ? 'dashboard-member.html' : 'index.html'}">
+      <a class="brand" href="${role === 'staf' 
+        ? '/staf/dashboard-staf/' 
+        : role === 'member' 
+        ? '/member/dashboard-member/' 
+        : '/'}">
         <div class="brand-icon">✈</div>
         <span class="brand-name">Aero<span class="brand-accent">Miles</span>${badge}</span>
       </a>
@@ -405,6 +409,19 @@ class AeroNavbar extends HTMLElement {
         const dd = pill.querySelector('[data-dropdown]');
         const isOpen = dd.classList.toggle('open');
         pill.classList.toggle('open', isOpen);
+      });
+    }
+
+    const logoutBtn = root.querySelector('[data-logout]');
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        sessionStorage.clear();
+
+        window.location.href = '/auth/logout/';
       });
     }
 
