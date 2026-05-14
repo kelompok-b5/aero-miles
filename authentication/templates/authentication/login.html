@@ -400,88 +400,103 @@
         }
     })
     .catch(() => showAlert('login-alert', 'Terjadi kesalahan, coba lagi.'));
+}
 
-    // Tambahkan helper function ini
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
 }
 
   function doRegister() {
     hideAlerts();
     let ok = true;
 
-    const email = document.getElementById('reg-email').value.trim();
-    const pass = document.getElementById('reg-password').value;
-    const confirm = document.getElementById('reg-confirm-pass').value;
-    const sal = document.getElementById('reg-salutation').value;
-    const fname = document.getElementById('reg-fname').value.trim();
-    const lname = document.getElementById('reg-lname').value.trim();
-    const nat = document.getElementById('reg-nationality').value;
-    const phone = document.getElementById('reg-phone').value.trim();
-    const dob = document.getElementById('reg-dob').value;
+    const email     = document.getElementById('reg-email').value.trim();
+    const pass      = document.getElementById('reg-password').value;
+    const confirm   = document.getElementById('reg-confirm-pass').value;
+    const sal       = document.getElementById('reg-salutation').value;
+    const fname     = document.getElementById('reg-fname').value.trim();
+    const lname     = document.getElementById('reg-lname').value.trim();
+    const nat       = document.getElementById('reg-nationality').value;
+    const phone     = document.getElementById('reg-phone').value.trim();
+    const dob       = document.getElementById('reg-dob').value;
+    const cc        = document.getElementById('reg-country-code').value;
 
+    // Validasi (sama seperti sebelumnya)
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      fieldError('reg-email', 'err-reg-email', 'Masukkan email yang valid.'); ok = false;
-    } else if (users.find(u => u.email === email)) {
-      fieldError('reg-email', 'err-reg-email', 'Email sudah terdaftar.'); ok = false;
+        fieldError('reg-email', 'err-reg-email', 'Masukkan email yang valid.'); ok = false;
     }
     if (pass.length < 8) {
-      fieldError('reg-password', 'err-reg-pass', 'Password minimal 8 karakter.'); ok = false;
+        fieldError('reg-password', 'err-reg-pass', 'Password minimal 8 karakter.'); ok = false;
     }
     if (pass !== confirm) {
-      fieldError('reg-confirm-pass', 'err-reg-confirm', 'Konfirmasi password tidak cocok.'); ok = false;
+        fieldError('reg-confirm-pass', 'err-reg-confirm', 'Konfirmasi password tidak cocok.'); ok = false;
     }
     if (!sal) {
-      fieldError('reg-salutation', 'err-reg-sal', 'Pilih salutation.'); ok = false;
+        fieldError('reg-salutation', 'err-reg-sal', 'Pilih salutation.'); ok = false;
     }
     if (!fname) {
-      fieldError('reg-fname', 'err-reg-fname', 'Nama depan harus diisi.'); ok = false;
+        fieldError('reg-fname', 'err-reg-fname', 'Nama depan harus diisi.'); ok = false;
     }
     if (!lname) {
-      fieldError('reg-lname', 'err-reg-lname', 'Nama belakang harus diisi.'); ok = false;
+        fieldError('reg-lname', 'err-reg-lname', 'Nama belakang harus diisi.'); ok = false;
     }
     if (!nat) {
-      fieldError('reg-nationality', 'err-reg-nation', 'Pilih kewarganegaraan.'); ok = false;
+        fieldError('reg-nationality', 'err-reg-nation', 'Pilih kewarganegaraan.'); ok = false;
     }
     if (!phone) {
-      fieldError('reg-phone', 'err-reg-phone', 'Nomor HP harus diisi.'); ok = false;
+        fieldError('reg-phone', 'err-reg-phone', 'Nomor HP harus diisi.'); ok = false;
     }
     if (!dob) {
-      fieldError('reg-dob', 'err-reg-dob', 'Tanggal lahir harus diisi.'); ok = false;
+        fieldError('reg-dob', 'err-reg-dob', 'Tanggal lahir harus diisi.'); ok = false;
     }
     if (currentRole === 'staf' && !document.getElementById('reg-maskapai').value) {
-      fieldError('reg-maskapai', 'err-reg-maskapai', 'Pilih kode maskapai.'); ok = false;
+        fieldError('reg-maskapai', 'err-reg-maskapai', 'Pilih kode maskapai.'); ok = false;
     }
-
     if (!ok) return;
 
-    const cc = document.getElementById('reg-country-code').value;
-    const nomor = currentRole === 'member' ? 'M' + String(users.filter(u=>u.role==='member').length + 1).padStart(4,'0') : null;
-    const id_staf = currentRole === 'staf' ? 'S' + String(users.filter(u=>u.role==='staf').length + 1).padStart(4,'0') : null;
-
-    const newUser = {
-      email, password: pass, role: currentRole,
-      name: `${sal} ${fname} ${lname}`,
-      nomor, id_staf,
-      tier: currentRole === 'member' ? 'Blue' : null,
-      maskapai: currentRole === 'staf' ? document.getElementById('reg-maskapai').options[document.getElementById('reg-maskapai').selectedIndex].text : null,
-      country_code: cc, phone, dob, nationality: nat
+    const payload = {
+        action: 'register',
+        email, password: pass,
+        salutation: sal,
+        first_mid_name: fname,
+        last_name: lname,
+        country_code: cc,
+        mobile_number: phone,
+        tanggal_lahir: dob,
+        kewarganegaraan: nat,
+        role: currentRole,
+        kode_maskapai: currentRole === 'staf' ? document.getElementById('reg-maskapai').value : null,
     };
-    users.push(newUser);
-    showToast('Akun berhasil dibuat! Silakan login.');
-    setTimeout(() => switchAuthTab('login'), 1500);
+
+    fetch('/auth/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            showAlert('reg-alert', data.error);
+        } else {
+            showToast('Akun berhasil dibuat! Silakan login.');
+            setTimeout(() => switchAuthTab('login'), 1500);
+        }
+    })
+    .catch(() => showAlert('reg-alert', 'Terjadi kesalahan, coba lagi.'));
   }
 
   function showToast(msg) {
