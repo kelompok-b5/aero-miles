@@ -103,8 +103,93 @@ def redeem_hadiah_post(request):
             cursor.close()
             conn.close()
 
+@csrf_exempt
 def beli_package(request):
-    return render(request, 'member/beli-package.html')
+    email_member = 'andika.pratama@mail.com'  # hardcode dulu
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Ambil award_miles member
+    cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
+    member = cursor.fetchone()
+    award_miles = member[0] if member else 0
+
+    # Ambil katalog package
+    cursor.execute("""
+        SELECT id, jumlah_award_miles, harga_paket
+        FROM AWARD_MILES_PACKAGE
+        ORDER BY harga_paket
+    """)
+    package_rows = cursor.fetchall()
+    packages = [
+        {
+            'id': r[0],
+            'jumlah_award_miles': r[1],
+            'harga_paket': float(r[2]),
+        }
+        for r in package_rows
+    ]
+
+    # Ambil riwayat pembelian member
+    cursor.execute("""
+        SELECT m.id_award_miles_package, a.jumlah_award_miles, a.harga_paket, m.timestamp
+        FROM MEMBER_AWARD_MILES_PACKAGE m
+        JOIN AWARD_MILES_PACKAGE a ON m.id_award_miles_package = a.id
+        WHERE m.email_member = %s
+        ORDER BY m.timestamp DESC
+    """, [email_member])
+    riwayat_rows = cursor.fetchall()
+    riwayat = [
+        {
+            'id': r[0],
+            'jumlah_award_miles': r[1],
+            'harga_paket': float(r[2]),
+            'timestamp': str(r[3])[:19],
+        }
+        for r in riwayat_rows
+    ]
+
+    cursor.close()
+    conn.close()
+
+    return render(request, 'member/beli-package.html', {
+        'award_miles': award_miles,
+        'packages_json': json.dumps(packages),
+        'riwayat_json': json.dumps(riwayat),
+    })
+
+
+@csrf_exempt
+def beli_package_post(request):
+    if request.method == 'POST':
+        email_member = 'andika.pratama@mail.com'
+        data = json.loads(request.body)
+        id_package = data.get('id_package')
+
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            # Insert ke MEMBER_AWARD_MILES_PACKAGE
+            # trigger sync_miles_after_package otomatis nambah award_miles
+            cursor.execute("""
+                INSERT INTO MEMBER_AWARD_MILES_PACKAGE (id_award_miles_package, email_member)
+                VALUES (%s, %s)
+            """, [id_package, email_member])
+
+            # Ambil sisa miles setelah trigger jalan
+            cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
+            award_miles_baru = cursor.fetchone()[0]
+
+            conn.commit()
+            return JsonResponse({'success': True, 'award_miles': award_miles_baru})
+
+        except Exception as e:
+            conn.rollback()
+            return JsonResponse({'error': str(e)}, status=500)
+        finally:
+            cursor.close()
+            conn.close()
 
 def info_tier(request):
     return render(request, 'member/info-tier.html')
