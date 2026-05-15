@@ -848,38 +848,6 @@ def dashboard_member(request):
         conn.close()
 
 def identitas(request):
-<<<<<<< HEAD
-    return render(request, 'member/identitas.html')
-
-
-def validate_member_email(request):
-    email_target = request.GET.get('email', '').strip().lower()
-    email_self   = request.session.get('email', '')
-
-    if not email_target:
-        return JsonResponse({'valid': False, 'pesan': ''})
-
-    if email_target == email_self:
-        return JsonResponse({'valid': False, 'pesan': 'Anda tidak dapat mentransfer miles ke diri sendiri.'})
-
-    conn = get_connection()
-    cur  = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT m.nomor_member, p.first_mid_name || ' ' || p.last_name AS nama
-            FROM MEMBER m
-            JOIN PENGGUNA p ON p.email = m.email
-            WHERE m.email = %s
-        """, (email_target,))
-        row = cur.fetchone()
-        if row:
-            return JsonResponse({'valid': True, 'nama': row[1], 'nomor': row[0]})
-        else:
-            return JsonResponse({'valid': False, 'pesan': 'Email tidak terdaftar sebagai Member aktif.'})
-    finally:
-        cur.close()
-        conn.close()
-=======
     """READ — tampilkan semua identitas milik member yang sedang login."""
     if not request.session.get('email') or request.session.get('role') != 'member':
         return redirect('/auth/login/')
@@ -1051,4 +1019,32 @@ def identitas_delete(request, nomor):
         conn.close()
  
     return redirect('member:identitas')
->>>>>>> c135b9c1e1b060920a3f16b291ec3425cea12bef
+
+
+def validate_member_email(request):
+    email_target = request.GET.get('email', '').strip().lower()
+    email_self   = request.session.get('email', '')
+
+    if not email_target:
+        return JsonResponse({'valid': False, 'pesan': ''})
+
+    if email_target == email_self:
+        return JsonResponse({'valid': False, 'pesan': 'Anda tidak dapat mentransfer miles ke diri sendiri.'})
+
+    conn = get_connection()
+    cur  = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT m.nomor_member, p.first_mid_name || ' ' || p.last_name AS nama
+            FROM MEMBER m
+            JOIN PENGGUNA p ON p.email = m.email
+            WHERE m.email = %s
+        """, (email_target,))
+        row = cur.fetchone()
+        if row:
+            return JsonResponse({'valid': True, 'nama': row[1], 'nomor': row[0]})
+        else:
+            return JsonResponse({'valid': False, 'pesan': 'Email tidak terdaftar sebagai Member aktif.'})
+    finally:
+        cur.close()
+        conn.close()
