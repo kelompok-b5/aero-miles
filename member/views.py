@@ -239,8 +239,10 @@ def info_tier(request):
     })
 
 # CLAIM MISSING MILES 
-
-def claim_view(request):
+def claim_member(request):
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+    
     email = request.session['email']
     conn = get_connection()
     cur = conn.cursor()
@@ -274,7 +276,7 @@ def claim_view(request):
             """, (email,))
         klaim_list = cur.fetchall()
 
-        return render(request, 'claim-member.html', {
+        return render(request, 'member/claim-member.html', {
             'member': member,
             'klaim_list': klaim_list,
             'maskapai_list': maskapai_list,
@@ -285,7 +287,7 @@ def claim_view(request):
         cur.close()
         conn.close()
 
-
+@csrf_exempt
 def claim_create(request):
     if request.method != 'POST':
         return redirect('member:claim-member')
@@ -324,7 +326,7 @@ def claim_create(request):
 
     return redirect('member:claim-member')
 
-
+@csrf_exempt
 def claim_edit(request, klaim_id):
     if request.method != 'POST':
         return redirect('member:claim-member')
@@ -368,7 +370,7 @@ def claim_edit(request, klaim_id):
         conn.close()
 
     return redirect('member:claim-member')
-r
+
 def claim_delete(request, klaim_id):
     if request.method != 'POST':
         return redirect('member:claim-member')
@@ -394,7 +396,10 @@ def claim_delete(request, klaim_id):
 
 
 # TRANSFER MILES 
-def transfer_view(request):
+def transfer_miles(request):
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+    
     email = request.session['email']
     conn = get_connection()
     cur = conn.cursor()
@@ -421,7 +426,7 @@ def transfer_view(request):
         """, (email, email, email, email, email))
         riwayat = cur.fetchall()
 
-        return render(request, 'transfer.html', {
+        return render(request, 'member/transfer-miles.html', {
             'member': member,
             'riwayat': riwayat,
         })
@@ -429,6 +434,7 @@ def transfer_view(request):
         cur.close()
         conn.close()
 
+@csrf_exempt
 def transfer_create(request):
     if request.method != 'POST':
         return redirect('member:transfer-miles')
