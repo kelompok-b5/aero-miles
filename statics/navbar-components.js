@@ -22,6 +22,12 @@ const NAV_ITEMS = {
   ],
 };
 
+// Keys yang disembunyikan dari nav links saat sudah login (sudah ada di dropdown)
+const HIDDEN_WHEN_LOGGED_IN = {
+  member: ['login', 'profil'],
+  staf:   ['login', 'profile'],
+};
+
 const CSS = `
   :host { display: block; }
 
@@ -237,6 +243,12 @@ class AeroNavbar extends HTMLElement {
   get _active() { return this.getAttribute('active') || ''; }
   get _user()   { return window.AERO_USER || null; }
 
+  // Filter item nav: buang key yang ada di HIDDEN_WHEN_LOGGED_IN untuk role tsb
+  _filterItems(role) {
+    const hidden = HIDDEN_WHEN_LOGGED_IN[role] || [];
+    return NAV_ITEMS[role].filter(item => !hidden.includes(item.key));
+  }
+
   _render() {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
@@ -254,7 +266,7 @@ class AeroNavbar extends HTMLElement {
     return '';
   }
 
-// ──────────────── GUEST ────────────────
+  // ──────────────── GUEST ────────────────
   _navGuest() {
     return `
       <nav class="guest">
@@ -262,7 +274,7 @@ class AeroNavbar extends HTMLElement {
           ${this._brand('guest')}
           <div class="right">
             <a class="btn-outline" href="/auth/login/">Login</a>
-            <a class="btn-solid"   href="/auth/register/">Registrasi</a>
+            <a class="btn-solid"   href="/auth/login/">Registrasi</a>
           </div>
         </div>
       </nav>
@@ -272,12 +284,14 @@ class AeroNavbar extends HTMLElement {
   // ──────────────── MEMBER ────────────────
   _navMember() {
     const user = this._user || { nama: 'Mr. Andika Pratama', singkatan: 'AP', sub: 'Diamond · M0001' };
-    const links = NAV_ITEMS.member.map(item => `
+    const items = this._filterItems('member');
+
+    const links = items.map(item => `
       <a class="link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
     `).join('');
-    const mobileLinks = NAV_ITEMS.member.map(item => `
+    const mobileLinks = items.map(item => `
       <a class="mobile-link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
@@ -322,12 +336,14 @@ class AeroNavbar extends HTMLElement {
   // ──────────────── STAF ────────────────
   _navStaf() {
     const user = this._user || { nama: 'Dr. Sarah Williams', singkatan: 'SW', sub: 'Staff · sarah.williams@mail.com' };
-    const links = NAV_ITEMS.staf.map(item => `
+    const items = this._filterItems('staf');
+
+    const links = items.map(item => `
       <a class="link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
     `).join('');
-    const mobileLinks = NAV_ITEMS.staf.map(item => `
+    const mobileLinks = items.map(item => `
       <a class="mobile-link${this._active === item.key ? ' active' : ''}" href="${item.href}">
         ${item.label}
       </a>
@@ -368,7 +384,7 @@ class AeroNavbar extends HTMLElement {
       </nav>
     `;
   }
-  
+
   // ──────────────── HELPERS ────────────────
   _brand(role) {
     const badge = role === 'staf' ? '<span class="brand-badge">STAF</span>' : '';
