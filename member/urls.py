@@ -16,13 +16,12 @@ urlpatterns = [
     path('claim-member/edit/<int:klaim_id>/', views.claim_edit, name='claim-edit'),      
     path('claim-member/delete/<int:klaim_id>/', views.claim_delete, name='claim-delete'),   
     path('profil/', views.profil, name='profil'),
+    path('profil/update/', views.update_profil, name='update_profil'),
+    path('profil/ubah-password/', views.ubah_password, name='ubah_password'),
     path('dashboard-member/', views.dashboard_member, name='dashboard-member'),
     path('identitas/', views.identitas, name='identitas'),
-<<<<<<< HEAD
     path('validate-member-email/', views.validate_member_email, name='validate-member-email'),
-=======
     path('identitas/create/', views.identitas_create, name='identitas-create'),
     path('identitas/edit/<str:nomor>/', views.identitas_edit, name='identitas-edit'),
     path('identitas/delete/<str:nomor>/', views.identitas_delete, name='identitas-delete'),
->>>>>>> c135b9c1e1b060920a3f16b291ec3425cea12bef
 ]

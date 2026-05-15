@@ -143,7 +143,7 @@ INSERT INTO MEMBER (email, nomor_member, tanggal_bergabung, id_tier) VALUES
 ('ryo.kato@mail.com','M0050','2024-08-10','T001');
 
 INSERT INTO PENYEDIA (id) VALUES
-  (1), (2), (3), (4), (5), (6), (7), (8);
+  (1), (2), (3), (4), (5), (6), (7), (8), (9), (10);
 
 INSERT INTO MASKAPAI (kode_maskapai, nama_maskapai, id_penyedia) VALUES
   ('GA', 'Garuda Indonesia', 1),
@@ -182,11 +182,11 @@ INSERT INTO BANDARA (iata_code, nama, kota, negara) VALUES
   ('LAX', 'Los Angeles International Airport', 'Los Angeles', 'USA');
 
 INSERT INTO MITRA (email_mitra, id_penyedia, nama_mitra, tanggal_kerja_sama) VALUES
-  ('mitra@garuda.com', 1, 'Garuda Miles Partner', '2020-01-15'),
-  ('mitra@citilink.com', 2, 'Citilink Rewards', '2020-03-20'),
-  ('mitra@lionair.com', 3, 'Lion Miles', '2021-06-10'),
-  ('mitra@sriwijaya.com', 4, 'Sriwijaya Club', '2021-09-05'),
-  ('mitra@batik.com', 5, 'Batik Miles', '2022-02-28');
+  ('mitra@garuda.com', 6, 'Garuda Miles Partner', '2020-01-15'),
+  ('mitra@citilink.com', 7, 'Citilink Rewards', '2020-03-20'),
+  ('mitra@lionair.com', 8, 'Lion Miles', '2021-06-10'),
+  ('mitra@sriwijaya.com', 9, 'Sriwijaya Club', '2021-09-05'),
+  ('mitra@batik.com', 10, 'Batik Miles', '2022-02-28');
   
 INSERT INTO HADIAH (kode_hadiah, nama, miles, deskripsi, valid_start_date, program_end, id_penyedia) VALUES
   ('RWD-001', 'Free Ticket Domestik', 15000, 'Tiket gratis rute domestik', '2025-01-01', '2026-06-30', 1),
