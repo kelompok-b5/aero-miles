@@ -100,8 +100,253 @@ def claim_proses(request, klaim_id):
 def kelola_hadiah(request):
     return render(request, 'staf/kelola-hadiah.html')
 
+
+# HELPER
+
+def _get_lowest_tier_id(cur):
+    """Ambil id_tier terendah berdasarkan minimal_tier_miles."""
+    cur.execute("""
+        SELECT id_tier FROM TIER
+        ORDER BY minimal_tier_miles ASC
+        LIMIT 1
+    """)
+    row = cur.fetchone()
+    return row[0] if row else None
+ 
+ 
+def _generate_nomor_member(cur):
+    """Generate nomor member berikutnya dalam format M0001, M0002, ..."""
+    cur.execute("""
+        SELECT nomor_member FROM MEMBER
+        ORDER BY nomor_member DESC
+        LIMIT 1
+    """)
+    row = cur.fetchone()
+    if row:
+        last_num = int(row[0][1:])  # strip 'M', ambil angkanya
+        return f"M{(last_num + 1):04d}"
+    return "M0001"
+
+# Kelola Member (CRUD) 
+
 def kelola_member(request):
-    return render(request, 'staf/kelola-member.html')
+
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+ 
+    search_query = request.GET.get('search', '').strip()
+    filter_tier  = request.GET.get('tier', '').strip()
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        sql = """
+            SELECT
+                m.email,
+                m.nomor_member,
+                p.salutation,
+                p.first_mid_name,
+                p.last_name,
+                t.id_tier,
+                t.nama        AS nama_tier,
+                m.total_miles,
+                m.award_miles,
+                m.tanggal_bergabung
+            FROM MEMBER m
+            JOIN PENGGUNA p ON m.email = p.email
+            JOIN TIER     t ON m.id_tier = t.id_tier
+            WHERE 1=1
+        """
+        params = []
+ 
+        if search_query:
+            sql += """
+                AND (
+                    LOWER(p.first_mid_name || ' ' || p.last_name) LIKE LOWER(%s)
+                    OR LOWER(m.email)        LIKE LOWER(%s)
+                    OR LOWER(m.nomor_member) LIKE LOWER(%s)
+                )
+            """
+            like = f"%{search_query}%"
+            params.extend([like, like, like])
+ 
+        if filter_tier:
+            sql += " AND m.id_tier = %s"
+            params.append(filter_tier)
+ 
+        sql += " ORDER BY m.nomor_member ASC"
+        cur.execute(sql, params)
+        columns = [col[0] for col in cur.description]
+        members = [dict(zip(columns, row)) for row in cur.fetchall()]
+ 
+        # Dropdown filter tier
+        cur.execute("SELECT id_tier, nama FROM TIER ORDER BY minimal_tier_miles ASC")
+        tiers = cur.fetchall()
+ 
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return render(request, 'staf/kelola-member.html', {
+        'members': members,
+        'tiers': tiers,
+        'search_query': search_query,
+        'filter_tier': filter_tier,
+    })
+ 
+ 
+def member_create(request):
+
+    if request.method != 'POST':
+        return redirect('staf:kelola-member')
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+ 
+    email           = request.POST.get('email', '').strip().lower()
+    password        = request.POST.get('password', '').strip()
+    salutation      = request.POST.get('salutation', '').strip()
+    first_mid_name  = request.POST.get('first_mid_name', '').strip()
+    last_name       = request.POST.get('last_name', '').strip()
+    country_code    = request.POST.get('country_code', '').strip()
+    mobile_number   = request.POST.get('mobile_number', '').strip()
+    tanggal_lahir   = request.POST.get('tanggal_lahir', '').strip()
+    kewarganegaraan = request.POST.get('kewarganegaraan', '').strip()
+ 
+    if not all([email, password, salutation, first_mid_name, last_name,
+                country_code, mobile_number, tanggal_lahir, kewarganegaraan]):
+        messages.error(request, 'Semua field wajib diisi.')
+        return redirect('staf:kelola-member')
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Cek duplikasi email — trigger di DB juga cek ini,
+        # tapi kita cek duluan biar pesan error lebih bersih
+        cur.execute(
+            "SELECT 1 FROM PENGGUNA WHERE LOWER(email) = LOWER(%s)",
+            [email]
+        )
+        if cur.fetchone():
+            messages.error(request, f'Email "{email}" sudah terdaftar, silakan gunakan email lain.')
+            return redirect('staf:kelola-member')
+ 
+        hashed_pw    = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        nomor_member = _generate_nomor_member(cur)
+        id_tier_awal = _get_lowest_tier_id(cur)
+ 
+        cur.execute("""
+            INSERT INTO PENGGUNA
+                (email, password, salutation, first_mid_name, last_name,
+                 country_code, mobile_number, tanggal_lahir, kewarganegaraan)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, [email, hashed_pw, salutation, first_mid_name, last_name,
+              country_code, mobile_number, tanggal_lahir, kewarganegaraan])
+ 
+        cur.execute("""
+            INSERT INTO MEMBER
+                (email, nomor_member, tanggal_bergabung, id_tier, award_miles, total_miles)
+            VALUES (%s, %s, CURRENT_DATE, %s, 0, 0)
+        """, [email, nomor_member, id_tier_awal])
+ 
+        conn.commit()
+        messages.success(request, f'Member {first_mid_name} {last_name} berhasil ditambahkan ({nomor_member}).')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal menambahkan member: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('staf:kelola-member')
+ 
+ 
+def member_edit(request, email):
+    """UPDATE — staf edit data profil + tier member."""
+    if request.method != 'POST':
+        return redirect('staf:kelola-member')
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+ 
+    salutation      = request.POST.get('salutation', '').strip()
+    first_mid_name  = request.POST.get('first_mid_name', '').strip()
+    last_name       = request.POST.get('last_name', '').strip()
+    country_code    = request.POST.get('country_code', '').strip()
+    mobile_number   = request.POST.get('mobile_number', '').strip()
+    tanggal_lahir   = request.POST.get('tanggal_lahir', '').strip()
+    kewarganegaraan = request.POST.get('kewarganegaraan', '').strip()
+    id_tier         = request.POST.get('id_tier', '').strip()
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Update data profil di PENGGUNA (email tidak bisa diubah)
+        cur.execute("""
+            UPDATE PENGGUNA
+            SET salutation      = %s,
+                first_mid_name  = %s,
+                last_name       = %s,
+                country_code    = %s,
+                mobile_number   = %s,
+                tanggal_lahir   = %s,
+                kewarganegaraan = %s
+            WHERE email = %s
+        """, [salutation, first_mid_name, last_name, country_code,
+              mobile_number, tanggal_lahir, kewarganegaraan, email])
+ 
+        # Update tier jika dikirim
+        if id_tier:
+            cur.execute(
+                "UPDATE MEMBER SET id_tier = %s WHERE email = %s",
+                [id_tier, email]
+            )
+ 
+        conn.commit()
+        messages.success(request, 'Data member berhasil diperbarui.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal memperbarui member: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('staf:kelola-member')
+ 
+ 
+def member_delete(request, email):
+    """DELETE — hapus member beserta semua data terkait."""
+    if request.method != 'POST':
+        return redirect('staf:kelola-member')
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Hapus child tables dulu (urutan sesuai FK),
+        # sebelum hapus MEMBER dan PENGGUNA
+        cur.execute("DELETE FROM IDENTITAS               WHERE email_member = %s", [email])
+        cur.execute("DELETE FROM REDEEM                  WHERE email_member = %s", [email])
+        cur.execute("DELETE FROM MEMBER_AWARD_MILES_PACKAGE WHERE email_member = %s", [email])
+        cur.execute("""
+            DELETE FROM TRANSFER
+            WHERE email_member_1 = %s OR email_member_2 = %s
+        """, [email, email])
+        cur.execute("""
+            DELETE FROM CLAIM_MISSING_MILES WHERE email_member = %s
+        """, [email])
+        cur.execute("DELETE FROM MEMBER   WHERE email = %s", [email])
+        cur.execute("DELETE FROM PENGGUNA WHERE email = %s", [email])
+ 
+        conn.commit()
+        messages.success(request, 'Member beserta seluruh data terkait berhasil dihapus.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal menghapus member: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('staf:kelola-member')
 
 def kelola_mitra(request):
     return render(request, 'staf/kelola-mitra.html')
