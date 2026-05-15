@@ -1,5 +1,5 @@
 from pyexpat.errors import messages
-
+from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from aeromiles.db import get_connection
@@ -249,7 +249,7 @@ def info_tier(request):
 def claim_member(request):
     if not request.session.get('email') or request.session.get('role') != 'member':
         return redirect('/auth/login/')
-    
+
     email = request.session['email']
     conn = get_connection()
     cur = conn.cursor()
@@ -257,18 +257,19 @@ def claim_member(request):
         cur.execute("SELECT award_miles FROM MEMBER WHERE email = %s", (email,))
         member = cur.fetchone()
 
-        # Ambil semua maskapai & bandara untuk dropdown
-        cur.execute("SELECT kode_maskapai, nama_maskapai FROM MASKAPAI")
+        cur.execute("SELECT kode_maskapai, nama_maskapai FROM MASKAPAI ORDER BY nama_maskapai")
         maskapai_list = cur.fetchall()
-        cur.execute("SELECT iata_code, nama, kota FROM BANDARA")
+
+   
+        cur.execute("SELECT iata_code, nama, kota FROM BANDARA ORDER BY kota")
         bandara_list = cur.fetchall()
 
-        # Ambil riwayat klaim member
         filter_status = request.GET.get('status', '')
         if filter_status:
             cur.execute("""
                 SELECT id, maskapai, bandara_asal, bandara_tujuan, tanggal_penerbangan,
-                       flight_number, kelas_kabin, status_penerimaan, timestamp
+                       flight_number, kelas_kabin, status_penerimaan, timestamp,
+                       nomor_tiket, pnr
                 FROM CLAIM_MISSING_MILES
                 WHERE email_member = %s AND status_penerimaan = %s
                 ORDER BY timestamp DESC
@@ -276,7 +277,8 @@ def claim_member(request):
         else:
             cur.execute("""
                 SELECT id, maskapai, bandara_asal, bandara_tujuan, tanggal_penerbangan,
-                       flight_number, kelas_kabin, status_penerimaan, timestamp
+                       flight_number, kelas_kabin, status_penerimaan, timestamp,
+                       nomor_tiket, pnr
                 FROM CLAIM_MISSING_MILES
                 WHERE email_member = %s
                 ORDER BY timestamp DESC
@@ -299,7 +301,10 @@ def claim_create(request):
     if request.method != 'POST':
         return redirect('member:claim-member')
 
-    email = request.session['email']
+    email = request.session.get('email')
+    if not email:
+        return redirect('/auth/login/')
+
     data = (
         email,
         request.POST.get('maskapai'),
@@ -323,10 +328,13 @@ def claim_create(request):
         """, data)
         conn.commit()
         messages.success(request, 'Klaim berhasil diajukan! Status: Menunggu verifikasi.')
+
+        for notice in conn.notices:
+            messages.info(request, notice.strip())
+
     except Exception as e:
         conn.rollback()
-        # Pesan error dari PostgreSQL
-        messages.error(request, f'Gagal mengajukan klaim: {e}')
+        messages.error(request, str(e).split('\n')[0])
     finally:
         cur.close()
         conn.close()
@@ -334,28 +342,45 @@ def claim_create(request):
     return redirect('member:claim-member')
 
 @csrf_exempt
-def claim_edit(request, klaim_id):
+def claim_edit(request, klaim_id):  
     if request.method != 'POST':
         return redirect('member:claim-member')
 
-    email = request.session['email']
+    email = request.session.get('email')
+    if not email:
+        return redirect('/auth/login/')
+
     conn = get_connection()
     cur = conn.cursor()
     try:
         cur.execute("""
             SELECT id FROM CLAIM_MISSING_MILES
-            WHERE id = %s AND email_member = %s AND status_penerimaan = 'Menunggu'
+            WHERE id = %s
+              AND email_member = %s
+              AND status_penerimaan = 'Menunggu'
         """, (klaim_id, email))
+
         if not cur.fetchone():
-            messages.error(request, 'Klaim tidak dapat diedit.')
+            messages.error(
+                request,
+                f'Klaim CLM-{str(klaim_id).zfill(4)} tidak dapat diedit '
+                '(tidak ditemukan atau sudah diproses).'
+            )
             return redirect('member:claim-member')
 
         cur.execute("""
             UPDATE CLAIM_MISSING_MILES SET
-                maskapai = %s, bandara_asal = %s, bandara_tujuan = %s,
-                tanggal_penerbangan = %s, flight_number = %s,
-                nomor_tiket = %s, kelas_kabin = %s, pnr = %s
-            WHERE id = %s AND email_member = %s
+                maskapai            = %s,
+                bandara_asal        = %s,
+                bandara_tujuan      = %s,
+                tanggal_penerbangan = %s,
+                flight_number       = %s,
+                nomor_tiket         = %s,
+                kelas_kabin         = %s,
+                pnr                 = %s
+            WHERE id = %s
+              AND email_member = %s
+              AND status_penerimaan = 'Menunggu'
         """, (
             request.POST.get('maskapai'),
             request.POST.get('bandara_asal'),
@@ -365,13 +390,15 @@ def claim_edit(request, klaim_id):
             request.POST.get('nomor_tiket'),
             request.POST.get('kelas_kabin'),
             request.POST.get('pnr'),
-            klaim_id, email
+            klaim_id,
+            email,
         ))
         conn.commit()
         messages.success(request, f'Klaim CLM-{str(klaim_id).zfill(4)} berhasil diperbarui.')
+
     except Exception as e:
         conn.rollback()
-        messages.error(request, f'Gagal memperbarui klaim: {e}')
+        messages.error(request, str(e).split('\n')[0])
     finally:
         cur.close()
         conn.close()
@@ -379,28 +406,42 @@ def claim_edit(request, klaim_id):
     return redirect('member:claim-member')
 
 def claim_delete(request, klaim_id):
+    """Batalkan (hapus) klaim — hanya boleh jika status masih 'Menunggu'."""
     if request.method != 'POST':
         return redirect('member:claim-member')
 
-    email = request.session['email']
+    email = request.session.get('email')
+    if not email:
+        return redirect('/auth/login/')
+
     conn = get_connection()
     cur = conn.cursor()
     try:
         cur.execute("""
             DELETE FROM CLAIM_MISSING_MILES
-            WHERE id = %s AND email_member = %s AND status_penerimaan = 'Menunggu'
+            WHERE id = %s
+              AND email_member = %s
+              AND status_penerimaan = 'Menunggu'
         """, (klaim_id, email))
-        conn.commit()
-        messages.success(request, f'Klaim CLM-{str(klaim_id).zfill(4)} berhasil dibatalkan.')
+
+        if cur.rowcount == 0:
+            messages.error(
+                request,
+                f'Klaim CLM-{str(klaim_id).zfill(4)} tidak dapat dibatalkan '
+                '(tidak ditemukan atau sudah diproses).'
+            )
+        else:
+            conn.commit()
+            messages.success(request, f'Klaim CLM-{str(klaim_id).zfill(4)} berhasil dibatalkan.')
+
     except Exception as e:
         conn.rollback()
-        messages.error(request, f'Gagal membatalkan klaim: {e}')
+        messages.error(request, f'Gagal membatalkan klaim: {str(e).split(chr(10))[0]}')
     finally:
         cur.close()
         conn.close()
 
     return redirect('member:claim-member')
-
 
 # TRANSFER MILES 
 def transfer_miles(request):
@@ -807,6 +848,38 @@ def dashboard_member(request):
         conn.close()
 
 def identitas(request):
+<<<<<<< HEAD
+    return render(request, 'member/identitas.html')
+
+
+def validate_member_email(request):
+    email_target = request.GET.get('email', '').strip().lower()
+    email_self   = request.session.get('email', '')
+
+    if not email_target:
+        return JsonResponse({'valid': False, 'pesan': ''})
+
+    if email_target == email_self:
+        return JsonResponse({'valid': False, 'pesan': 'Anda tidak dapat mentransfer miles ke diri sendiri.'})
+
+    conn = get_connection()
+    cur  = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT m.nomor_member, p.first_mid_name || ' ' || p.last_name AS nama
+            FROM MEMBER m
+            JOIN PENGGUNA p ON p.email = m.email
+            WHERE m.email = %s
+        """, (email_target,))
+        row = cur.fetchone()
+        if row:
+            return JsonResponse({'valid': True, 'nama': row[1], 'nomor': row[0]})
+        else:
+            return JsonResponse({'valid': False, 'pesan': 'Email tidak terdaftar sebagai Member aktif.'})
+    finally:
+        cur.close()
+        conn.close()
+=======
     """READ — tampilkan semua identitas milik member yang sedang login."""
     if not request.session.get('email') or request.session.get('role') != 'member':
         return redirect('/auth/login/')
@@ -978,3 +1051,4 @@ def identitas_delete(request, nomor):
         conn.close()
  
     return redirect('member:identitas')
+>>>>>>> c135b9c1e1b060920a3f16b291ec3425cea12bef
