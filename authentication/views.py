@@ -50,11 +50,23 @@ def handle_login(request, data):
         request.session['role'] = 'member' if member else 'staf'
 
         if member:
+            # Ambil nama tier
+            cursor.execute("SELECT nama FROM TIER WHERE id_tier = %s", [member[1]])
+            tier = cursor.fetchone()
+            nama_tier = tier[0] if tier else ''
+
+            # Buat singkatan dari first_mid_name dan last_name
+            singkatan = (user[3][0] + user[4][0]).upper() if user[3] and user[4] else 'AM'
+
             request.session['nomor_member'] = member[0]
             request.session['id_tier'] = member[1]
+            request.session['nama_tier'] = nama_tier
+            request.session['singkatan'] = singkatan
             redirect_url = '/member/dashboard-member/'
         else:
+            singkatan = (user[3][0] + user[4][0]).upper() if user[3] and user[4] else 'AM'
             request.session['id_staf'] = staf[0]
+            request.session['singkatan'] = singkatan
             redirect_url = '/staf/dashboard-staf/'
 
         return JsonResponse({'success': True, 'redirect': redirect_url})
