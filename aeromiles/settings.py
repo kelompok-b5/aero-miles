@@ -27,9 +27,16 @@ SECRET_KEY = 'django-insecure-s(p#$t*2gkwnshb$l0_t5&@0ab^s)pj=q^zi51ibi=8%15sw4z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "aero-miles-production.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+]
 
-# Tambahkan / pastikan ini ada
+CSRF_TRUSTED_ORIGINS = [
+    "https://aero-miles-production.up.railway.app",
+]
+
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/member/dashboard-member/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
