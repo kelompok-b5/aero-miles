@@ -344,9 +344,9 @@
   const penyediaData = JSON.parse('{{ penyedia_json|escapejs }}');
 
   // URL endpoints — resolved Django supaya tidak hardcode path
-  const URL_TAMBAH = "{% url 'tambah-hadiah' %}";
-  const URL_EDIT   = "{% url 'edit-hadiah' %}";
-  const URL_HAPUS  = "{% url 'hapus-hadiah' %}";
+  const URL_TAMBAH = "{% url 'staf:tambah-hadiah' %}";
+  const URL_EDIT   = "{% url 'staf:edit-hadiah' %}";
+  const URL_HAPUS  = "{% url 'staf:hapus-hadiah' %}";
 
   const today = new Date().toISOString().split('T')[0];
 

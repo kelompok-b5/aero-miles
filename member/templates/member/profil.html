@@ -223,7 +223,7 @@
 
       try {
 
-          const response = await fetch("{% url 'update_profil' %}", {
+          const response = await fetch("{% url 'member:update_profil' %}", {
               method: 'POST',
               headers: {
                   'X-CSRFToken': '{{ csrf_token }}'
@@ -284,7 +284,7 @@
 
       try {
 
-          const response = await fetch("{% url 'ubah_password' %}", {
+          const response = await fetch("{% url 'member:ubah_password' %}", {
 
               method: 'POST',
 

@@ -207,7 +207,7 @@
 
         <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #f0f5f8;display:flex;justify-content:flex-end;">
 
-          <a href="{% url 'profile-staf' %}" class="link-btn">
+          <a href="{% url 'staf:profile-staf' %}" class="link-btn">
             Edit Profil
 
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -233,7 +233,7 @@
           Ringkasan Klaim Missing Miles
         </div>
 
-        <a href="{% url 'claim-staff' %}" class="link-btn">
+        <a href="{% url 'staf:claim-staff' %}" class="link-btn">
           Lihat Semua →
         </a>
 
@@ -310,7 +310,7 @@
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #f0f5f8;">
 
           <a
-            href="{% url 'claim-staff' %}"
+            href="{% url 'staf:claim-staff' %}"
             style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--navy);color:white;font-size:0.78rem;font-weight:700;padding:0.6rem 1.25rem;border-radius:10px;text-decoration:none;transition:all 0.18s;"
             onmouseover="this.style.background='#163352'"
             onmouseout="this.style.background='var(--navy)'"

@@ -328,7 +328,7 @@
       try {
 
         const response = await fetch(
-          "{% url 'update-profile-staf' %}",
+          "{% url 'staf:update-profile-staf' %}",
           {
             method:'POST',
             body:formData
@@ -407,7 +407,7 @@
     try {
 
       const response = await fetch(
-        "{% url 'ubah-password-staf' %}",
+        "{% url 'staf:ubah-password-staf' %}",
         {
           method:'POST',
           headers:{
