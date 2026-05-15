@@ -18,4 +18,7 @@ urlpatterns = [
     path('profil/', views.profil, name='profil'),
     path('dashboard-member/', views.dashboard_member, name='dashboard-member'),
     path('identitas/', views.identitas, name='identitas'),
+    path('identitas/create/', views.identitas_create, name='identitas-create'),
+    path('identitas/edit/<str:nomor>/', views.identitas_edit, name='identitas-edit'),
+    path('identitas/delete/<str:nomor>/', views.identitas_delete, name='identitas-delete'),
 ]

@@ -483,6 +483,11 @@ def identitas(request):
     conn = get_connection()
     cur = conn.cursor()
     try:
+        # Ambil award_miles untuk ditampilkan di hero
+        cur.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
+        member_row = cur.fetchone()
+        award_miles = member_row[0] if member_row else 0
+ 
         cur.execute("""
             SELECT
                 nomor,
@@ -505,6 +510,7 @@ def identitas(request):
  
     return render(request, 'member/identitas.html', {
         'identitas_list': identitas_list,
+        'award_miles': award_miles,
     })
  
  

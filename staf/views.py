@@ -128,7 +128,7 @@ def _generate_nomor_member(cur):
     return "M0001"
 
 # Kelola Member (CRUD) 
-
+ 
 def kelola_member(request):
 
     if not request.session.get('email') or request.session.get('role') != 'staf':
@@ -147,6 +147,10 @@ def kelola_member(request):
                 p.salutation,
                 p.first_mid_name,
                 p.last_name,
+                p.country_code,
+                p.mobile_number,
+                p.tanggal_lahir,
+                p.kewarganegaraan,
                 t.id_tier,
                 t.nama        AS nama_tier,
                 m.total_miles,
@@ -179,6 +183,10 @@ def kelola_member(request):
         columns = [col[0] for col in cur.description]
         members = [dict(zip(columns, row)) for row in cur.fetchall()]
  
+        # Hitung stats untuk hero
+        members_active_count  = sum(1 for m in members if (m['total_miles'] or 0) > 0)
+        members_diamond_count = sum(1 for m in members if m['nama_tier'] == 'Diamond')
+ 
         # Dropdown filter tier
         cur.execute("SELECT id_tier, nama FROM TIER ORDER BY minimal_tier_miles ASC")
         tiers = cur.fetchall()
@@ -192,11 +200,13 @@ def kelola_member(request):
         'tiers': tiers,
         'search_query': search_query,
         'filter_tier': filter_tier,
+        'members_active_count': members_active_count,
+        'members_diamond_count': members_diamond_count,
     })
  
  
 def member_create(request):
-
+ 
     if request.method != 'POST':
         return redirect('staf:kelola-member')
     if not request.session.get('email') or request.session.get('role') != 'staf':
@@ -261,7 +271,6 @@ def member_create(request):
  
  
 def member_edit(request, email):
-    """UPDATE — staf edit data profil + tier member."""
     if request.method != 'POST':
         return redirect('staf:kelola-member')
     if not request.session.get('email') or request.session.get('role') != 'staf':
@@ -313,7 +322,6 @@ def member_edit(request, email):
  
  
 def member_delete(request, email):
-    """DELETE — hapus member beserta semua data terkait."""
     if request.method != 'POST':
         return redirect('staf:kelola-member')
     if not request.session.get('email') or request.session.get('role') != 'staf':

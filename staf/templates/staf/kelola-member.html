@@ -4,81 +4,40 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Management Member - AeroMiles</title>
+  <title>Kelola Member - AeroMiles</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="{% static 'navbar-components.js' %}" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: #eaf3f8; min-height: 100vh; }
-    :root {
-      --navy: #0d2137; --navy2: #163352;
-      --gold: #f0a500; --gold-light: #f7c04a; --gold-dark: #c47a00;
-      --teal: #3dbfbf;
-      --muted: #6b8499;
-    }
-
-    /* HERO */
-    .hero-strip {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
-      padding: 2rem 2rem 3.5rem; position: relative; overflow: hidden;
-    }
-    .hero-strip::before {
-      content:''; position:absolute; right:-40px; top:-80px;
-      width:280px; height:280px; border-radius:50%;
-      background:rgba(240,165,0,0.06);
-    }
+    :root { --navy:#0d2137; --navy2:#163352; --gold:#f0a500; --gold-light:#f7c04a; --gold-dark:#c47a00; --teal:#3dbfbf; --muted:#6b8499; }
+    .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2rem 2rem 3.5rem; position:relative; overflow:hidden; }
+    .hero-strip::before { content:''; position:absolute; right:-40px; top:-80px; width:280px; height:280px; border-radius:50%; background:rgba(240,165,0,0.06); }
     .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; gap:2rem; flex-wrap:wrap; }
     .hero-title { color:white; font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
     .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
-
-    /* STATS CARDS */
     .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
     .stat-card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:1rem 1.25rem; }
     .stat-num { font-size:1.8rem; font-weight:800; color:white; }
     .stat-label { font-size:0.72rem; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
-    .stat-num.gold { color:var(--gold); }
+    .stat-num.gold  { color:var(--gold); }
     .stat-num.green { color:#5ddb9a; }
-    .stat-num.blue { color:#9dbcfa; }
-
-    /* CONTENT */
+    .stat-num.blue  { color:#9dbcfa; }
     .content { max-width:1280px; margin:-1.5rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
-
-    /* TOOLBAR */
-    .toolbar {
-      background:white; border-radius:16px 16px 0 0;
-      padding:1.1rem 1.5rem; display:flex; align-items:center;
-      gap:1rem; border-bottom:1.5px solid #e8f0f5; flex-wrap:wrap;
-    }
-    .search-box {
-      flex:1; min-width:200px; display:flex; align-items:center; gap:0.5rem;
-      background:#f4f8fb; border:1.5px solid #e8f0f5; border-radius:10px;
-      padding:0.5rem 0.85rem; transition:border-color 0.18s;
-    }
+    .alert { padding:0.8rem 1.1rem; border-radius:10px; font-size:0.82rem; font-weight:500; margin-bottom:1rem; display:flex; align-items:flex-start; gap:0.5rem; }
+    .alert-success { background:#f0faf5; color:#1e7a4e; border:1px solid #b2dfcb; }
+    .alert-error   { background:#fff0f0; color:#c0392b; border:1px solid #f5c6cb; }
+    .toolbar { background:white; border-radius:16px 16px 0 0; padding:1.1rem 1.5rem; display:flex; align-items:center; gap:1rem; border-bottom:1.5px solid #e8f0f5; flex-wrap:wrap; }
+    .search-form { flex:1; min-width:200px; display:flex; gap:0.5rem; }
+    .search-box { flex:1; display:flex; align-items:center; gap:0.5rem; background:#f4f8fb; border:1.5px solid #e8f0f5; border-radius:10px; padding:0.5rem 0.85rem; transition:border-color 0.18s; }
     .search-box:focus-within { border-color:var(--gold); }
-    .search-box input {
-      border:none; background:transparent; font-family:inherit; font-size:0.83rem;
-      color:var(--navy); outline:none; flex:1;
-    }
+    .search-box input { border:none; background:transparent; font-family:inherit; font-size:0.83rem; color:var(--navy); outline:none; flex:1; }
     .search-box input::placeholder { color:#a0b4c0; }
-    .filter-select {
-      padding:0.5rem 2.2rem 0.5rem 0.85rem; border:1.5px solid #e8f0f5;
-      border-radius:10px; font-size:0.8rem; font-family:inherit;
-      color:var(--navy); background:white; cursor:pointer; outline:none;
-      appearance:none; transition:border-color 0.18s;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b8499' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right 0.7rem center;
-    }
+    .filter-select { padding:0.5rem 2.2rem 0.5rem 0.85rem; border:1.5px solid #e8f0f5; border-radius:10px; font-size:0.8rem; font-family:inherit; color:var(--navy); background:white; cursor:pointer; outline:none; appearance:none; transition:border-color 0.18s; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b8499' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.7rem center; }
     .filter-select:focus { border-color:var(--gold); }
-    .btn-tambah {
-      background:var(--gold); color:var(--navy); border:none; padding:0.55rem 1.1rem;
-      border-radius:10px; font-size:0.8rem; font-weight:700; font-family:inherit;
-      cursor:pointer; display:flex; align-items:center; gap:0.4rem; white-space:nowrap;
-      transition:all 0.18s;
-    }
+    .btn-tambah { background:var(--gold); color:var(--navy); border:none; padding:0.55rem 1.1rem; border-radius:10px; font-size:0.8rem; font-weight:700; font-family:inherit; cursor:pointer; display:flex; align-items:center; gap:0.4rem; white-space:nowrap; transition:all 0.18s; }
     .btn-tambah:hover { background:var(--gold-light); }
-
-    /* TABLE */
     .table-wrap { background:white; border-radius:0 0 16px 16px; overflow:hidden; }
     table { width:100%; border-collapse:collapse; }
     thead { background:var(--navy); }
@@ -87,48 +46,35 @@
     tr:last-child td { border-bottom:none; }
     tr:hover td { background:#fffcf5; }
     .no-member { font-size:0.72rem; font-weight:700; color:var(--gold-dark); background:rgba(240,165,0,0.12); border:1px solid rgba(240,165,0,0.3); padding:0.2rem 0.55rem; border-radius:6px; }
-
-    /* TIER BADGE */
-    .tier-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.22rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
-    .tier-silver { background:#f0f0f0; color:#555; }
-    .tier-gold { background:#fff8e1; color:#c47d00; }
-    .tier-platinum { background:#f3e8ff; color:#7c3aed; }
-    .tier-diamond { background:#e8f4ff; color:#1a6fba; }
-
-
-    /* MILES */
+    .tier-badge { display:inline-flex; align-items:center; padding:0.22rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .tier-Silver   { background:#f0f0f0; color:#555; }
+    .tier-Gold     { background:#fff8e1; color:#c47d00; }
+    .tier-Platinum { background:#f3e8ff; color:#7c3aed; }
+    .tier-Diamond  { background:#e8f4ff; color:#1a6fba; }
+    .tier-default  { background:#f4f4f4; color:#666; }
     .miles-total { font-weight:700; color:var(--navy); }
     .miles-award { font-size:0.77rem; color:var(--muted); }
-
-    /* ACTION BTNS */
     .action-group { display:flex; gap:0.4rem; }
-    .btn-icon {
-      width:30px; height:30px; border-radius:8px; border:none; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; transition:all 0.15s;
-    }
+    .btn-icon { width:30px; height:30px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
     .btn-edit { background:rgba(240,165,0,0.12); color:var(--gold-dark); }
     .btn-edit:hover { background:var(--gold); color:var(--navy); }
-    .btn-del { background:#fff0f0; color:#c0392b; }
-    .btn-del:hover { background:#c0392b; color:white; }
-
-    /* MODAL */
+    .btn-del  { background:#fff0f0; color:#c0392b; }
+    .btn-del:hover  { background:#c0392b; color:white; }
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.open { display:flex; }
     .modal { background:white; border-radius:20px; width:520px; max-width:94vw; overflow:hidden; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); max-height:90vh; display:flex; flex-direction:column; }
     @keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(16px); } to { opacity:1; transform:none; } }
     .modal-head { background:var(--navy); padding:1.5rem 1.75rem; flex-shrink:0; }
     .modal-head h3 { color:white; font-size:1rem; font-weight:700; }
-    .modal-head p { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
+    .modal-head p  { color:rgba(255,255,255,0.45); font-size:0.78rem; margin-top:3px; }
     .modal-body { padding:1.5rem 1.75rem; overflow-y:auto; }
     .modal-actions { display:flex; gap:0.75rem; padding:0 1.75rem 1.5rem; justify-content:flex-end; flex-shrink:0; }
     .btn-batal { background:none; border:1.5px solid #d8e5ee; color:var(--muted); padding:0.6rem 1.25rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:600; transition:all 0.18s; }
     .btn-batal:hover { border-color:#aabbc8; color:var(--navy); }
-    .btn-simpan { background:var(--gold); color:var(--navy); border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-simpan { background:var(--gold); color:var(--navy); border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; }
     .btn-simpan:hover { background:var(--gold-light); }
-    .btn-hapus-confirm { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
+    .btn-hapus-confirm { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; }
     .btn-hapus-confirm:hover { background:#c0392b; }
-
-    /* FORM INSIDE MODAL */
     .form-group { margin-bottom:1.1rem; }
     .form-group:last-child { margin-bottom:0; }
     .form-label { display:block; font-size:0.75rem; font-weight:600; color:var(--navy); margin-bottom:0.4rem; }
@@ -143,30 +89,18 @@
     .form-row > .form-group { margin-bottom:0; }
     .phone-group { display:flex; gap:0.5rem; }
     .phone-prefix { width:105px; flex-shrink:0; }
-
-    /* DELETE CONFIRM */
-    .confirm-icon { width:56px; height:56px; border-radius:50%; background:#fff0f0; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 1rem; }
+    .confirm-icon  { width:56px; height:56px; border-radius:50%; background:#fff0f0; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 1rem; }
     .confirm-title { text-align:center; font-size:1rem; font-weight:800; color:var(--navy); }
-    .confirm-sub { text-align:center; font-size:0.82rem; color:var(--muted); margin-top:0.4rem; line-height:1.55; }
+    .confirm-sub   { text-align:center; font-size:0.82rem; color:var(--muted); margin-top:0.4rem; line-height:1.55; }
     .confirm-warning { background:#fff5f5; border:1.5px solid #fdd; border-radius:10px; padding:0.75rem 1rem; margin-top:1rem; font-size:0.78rem; color:#c0392b; }
-
-    /* EMPTY */
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:0.85rem; }
-
-    /* TOAST */
-    .toast { position:fixed; bottom:2rem; right:2rem; z-index:200; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--gold); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); }
-    .toast.show { transform:none; opacity:1; }
-    .toast.error { border-left-color:#e05252; }
-
     @media (max-width:640px) { .stats-row { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <aero-navbar role="staf" active="kelola-member"></aero-navbar>
 
-<!-- HERO -->
 <div class="hero-strip">
   <div class="hero-inner">
     <div>
@@ -175,43 +109,53 @@
     </div>
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-num gold" id="stat-total">0</div>
+        <div class="stat-num gold">{{ members|length }}</div>
         <div class="stat-label">Total Member</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num green" id="stat-active">0</div>
+        <div class="stat-num green">{{ members_active_count }}</div>
         <div class="stat-label">Aktif (Miles &gt; 0)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num blue" id="stat-diamond">0</div>
+        <div class="stat-num blue">{{ members_diamond_count }}</div>
         <div class="stat-label">Diamond</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
-  <!-- TOOLBAR -->
+
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert {% if msg.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+        <span>{% if msg.tags == 'success' %}✓{% else %}✕{% endif %}</span>
+        <span>{{ msg }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- TOOLBAR dengan form GET untuk search & filter -->
   <div class="toolbar">
-    <div class="search-box">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0b4c0" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search-input" placeholder="Cari nama, email, atau nomor member..." oninput="renderTable()"/>
-    </div>
-    <select class="filter-select" id="filter-tier" onchange="renderTable()">
-      <option value="">Semua Tier</option>
-      <option value="Silver">Silver</option>
-      <option value="Gold">Gold</option>
-      <option value="Platinum">Platinum</option>
-      <option value="Diamond">Diamond</option>
-    </select>
+    <form method="get" action="" class="search-form">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0b4c0" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Cari nama, email, atau nomor member..."/>
+      </div>
+      <select name="tier" class="filter-select" onchange="this.form.submit()">
+        <option value="">Semua Tier</option>
+        {% for tier in tiers %}
+          <option value="{{ tier.0 }}" {% if filter_tier == tier.0 %}selected{% endif %}>{{ tier.1 }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" style="display:none;"></button>
+    </form>
     <button class="btn-tambah" onclick="openModalTambah()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Tambah Member
     </button>
   </div>
 
-  <!-- TABLE -->
   <div class="table-wrap">
     <table>
       <thead>
@@ -226,95 +170,214 @@
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody id="member-tbody"></tbody>
+      <tbody>
+        {% if members %}
+          {% for m in members %}
+          <tr>
+            <td><span class="no-member">{{ m.nomor_member }}</span></td>
+            <td style="font-weight:600;">{{ m.salutation }} {{ m.first_mid_name }} {{ m.last_name }}</td>
+            <td style="color:var(--muted);font-size:0.78rem;">{{ m.email }}</td>
+            <td>
+              <span class="tier-badge tier-{{ m.nama_tier }}">{{ m.nama_tier }}</span>
+            </td>
+            <td><span class="miles-total">{{ m.total_miles }}</span></td>
+            <td><span class="miles-award">{{ m.award_miles }}</span></td>
+            <td style="color:var(--muted);font-size:0.78rem;">{{ m.tanggal_bergabung }}</td>
+            <td>
+              <div class="action-group">
+                <button class="btn-icon btn-edit"
+                  data-email="{{ m.email }}"
+                  data-nomor="{{ m.nomor_member }}"
+                  data-tgl-bergabung="{{ m.tanggal_bergabung }}"
+                  data-sal="{{ m.salutation }}"
+                  data-fname="{{ m.first_mid_name }}"
+                  data-lname="{{ m.last_name }}"
+                  data-nation="{{ m.kewarganegaraan }}"
+                  data-cc="{{ m.country_code }}"
+                  data-phone="{{ m.mobile_number }}"
+                  data-dob="{{ m.tanggal_lahir }}"
+                  data-tier="{{ m.id_tier }}"
+                  onclick="openModalEdit(this)" title="Edit">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn-icon btn-del"
+                  data-email="{{ m.email }}"
+                  data-nama="{{ m.salutation }} {{ m.first_mid_name }} {{ m.last_name }}"
+                  data-nomor="{{ m.nomor_member }}"
+                  onclick="openModalHapus(this)" title="Hapus">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8">
+            <div class="empty-state">Tidak ada member ditemukan.</div>
+          </td></tr>
+        {% endif %}
+      </tbody>
     </table>
   </div>
 </div>
 
-<!-- MODAL TAMBAH / EDIT -->
-<div class="modal-overlay" id="modal-form">
+<!-- MODAL TAMBAH -->
+<div class="modal-overlay" id="modal-tambah">
   <div class="modal">
     <div class="modal-head">
-      <h3 id="modal-form-title">Tambah Member Baru</h3>
-      <p id="modal-form-sub">Isi data lengkap member baru</p>
+      <h3>Tambah Member Baru</h3>
+      <p>Isi data lengkap member baru</p>
     </div>
-    <div class="modal-body">
-      <div class="form-row">
+    <form method="post" action="{% url 'staf:member-create' %}">
+      {% csrf_token %}
+      <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">No. Member</label>
-          <input type="text" class="form-input" id="f-nomor" disabled/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tanggal Bergabung</label>
-          <input type="text" class="form-input" id="f-tgl-bergabung" disabled/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email <span class="req">*</span></label>
-        <input type="email" class="form-input" id="f-email" placeholder="email@example.com"/>
-      </div>
-      <div id="f-pass-group" class="form-group">
-        <label class="form-label">Password <span class="req">*</span></label>
-        <input type="password" class="form-input" id="f-password" placeholder="Min. 8 karakter"/>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Salutation <span class="req">*</span></label>
-          <select class="form-select" id="f-sal">
-            <option value="">Pilih</option>
-            <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option>
-          </select>
+          <label class="form-label">Email <span class="req">*</span></label>
+          <input type="email" name="email" class="form-input" placeholder="email@example.com" required/>
         </div>
         <div class="form-group">
-          <label class="form-label">Nama Depan / Tengah <span class="req">*</span></label>
-          <input type="text" class="form-input" id="f-fname" placeholder="Nama depan"/>
+          <label class="form-label">Password <span class="req">*</span></label>
+          <input type="password" name="password" class="form-input" placeholder="Min. 8 karakter" required/>
         </div>
-      </div>
-      <div class="form-row">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Salutation <span class="req">*</span></label>
+            <select name="salutation" class="form-select" required>
+              <option value="">Pilih</option>
+              <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Depan / Tengah <span class="req">*</span></label>
+            <input type="text" name="first_mid_name" class="form-input" placeholder="Nama depan" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nama Belakang <span class="req">*</span></label>
+            <input type="text" name="last_name" class="form-input" placeholder="Nama belakang" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kewarganegaraan <span class="req">*</span></label>
+            <select name="kewarganegaraan" class="form-select" required>
+              <option value="">Pilih negara</option>
+              <option>Indonesia</option><option>Malaysia</option><option>Singapore</option>
+              <option>Australia</option><option>Japan</option><option>Other</option>
+            </select>
+          </div>
+        </div>
         <div class="form-group">
-          <label class="form-label">Nama Belakang <span class="req">*</span></label>
-          <input type="text" class="form-input" id="f-lname" placeholder="Nama belakang"/>
+          <label class="form-label">Nomor HP <span class="req">*</span></label>
+          <div class="phone-group">
+            <select name="country_code" class="form-select phone-prefix">
+              <option value="+62">&#x1F1EE;&#x1F1E9; +62</option>
+              <option value="+60">&#x1F1F2;&#x1F1FE; +60</option>
+              <option value="+65">&#x1F1F8;&#x1F1EC; +65</option>
+              <option value="+61">&#x1F1E6;&#x1F1FA; +61</option>
+              <option value="+81">&#x1F1EF;&#x1F1F5; +81</option>
+              <option value="+1">&#x1F1FA;&#x1F1F8; +1</option>
+            </select>
+            <input type="text" name="mobile_number" class="form-input" placeholder="812 3456 7890" style="flex:1;" required/>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Kewarganegaraan <span class="req">*</span></label>
-          <select class="form-select" id="f-nation">
-            <option value="">Pilih negara</option>
-            <option>Indonesia</option><option>Malaysia</option><option>Singapore</option>
-            <option>Australia</option><option>Japan</option><option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Nomor HP <span class="req">*</span></label>
-        <div class="phone-group">
-          <select class="form-select phone-prefix" id="f-cc">
-            <option value="+62">🇮🇩 +62</option><option value="+60">🇲🇾 +60</option>
-            <option value="+65">🇸🇬 +65</option><option value="+61">🇦🇺 +61</option>
-            <option value="+81">🇯🇵 +81</option><option value="+1">🇺🇸 +1</option>
-          </select>
-          <input type="text" class="form-input" id="f-phone" placeholder="812 3456 7890" style="flex:1;"/>
-        </div>
-      </div>
-      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Tanggal Lahir <span class="req">*</span></label>
-          <input type="date" class="form-input" id="f-dob"/>
-        </div>
-        <div class="form-group" id="f-tier-group">
-          <label class="form-label">Tier</label>
-          <select class="form-select" id="f-tier">
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-            <option value="Platinum">Platinum</option>
-            <option value="Diamond">Diamond</option>
-          </select>
+          <input type="date" name="tanggal_lahir" class="form-input" required/>
         </div>
       </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-batal" onclick="closeModal('modal-tambah')">Batal</button>
+        <button type="submit" class="btn-simpan">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDIT -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Edit Data Member</h3>
+      <p id="edit-subtitle">—</p>
     </div>
-    <div class="modal-actions">
-      <button class="btn-batal" onclick="closeModal('modal-form')">Batal</button>
-      <button class="btn-simpan" id="btn-simpan-form" onclick="saveForm()">Simpan</button>
-    </div>
+    <form method="post" id="form-edit" action="">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">No. Member</label>
+            <input type="text" id="edit-nomor" class="form-input" disabled/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tgl. Bergabung</label>
+            <input type="text" id="edit-tgl-bergabung" class="form-input" disabled/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="text" id="edit-email-display" class="form-input" disabled/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Salutation <span class="req">*</span></label>
+            <select name="salutation" id="edit-sal" class="form-select" required>
+              <option value="">Pilih</option>
+              <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Depan / Tengah <span class="req">*</span></label>
+            <input type="text" name="first_mid_name" id="edit-fname" class="form-input" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nama Belakang <span class="req">*</span></label>
+            <input type="text" name="last_name" id="edit-lname" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kewarganegaraan <span class="req">*</span></label>
+            <select name="kewarganegaraan" id="edit-nation" class="form-select" required>
+              <option value="">Pilih negara</option>
+              <option>Indonesia</option><option>Malaysia</option><option>Singapore</option>
+              <option>Australia</option><option>Japan</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nomor HP <span class="req">*</span></label>
+          <div class="phone-group">
+            <select name="country_code" id="edit-cc" class="form-select phone-prefix">
+              <option value="+62">&#x1F1EE;&#x1F1E9; +62</option>
+              <option value="+60">&#x1F1F2;&#x1F1FE; +60</option>
+              <option value="+65">&#x1F1F8;&#x1F1EC; +65</option>
+              <option value="+61">&#x1F1E6;&#x1F1FA; +61</option>
+              <option value="+81">&#x1F1EF;&#x1F1F5; +81</option>
+              <option value="+1">&#x1F1FA;&#x1F1F8; +1</option>
+            </select>
+            <input type="text" name="mobile_number" id="edit-phone" class="form-input" style="flex:1;" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tanggal Lahir <span class="req">*</span></label>
+            <input type="date" name="tanggal_lahir" id="edit-dob" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tier</label>
+            <select name="id_tier" id="edit-tier" class="form-select">
+              {% for tier in tiers %}
+                <option value="{{ tier.0 }}">{{ tier.1 }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-batal" onclick="closeModal('modal-edit')">Batal</button>
+        <button type="submit" class="btn-simpan">Simpan</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -324,269 +387,75 @@
     <div class="modal-body" style="padding:2rem 1.75rem 1rem;">
       <div class="confirm-icon">🗑️</div>
       <div class="confirm-title">Hapus Member?</div>
-      <div class="confirm-sub" id="hapus-sub">Semua data terkait (Identitas, Klaim, Transfer, Redeem) akan ikut terhapus.</div>
-      <div class="confirm-warning">⚠️ Tindakan ini tidak dapat dibatalkan.</div>
+      <div class="confirm-sub" id="hapus-sub">Data member akan dihapus beserta semua data terkait.</div>
+      <div class="confirm-warning">⚠️ Tindakan ini tidak dapat dibatalkan. Semua data (Identitas, Klaim, Transfer, Redeem) akan ikut terhapus.</div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-batal" onclick="closeModal('modal-hapus')">Batal</button>
-      <button class="btn-hapus-confirm" onclick="confirmHapus()">Hapus</button>
-    </div>
+    <form method="post" id="form-hapus" action="">
+      {% csrf_token %}
+      <div class="modal-actions">
+        <button type="button" class="btn-batal" onclick="closeModal('modal-hapus')">Batal</button>
+        <button type="submit" class="btn-hapus-confirm">Hapus</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
-
 <script>
-  let members = [
-  // DIAMOND (1)
-  {
-    email: 'andika.pratama@mail.com',
-    nomor: 'M0001',
-    salutation: 'Mr.',
-    fname: 'Andika',
-    lname: 'Pratama',
-    nation: 'Indonesia',
-    cc: '+62',
-    phone: '81234567801',
-    dob: '1998-03-12',
-    tier: 'Diamond',
-    total_miles: 80000,
-    award_miles: 50000,
-    tgl_bergabung: '2022-01-15'
-  },
-
-  // PLATINUM (1)
-  {
-    email: 'budi.santoso@mail.com',
-    nomor: 'M0005',
-    salutation: 'Mr.',
-    fname: 'Budi',
-    lname: 'Santoso',
-    nation: 'Indonesia',
-    cc: '+62',
-    phone: '81234567803',
-    dob: '1995-01-10',
-    tier: 'Platinum',
-    total_miles: 30000,
-    award_miles: 20000,
-    tgl_bergabung: '2023-06-10'
-  },
-
-  // GOLD (1)
-  {
-    email: 'galih.prakoso@mail.com',
-    nomor: 'M0011',
-    salutation: 'Mr.',
-    fname: 'Galih',
-    lname: 'Prakoso',
-    nation: 'Indonesia',
-    cc: '+62',
-    phone: '81234567811',
-    dob: '1995-05-11',
-    tier: 'Gold',
-    total_miles: 20000,
-    award_miles: 15000,
-    tgl_bergabung: '2024-01-10'
-  },
-
-  // SILVER (2)
-  {
-    email: 'kevin.tan@mail.com',
-    nomor: 'M0021',
-    salutation: 'Mr.',
-    fname: 'Kevin',
-    lname: 'Tan',
-    nation: 'Singapore',
-    cc: '+65',
-    phone: '81234567',
-    dob: '1995-04-11',
-    tier: 'Silver',
-    total_miles: 8000,
-    award_miles: 6000,
-    tgl_bergabung: '2024-06-01'
-  },
-  {
-    email: 'grace.lim@mail.com',
-    nomor: 'M0022',
-    salutation: 'Ms.',
-    fname: 'Grace',
-    lname: 'Lim',
-    nation: 'Singapore',
-    cc: '+65',
-    phone: '82345678',
-    dob: '1996-06-12',
-    tier: 'Silver',
-    total_miles: 5000,
-    award_miles: 4000,
-    tgl_bergabung: '2024-06-02'
-  }
-];
-
-  let editingEmail = null;
-  let deletingEmail = null;
-  let isEdit = false;
-
-  const tierClass = { Silver:'tier-silver', Gold:'tier-gold', Platinum:'tier-platinum', Diamond:'tier-diamond' };
-
-  function updateStats() {
-    document.getElementById('stat-total').textContent = members.length;
-    document.getElementById('stat-active').textContent = members.filter(m => m.total_miles > 0).length;
-    document.getElementById('stat-diamond').textContent = members.filter(m => m.tier === 'Diamond').length;
-  }
-
-  function renderTable() {
-    const q = document.getElementById('search-input').value.toLowerCase();
-    const tf = document.getElementById('filter-tier').value;
-    const tbody = document.getElementById('member-tbody');
-    const filtered = members.filter(m => {
-      const matchQ = !q || m.nomor.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || (m.salutation+' '+m.fname+' '+m.lname).toLowerCase().includes(q);
-      const matchT = !tf || m.tier === tf;
-      return matchQ && matchT;
-    });
-    if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">Tidak ada member ditemukan.</div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = filtered.map(m => `
-      <tr>
-        <td><span class="no-member">${m.nomor}</span></td>
-        <td style="font-weight:600;">${m.salutation} ${m.fname} ${m.lname}</td>
-        <td style="color:var(--muted);font-size:0.78rem;">${m.email}</td>
-        <td><span class="tier-badge ${tierClass[m.tier]||'tier-blue'}">${m.tier}</span></td>
-        <td><span class="miles-total">${m.total_miles.toLocaleString('id-ID')}</span></td>
-        <td><span class="miles-award">${m.award_miles.toLocaleString('id-ID')}</span></td>
-        <td style="color:var(--muted);font-size:0.78rem;">${m.tgl_bergabung}</td>
-        <td>
-          <div class="action-group">
-            <button class="btn-icon btn-edit" onclick="openModalEdit('${m.email}')" title="Edit">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button class="btn-icon btn-del" onclick="openModalHapus('${m.email}')" title="Hapus">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-    updateStats();
-  }
-
-  function nextNomor() {
-    const nums = members.map(m => parseInt(m.nomor.replace('M','')));
-    return 'M' + String(Math.max(0,...nums)+1).padStart(4,'0');
-  }
-
   function openModalTambah() {
-    isEdit = false; editingEmail = null;
-    document.getElementById('modal-form-title').textContent = 'Tambah Member Baru';
-    document.getElementById('modal-form-sub').textContent = 'Isi data lengkap member baru';
-    document.getElementById('f-nomor').value = nextNomor();
-    document.getElementById('f-tgl-bergabung').value = new Date().toISOString().slice(0,10);
-    document.getElementById('f-email').value=''; document.getElementById('f-email').disabled=false;
-    document.getElementById('f-password').value='';
-    document.getElementById('f-pass-group').style.display='block';
-    document.getElementById('f-sal').value=''; document.getElementById('f-fname').value='';
-    document.getElementById('f-lname').value=''; document.getElementById('f-nation').value='';
-    document.getElementById('f-cc').value='+62'; document.getElementById('f-phone').value='';
-    document.getElementById('f-dob').value=''; document.getElementById('f-tier').value='Blue';
-    document.getElementById('f-tier-group').style.display='none';
-    document.getElementById('modal-form').classList.add('open');
+    document.getElementById('modal-tambah').classList.add('open');
   }
 
-  function openModalEdit(email) {
-    isEdit = true; editingEmail = email;
-    const m = members.find(x=>x.email===email); if(!m) return;
-    document.getElementById('modal-form-title').textContent = 'Edit Data Member';
-    document.getElementById('modal-form-sub').textContent = m.nomor + ' · ' + m.email;
-    document.getElementById('f-nomor').value = m.nomor;
-    document.getElementById('f-tgl-bergabung').value = m.tgl_bergabung;
-    document.getElementById('f-email').value = m.email; document.getElementById('f-email').disabled=true;
-    document.getElementById('f-pass-group').style.display='none';
-    document.getElementById('f-sal').value = m.salutation; document.getElementById('f-fname').value = m.fname;
-    document.getElementById('f-lname').value = m.lname; document.getElementById('f-nation').value = m.nation;
-    document.getElementById('f-cc').value = m.cc; document.getElementById('f-phone').value = m.phone;
-    document.getElementById('f-dob').value = m.dob; document.getElementById('f-tier').value = m.tier;
-    document.getElementById('f-tier-group').style.display='block';
-    document.getElementById('modal-form').classList.add('open');
+  function openModalEdit(btn) {
+    const email        = btn.dataset.email;
+    const nomor        = btn.dataset.nomor;
+    const tglBergabung = btn.dataset.tglBergabung;
+    const sal          = btn.dataset.sal;
+    const fname        = btn.dataset.fname;
+    const lname        = btn.dataset.lname;
+    const nation       = btn.dataset.nation;
+    const cc           = btn.dataset.cc;
+    const phone        = btn.dataset.phone;
+    const dob          = btn.dataset.dob;
+    const tier         = btn.dataset.tier;
+
+    document.getElementById('edit-subtitle').textContent      = nomor + ' \u00b7 ' + email;
+    document.getElementById('edit-nomor').value               = nomor;
+    document.getElementById('edit-tgl-bergabung').value       = tglBergabung;
+    document.getElementById('edit-email-display').value       = email;
+    document.getElementById('edit-sal').value                 = sal;
+    document.getElementById('edit-fname').value               = fname;
+    document.getElementById('edit-lname').value               = lname;
+    document.getElementById('edit-nation').value              = nation;
+    document.getElementById('edit-cc').value                  = cc;
+    document.getElementById('edit-phone').value               = phone;
+    document.getElementById('edit-dob').value                 = dob;
+    document.getElementById('edit-tier').value                = tier;
+
+    document.getElementById('form-edit').action =
+      '/staf/kelola-member/edit/' + encodeURIComponent(email) + '/';
+    document.getElementById('modal-edit').classList.add('open');
   }
 
-  function saveForm() {
-    const sal = document.getElementById('f-sal').value;
-    const fname = document.getElementById('f-fname').value.trim();
-    const lname = document.getElementById('f-lname').value.trim();
-    const nation = document.getElementById('f-nation').value;
-    const phone = document.getElementById('f-phone').value.trim();
-    const dob = document.getElementById('f-dob').value;
-
-    if (!sal || !fname || !lname || !nation || !phone || !dob) {
-      showToast('Harap isi semua field yang wajib.', true); return;
-    }
-
-    if (!isEdit) {
-      const email = document.getElementById('f-email').value.trim();
-      const pass = document.getElementById('f-password').value;
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email tidak valid.', true); return; }
-      if (members.find(m=>m.email===email)) { showToast('Email sudah terdaftar.', true); return; }
-      if (pass.length < 8) { showToast('Password minimal 8 karakter.', true); return; }
-      members.push({
-        email, nomor: nextNomor(), salutation:sal, fname, lname, nation,
-        cc: document.getElementById('f-cc').value, phone, dob, tier:'Blue',
-        total_miles:0, award_miles:0,
-        tgl_bergabung: new Date().toISOString().slice(0,10)
-      });
-      showToast('Member baru berhasil ditambahkan!');
-    } else {
-      const idx = members.findIndex(m=>m.email===editingEmail);
-      if (idx < 0) return;
-      members[idx] = { ...members[idx], salutation:sal, fname, lname, nation,
-        cc:document.getElementById('f-cc').value, phone, dob,
-        tier:document.getElementById('f-tier').value };
-      showToast('Data member berhasil diperbarui!');
-    }
-    closeModal('modal-form');
-    renderTable();
-  }
-
-  function openModalHapus(email) {
-    deletingEmail = email;
-    const m = members.find(x=>x.email===email);
-    document.getElementById('hapus-sub').textContent = `Member ${m?.nomor} — ${m?.salutation} ${m?.fname} ${m?.lname} akan dihapus. Semua data terkait (Identitas, Klaim, Transfer, Redeem) akan ikut terhapus.`;
+  function openModalHapus(btn) {
+    const email = btn.dataset.email;
+    const nama  = btn.dataset.nama;
+    const nomor = btn.dataset.nomor;
+    document.getElementById('hapus-sub').textContent =
+      'Member ' + nomor + ' \u2014 ' + nama + ' akan dihapus.';
+    document.getElementById('form-hapus').action =
+      '/staf/kelola-member/delete/' + encodeURIComponent(email) + '/';
     document.getElementById('modal-hapus').classList.add('open');
-  }
-
-  function confirmHapus() {
-    members = members.filter(m=>m.email!==deletingEmail);
-    closeModal('modal-hapus');
-    renderTable();
-    showToast('Member berhasil dihapus.');
   }
 
   function closeModal(id) {
     document.getElementById(id).classList.remove('open');
   }
 
-  function toggleDropdown(id) {
-    document.getElementById(id).classList.toggle('open');
-  }
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.dropdown-wrap')) {
-      document.querySelectorAll('.dropdown-menu').forEach(d=>d.classList.remove('open'));
-    }
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) closeModal(this.id);
+    });
   });
-  function toggleMobile(id) {
-    document.getElementById(id).classList.toggle('open');
-  }
-
-  function showToast(msg, isErr=false) {
-    const t = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    document.getElementById('toast-icon').textContent = isErr ? '✕' : '✓';
-    t.classList.toggle('error', isErr);
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'), 3200);
-  }
-
-  renderTable();
 </script>
 </body>
 </html>
