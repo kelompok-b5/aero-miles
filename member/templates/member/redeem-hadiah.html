@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Redeem Hadiah - AeroMiles</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.AERO_USER = {
+      nama: "{{ request.session.nama }}",
+      singkatan: "{{ request.session.singkatan }}",
+      sub: "{{ request.session.nama_tier }} · {{ request.session.nomor_member }}"
+    };
+  </script>
   <script src="{% static 'navbar-components.js' %}" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
@@ -278,15 +285,15 @@
         showToast('Gagal: ' + data.error);
         return;
     }
-    awardMiles = data.sisa_miles;
+    awardMiles = data.sisa_miles;  // ← di sini
     const now = new Date().toISOString().replace('T',' ').slice(0,16);
-    const namaHadiah = selected.nama;  // simpan dulu sebelum closeModal()
+    const namaHadiah = selected.nama;
     riwayat.unshift({ nama: selected.nama, timestamp: now, miles: selected.miles });
     document.getElementById('miles-display').textContent = awardMiles.toLocaleString('id-ID');
     closeModal();
     renderKatalog();
     renderRiwayat();
-    showToast('Redeem ' + namaHadiah + ' berhasil!');  // pakai variabel lokal
+    showToast(data.notice || 'Redeem ' + namaHadiah + ' berhasil!');
 })
 .catch(err => {
     console.error('Error detail:', err);

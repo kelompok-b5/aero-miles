@@ -85,17 +85,18 @@ def redeem_hadiah_post(request):
         cursor = conn.cursor()
         try:
             # Langsung insert, trigger yang bakal handle validasi & potong miles
+            conn.notices = []
             cursor.execute("""
                 INSERT INTO REDEEM (email_member, kode_hadiah)
                 VALUES (%s, %s)
             """, [email_member, kode_hadiah])
+            notice = conn.notices[-1].strip().replace('NOTICE:  ', '') if conn.notices else ''
 
-            # Ambil sisa miles setelah trigger jalan
             cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
             sisa_miles = cursor.fetchone()[0]
 
             conn.commit()
-            return JsonResponse({'success': True, 'sisa_miles': sisa_miles})
+            return JsonResponse({'success': True, 'sisa_miles': sisa_miles, 'notice': notice})
 
         except Exception as e:
             conn.rollback()
@@ -175,18 +176,23 @@ def beli_package_post(request):
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            # Insert ke MEMBER_AWARD_MILES_PACKAGE
+            conn.notices = []
             cursor.execute("""
                 INSERT INTO MEMBER_AWARD_MILES_PACKAGE (id_award_miles_package, email_member)
                 VALUES (%s, %s)
             """, [id_package, email_member])
 
-            # Ambil sisa miles setelah trigger jalan
+            print("Notices captured:", conn.notices)
+
+            # Ambil semua notices (bisa dari sync_miles + update_tier)
+            notices = [n.strip().replace('NOTICE:  ', '') for n in conn.notices]
+            notices.reverse()  # balik urutan agar sync_miles muncul sebelum update_tier
+
             cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
             award_miles_baru = cursor.fetchone()[0]
 
             conn.commit()
-            return JsonResponse({'success': True, 'award_miles': award_miles_baru})
+            return JsonResponse({'success': True, 'award_miles': award_miles_baru, 'notices': notices})
 
         except Exception as e:
             conn.rollback()
@@ -515,6 +521,7 @@ def dashboard_member(request):
     return render(request, 'member/dashboard-member.html')
 
 def identitas(request):
+<<<<<<< HEAD
     return render(request, 'member/identitas.html')
 
 
@@ -545,3 +552,176 @@ def validate_member_email(request):
     finally:
         cur.close()
         conn.close()
+=======
+    """READ — tampilkan semua identitas milik member yang sedang login."""
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+ 
+    email_member = request.session['email']
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Ambil award_miles untuk ditampilkan di hero
+        cur.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
+        member_row = cur.fetchone()
+        award_miles = member_row[0] if member_row else 0
+ 
+        cur.execute("""
+            SELECT
+                nomor,
+                jenis,
+                negara_penerbit,
+                tanggal_terbit,
+                tanggal_habis,
+                CASE
+                    WHEN tanggal_habis < CURRENT_DATE THEN 'Kedaluwarsa'
+                    ELSE 'Aktif'
+                END AS status
+            FROM IDENTITAS
+            WHERE email_member = %s
+            ORDER BY tanggal_habis DESC
+        """, [email_member])
+        identitas_list = cur.fetchall()
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return render(request, 'member/identitas.html', {
+        'identitas_list': identitas_list,
+        'award_miles': award_miles,
+    })
+ 
+ 
+def identitas_create(request):
+    """CREATE — tambah dokumen identitas baru."""
+    if request.method != 'POST':
+        return redirect('member:identitas')
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+ 
+    email_member    = request.session['email']
+    nomor           = request.POST.get('nomor', '').strip()
+    jenis           = request.POST.get('jenis', '').strip()
+    negara_penerbit = request.POST.get('negara_penerbit', '').strip()
+    tanggal_terbit  = request.POST.get('tanggal_terbit', '').strip()
+    tanggal_habis   = request.POST.get('tanggal_habis', '').strip()
+ 
+    if not all([nomor, jenis, negara_penerbit, tanggal_terbit, tanggal_habis]):
+        messages.error(request, 'Semua field wajib diisi.')
+        return redirect('member:identitas')
+ 
+    if jenis not in ('Paspor', 'KTP', 'SIM'):
+        messages.error(request, 'Jenis dokumen tidak valid.')
+        return redirect('member:identitas')
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Cek nomor dokumen sudah terdaftar (harus unik global)
+        cur.execute("SELECT 1 FROM IDENTITAS WHERE nomor = %s", [nomor])
+        if cur.fetchone():
+            messages.error(request, f'Nomor dokumen "{nomor}" sudah terdaftar dalam sistem.')
+            return redirect('member:identitas')
+ 
+        cur.execute("""
+            INSERT INTO IDENTITAS
+                (nomor, email_member, jenis, negara_penerbit, tanggal_terbit, tanggal_habis)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, [nomor, email_member, jenis, negara_penerbit, tanggal_terbit, tanggal_habis])
+        conn.commit()
+        messages.success(request, f'Dokumen {jenis} berhasil ditambahkan.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal menambahkan identitas: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('member:identitas')
+ 
+ 
+def identitas_edit(request, nomor):
+    """UPDATE — edit identitas (nomor tidak bisa diubah)."""
+    if request.method != 'POST':
+        return redirect('member:identitas')
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+ 
+    email_member    = request.session['email']
+    jenis           = request.POST.get('jenis', '').strip()
+    negara_penerbit = request.POST.get('negara_penerbit', '').strip()
+    tanggal_terbit  = request.POST.get('tanggal_terbit', '').strip()
+    tanggal_habis   = request.POST.get('tanggal_habis', '').strip()
+ 
+    if not all([jenis, negara_penerbit, tanggal_terbit, tanggal_habis]):
+        messages.error(request, 'Semua field wajib diisi.')
+        return redirect('member:identitas')
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Security: pastikan dokumen ini milik member yang sedang login
+        cur.execute(
+            "SELECT 1 FROM IDENTITAS WHERE nomor = %s AND email_member = %s",
+            [nomor, email_member]
+        )
+        if not cur.fetchone():
+            messages.error(request, 'Dokumen tidak ditemukan atau bukan milik Anda.')
+            return redirect('member:identitas')
+ 
+        cur.execute("""
+            UPDATE IDENTITAS
+            SET jenis           = %s,
+                negara_penerbit = %s,
+                tanggal_terbit  = %s,
+                tanggal_habis   = %s
+            WHERE nomor = %s AND email_member = %s
+        """, [jenis, negara_penerbit, tanggal_terbit, tanggal_habis, nomor, email_member])
+        conn.commit()
+        messages.success(request, 'Data identitas berhasil diperbarui.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal memperbarui identitas: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('member:identitas')
+ 
+ 
+def identitas_delete(request, nomor):
+    if request.method != 'POST':
+        return redirect('member:identitas')
+    if not request.session.get('email') or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
+ 
+    email_member = request.session['email']
+ 
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        # Security: pastikan dokumen ini milik member yang sedang login
+        cur.execute(
+            "SELECT 1 FROM IDENTITAS WHERE nomor = %s AND email_member = %s",
+            [nomor, email_member]
+        )
+        if not cur.fetchone():
+            messages.error(request, 'Dokumen tidak ditemukan atau bukan milik Anda.')
+            return redirect('member:identitas')
+ 
+        cur.execute(
+            "DELETE FROM IDENTITAS WHERE nomor = %s AND email_member = %s",
+            [nomor, email_member]
+        )
+        conn.commit()
+        messages.success(request, 'Dokumen identitas berhasil dihapus.')
+    except Exception as e:
+        conn.rollback()
+        messages.error(request, f'Gagal menghapus identitas: {e}')
+    finally:
+        cur.close()
+        conn.close()
+ 
+    return redirect('member:identitas')
+>>>>>>> c135b9c1e1b060920a3f16b291ec3425cea12bef
