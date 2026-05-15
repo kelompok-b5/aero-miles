@@ -8,5 +8,6 @@ urlpatterns = [
     path('kelola-member/', views.kelola_member, name='kelola-member'),
     path('kelola-mitra/', views.kelola_mitra, name='kelola-mitra'),
     path('laporan-transaksi/', views.laporan_transaksi, name='laporan-transaksi'),
+    path('laporan-transaksi/hapus/', views.hapus_transaksi, name='hapus-transaksi'),  # tambah ini
     path('profile-staf/', views.profile_staf, name='profile-staf'),
 ]

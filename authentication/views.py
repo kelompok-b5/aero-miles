@@ -82,11 +82,7 @@ def handle_register(data):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        # Cek email sudah ada
-        cursor.execute("SELECT email FROM PENGGUNA WHERE email = %s", [email])
-        if cursor.fetchone():
-            return JsonResponse({'error': 'Email sudah terdaftar.'}, status=400)
-
+        # Cek email sudah ada otomatis melalui trigger
         # Validasi maskapai kalau staf
         if role == 'staf':
             cursor.execute("SELECT kode_maskapai FROM MASKAPAI WHERE kode_maskapai = %s", [kode_maskapai])

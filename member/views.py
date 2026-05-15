@@ -240,7 +240,7 @@ def info_tier(request):
 
 # CLAIM MISSING MILES 
 
-def claim_view(request):
+def claim_member(request):
     email = request.session['email']
     conn = get_connection()
     cur = conn.cursor()
@@ -368,7 +368,7 @@ def claim_edit(request, klaim_id):
         conn.close()
 
     return redirect('member:claim-member')
-r
+
 def claim_delete(request, klaim_id):
     if request.method != 'POST':
         return redirect('member:claim-member')
@@ -394,7 +394,7 @@ def claim_delete(request, klaim_id):
 
 
 # TRANSFER MILES 
-def transfer_view(request):
+def transfer_miles(request):
     email = request.session['email']
     conn = get_connection()
     cur = conn.cursor()

@@ -369,20 +369,7 @@ class AeroNavbar extends HTMLElement {
     `;
   }
   
-  // ──────────────── HELPERS ────────────────
-  _brand(role) {
-    const badge = role === 'staf' ? '<span class="brand-badge">STAF</span>' : '';
-    return `
-      <a class="brand" href="${role === 'staf' 
-        ? '/staf/dashboard-staf/' 
-        : role === 'member' 
-        ? '/member/dashboard-member/' 
-        : '/'}">
-        <div class="brand-icon">✈</div>
-        <span class="brand-name">Aero<span class="brand-accent">Miles</span>${badge}</span>
-      </a>
-    `;
-  }
+  na
   _chevron() {
     return `<svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
   }

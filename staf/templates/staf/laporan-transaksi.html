@@ -115,7 +115,6 @@
       <div class="hero-title">Laporan & Riwayat Transaksi</div>
       <div class="hero-sub">Pantau seluruh aktivitas transaksi miles dalam sistem</div>
     </div>
-
   </div>
 </div>
 
@@ -260,164 +259,152 @@
 <div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
 
 <script>
-  const currentRole = 'Staf';
+  const transaksi = JSON.parse('{{ transaksi_json|escapejs }}');
+  const topMilesData = JSON.parse('{{ top_miles_json|escapejs }}');
+  const topRedeemData = JSON.parse('{{ top_redeem_json|escapejs }}');
+  const topTransferData = JSON.parse('{{ top_transfer_json|escapejs }}');
+
+  document.getElementById('stat-miles').textContent = parseInt("{{ stat_miles }}").toLocaleString('id-ID');
+  document.getElementById('stat-redeem').textContent = parseInt("{{ stat_redeem }}").toLocaleString('id-ID');
+  document.getElementById('stat-klaim').textContent = parseInt("{{ stat_klaim }}").toLocaleString('id-ID');
+
+  let deleteTarget = null;
   const now = new Date();
-  const thisMonth = now.getMonth();
-  const thisYear = now.getFullYear();
 
-  // DATA DUMMY — sesuai tabel TRANSFER, REDEEM, MEMBER_AWARD_MILES_PACKAGE, CLAIM_MISSING_MILES
-  let transaksi = [
-    { id:1, tipe:'Transfer', nama:'Andika Pratama',    email:'andika.pratama@mail.com', miles:-5000,  waktu:'2025-01-15 10:30', hapusable:true },
-    { id:2, tipe:'Redeem',   nama:'Andika Pratama',    email:'andika.pratama@mail.com', miles:-3000,  waktu:'2025-01-20 16:00', hapusable:true },
-    { id:3, tipe:'Package',  nama:'Siti Nurhaliza',    email:'siti.nurhaliza@mail.com', miles:5000,   waktu:'2025-02-01 09:15', hapusable:true },
-    { id:4, tipe:'Klaim',    nama:'Budi Santoso',      email:'budi.santoso@mail.com',   miles:2500,   waktu:'2025-02-05 11:45', hapusable:false },
-    { id:5, tipe:'Transfer', nama:'Budi Santoso',      email:'budi.santoso@mail.com',   miles:-2000,  waktu:'2025-02-10 14:00', hapusable:true },
-    { id:6, tipe:'Package',  nama:'Andika Pratama',    email:'andika.pratama@mail.com', miles:10000,  waktu:'2025-03-01 08:00', hapusable:true },
-    { id:7, tipe:'Redeem',   nama:'Dewi Lestari',      email:'dewi.lestari@mail.com',   miles:-1500,  waktu:'2025-03-10 13:00', hapusable:true },
-    { id:8, tipe:'Klaim',    nama:'Rizky Firmansyah',  email:'rizky.firmansyah@mail.com', miles:3000, waktu:'2025-04-01 09:00', hapusable:false },
-    { id:9, tipe:'Transfer', nama:'Siti Nurhaliza',    email:'siti.nurhaliza@mail.com', miles:-4000,  waktu:'2025-04-05 15:30', hapusable:true },
-    { id:10, tipe:'Redeem',  nama:'Budi Santoso',      email:'budi.santoso@mail.com',   miles:-2000,  waktu:'2025-04-10 10:00', hapusable:true },
-  ];
-
-  let deleteId = null;
-
-  const tipeIcon = { Transfer:'⇄', Redeem:'↩', Package:'↓', Klaim:'↑' };
+  const tipeIcon  = { Transfer:'⇄', Redeem:'↩', Package:'↓', Klaim:'↑' };
   const tipeClass = { Transfer:'tipe-transfer', Redeem:'tipe-redeem', Package:'tipe-package', Klaim:'tipe-klaim' };
 
-  function updateStats() {
-    const totalMiles = transaksi.filter(t => t.miles > 0).reduce((s,t) => s + t.miles, 0);
-    const redeemBulanIni = transaksi
-      .filter(t => t.tipe === 'Redeem' && new Date(t.waktu).getMonth() === thisMonth && new Date(t.waktu).getFullYear() === thisYear)
-      .reduce((s,t) => s + Math.abs(t.miles), 0);
-    const klaimDisetujui = transaksi.filter(t => t.tipe === 'Klaim').reduce((s,t) => s + t.miles, 0);
-
-    document.getElementById('stat-miles').textContent = totalMiles.toLocaleString('id-ID');
-    document.getElementById('stat-redeem').textContent = redeemBulanIni.toLocaleString('id-ID');
-    document.getElementById('stat-klaim').textContent = klaimDisetujui.toLocaleString('id-ID');
-  }
-
   function renderRiwayat() {
-    const tipe = document.getElementById('filter-tipe').value;
-    const cari = document.getElementById('filter-member').value.toLowerCase();
-    const dari = document.getElementById('filter-dari').value;
-    const sampai = document.getElementById('filter-sampai').value;
+      const tipe  = document.getElementById('filter-tipe').value;
+      const cari  = document.getElementById('filter-member').value.toLowerCase();
+      const dari  = document.getElementById('filter-dari').value;
+      const sampai = document.getElementById('filter-sampai').value;
 
-    let filtered = transaksi.filter(t => {
-      const matchTipe = !tipe || t.tipe === tipe;
-      const matchCari = !cari || t.nama.toLowerCase().includes(cari) || t.email.toLowerCase().includes(cari);
-      const matchDari = !dari || t.waktu >= dari;
-      const matchSampai = !sampai || t.waktu <= sampai + ' 23:59';
-      return matchTipe && matchCari && matchDari && matchSampai;
-    });
+      let filtered = transaksi.filter(t => {
+          const matchTipe   = !tipe   || t.tipe === tipe;
+          const matchCari   = !cari   || t.nama.toLowerCase().includes(cari) || t.email.toLowerCase().includes(cari);
+          const matchDari   = !dari   || t.waktu >= dari;
+          const matchSampai = !sampai || t.waktu <= sampai + ' 23:59';
+          return matchTipe && matchCari && matchDari && matchSampai;
+      });
 
-    const tbody = document.getElementById('riwayat-body');
-    if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Tidak ada transaksi ditemukan.</td></tr>';
-      return;
-    }
+      const tbody = document.getElementById('riwayat-body');
+      if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Tidak ada transaksi ditemukan.</td></tr>';
+          return;
+      }
 
-    tbody.innerHTML = filtered.map(t => `
-      <tr>
-        <td><span class="tipe-badge ${tipeClass[t.tipe]}">${tipeIcon[t.tipe]} ${t.tipe}</span></td>
-        <td>
-          <div class="member-name">${t.nama}</div>
-          <div class="member-email">${t.email}</div>
-        </td>
-        <td class="${t.miles > 0 ? 'miles-plus' : 'miles-minus'}">
-          ${t.miles > 0 ? '+' : ''}${t.miles.toLocaleString('id-ID')}
-        </td>
-        <td class="time-cell">${t.waktu}</td>
-        <td>
-          <button class="btn-hapus" onclick="openModal(${t.id})" ${!t.hapusable ? 'disabled title="Klaim disetujui tidak bisa dihapus"' : ''}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          </button>
-        </td>
-      </tr>
-    `).join('');
+      tbody.innerHTML = filtered.map((t, idx) => `
+          <tr>
+              <td><span class="tipe-badge ${tipeClass[t.tipe]}">${tipeIcon[t.tipe]} ${t.tipe}</span></td>
+              <td>
+                  <div class="member-name">${t.nama}</div>
+                  <div class="member-email">${t.email}</div>
+              </td>
+              <td class="${t.miles > 0 ? 'miles-plus' : 'miles-minus'}">
+                  ${t.miles > 0 ? '+' : ''}${t.miles.toLocaleString('id-ID')}
+              </td>
+              <td class="time-cell">${t.waktu}</td>
+              <td>
+                  <button class="btn-hapus" onclick="openModal(${idx})"
+                      ${!t.hapusable ? 'disabled title="Klaim disetujui tidak bisa dihapus"' : ''}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14H6L5 6"/>
+                          <path d="M10 11v6"/><path d="M14 11v6"/>
+                          <path d="M9 6V4h6v2"/>
+                      </svg>
+                  </button>
+              </td>
+          </tr>
+      `).join('');
   }
 
   function renderTopMember() {
-    // Top by total miles (dari transaksi positif)
-    const milesMap = {};
-    const txCount = {};
-    transaksi.forEach(t => {
-      if (!milesMap[t.email]) { milesMap[t.email] = { nama: t.nama, email: t.email, miles: 0, count: 0 }; }
-      if (t.miles > 0) milesMap[t.email].miles += t.miles;
-      milesMap[t.email].count++;
-      if (!txCount[t.email]) txCount[t.email] = { nama: t.nama, email: t.email, count: 0 };
-      txCount[t.email].count++;
-    });
+      const rankColor = i => i < 3 ? 'color:#f9a825;' : 'color:var(--muted);';
 
-    const topMiles = Object.values(milesMap).sort((a,b) => b.miles - a.miles).slice(0,5);
-    const rankColor = (i) => i < 3 ? 'color:#f9a825;' : 'color:var(--muted);';
+      document.getElementById('top-miles-body').innerHTML = topMilesData.length
+          ? topMilesData.map((m, i) => `
+              <tr>
+                  <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
+                  <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
+                  <td class="miles-plus">${m.total_miles.toLocaleString('id-ID')}</td>
+                  <td style="color:var(--muted);font-size:0.8rem;">${m.jumlah_transaksi}</td>
+              </tr>`).join('')
+          : '<tr><td colspan="4" class="empty-state">Belum ada data.</td></tr>';
 
-    document.getElementById('top-miles-body').innerHTML = topMiles.map((m,i) => `
-      <tr>
-        <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
-        <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
-        <td class="miles-plus">${m.miles.toLocaleString('id-ID')}</td>
-        <td style="color:var(--muted);font-size:0.8rem;">${m.count}</td>
-      </tr>
-    `).join('');
+      document.getElementById('top-redeem-body').innerHTML = topRedeemData.length
+          ? topRedeemData.map((m, i) => `
+              <tr>
+                  <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
+                  <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
+                  <td class="miles-minus">${m.total_redeem.toLocaleString('id-ID')}</td>
+              </tr>`).join('')
+          : '<tr><td colspan="3" class="empty-state">Belum ada data.</td></tr>';
 
-    // Top Redeem
-    const redeemMap = {};
-    transaksi.filter(t => t.tipe === 'Redeem').forEach(t => {
-      if (!redeemMap[t.email]) redeemMap[t.email] = { nama: t.nama, email: t.email, total: 0 };
-      redeemMap[t.email].total += Math.abs(t.miles);
-    });
-    const topRedeem = Object.values(redeemMap).sort((a,b) => b.total - a.total).slice(0,5);
-    document.getElementById('top-redeem-body').innerHTML = topRedeem.length ? topRedeem.map((m,i) => `
-      <tr>
-        <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
-        <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
-        <td class="miles-minus">${m.total.toLocaleString('id-ID')}</td>
-      </tr>
-    `).join('') : '<tr><td colspan="3" class="empty-state">Belum ada data.</td></tr>';
-
-    // Top Transfer
-    const transferMap = {};
-    transaksi.filter(t => t.tipe === 'Transfer').forEach(t => {
-      if (!transferMap[t.email]) transferMap[t.email] = { nama: t.nama, email: t.email, total: 0 };
-      transferMap[t.email].total += Math.abs(t.miles);
-    });
-    const topTransfer = Object.values(transferMap).sort((a,b) => b.total - a.total).slice(0,5);
-    document.getElementById('top-transfer-body').innerHTML = topTransfer.length ? topTransfer.map((m,i) => `
-      <tr>
-        <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
-        <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
-        <td class="miles-minus">${m.total.toLocaleString('id-ID')}</td>
-      </tr>
-    `).join('') : '<tr><td colspan="3" class="empty-state">Belum ada data.</td></tr>';
+      document.getElementById('top-transfer-body').innerHTML = topTransferData.length
+          ? topTransferData.map((m, i) => `
+              <tr>
+                  <td><span class="rank-num" style="${rankColor(i)}">${i+1}</span></td>
+                  <td><div class="member-name">${m.nama}</div><div class="member-email">${m.email}</div></td>
+                  <td class="miles-minus">${m.total_transfer.toLocaleString('id-ID')}</td>
+              </tr>`).join('')
+          : '<tr><td colspan="3" class="empty-state">Belum ada data.</td></tr>';
   }
 
-  function openModal(id) { deleteId = id; document.getElementById('modal').classList.add('open'); }
-  function closeModal() { deleteId = null; document.getElementById('modal').classList.remove('open'); }
+  function openModal(idx) {
+      deleteTarget = idx;
+      document.getElementById('modal').classList.add('open');
+  }
+  function closeModal() {
+      deleteTarget = null;
+      document.getElementById('modal').classList.remove('open');
+  }
 
   function konfirmasiHapus() {
-    transaksi = transaksi.filter(t => t.id !== deleteId);
-    closeModal();
-    updateStats();
-    renderRiwayat();
-    renderTopMember();
-    showToast('Riwayat transaksi berhasil dihapus.');
+      const t = transaksi[deleteTarget];
+      fetch('/staf/laporan-transaksi/hapus/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipe: t.tipe, pk: t.pk })
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.error) {
+              showToast('Gagal: ' + data.error);
+              return;
+          }
+          transaksi.splice(deleteTarget, 1);
+          closeModal();
+          renderRiwayat();
+          renderTopMember();
+          showToast('Riwayat transaksi berhasil dihapus.');
+      })
+      .catch(err => {
+          console.error(err);
+          showToast('Terjadi kesalahan, coba lagi.');
+      });
   }
 
   function switchTab(tab, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      btn.classList.add('active');
   }
 
   function showToast(msg) {
-    document.getElementById('toast-msg').textContent = msg;
-    const t = document.getElementById('toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3200);
+      document.getElementById('toast-msg').textContent = msg;
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
   }
 
-  updateStats();
+  const spNotice = "{{ sp_notice|escapejs }}";
+  if (spNotice) {
+      setTimeout(() => showToast(spNotice), 800);
+  }
+
   renderRiwayat();
   renderTopMember();
 </script>
