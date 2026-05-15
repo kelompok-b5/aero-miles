@@ -300,9 +300,9 @@ class AeroNavbar extends HTMLElement {
                 <a class="dd-item" href="/member/profil/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <a class="dd-item danger" href="/auth/logout/" data-logout>
+                <button class="dd-item danger" data-logout type="button">
                   ${this._iconLogout()} Logout
-                </a>
+                </button>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
@@ -350,9 +350,9 @@ class AeroNavbar extends HTMLElement {
                 <a class="dd-item" href="/staf/profile-staf/">
                   ${this._iconUser()} Pengaturan Profil
                 </a>
-                <a class="dd-item danger" href="/auth/logout/" data-logout>
+                <button class="dd-item danger" data-logout type="button">
                   ${this._iconLogout()} Logout
-                </a>
+                </button>
               </div>
             </div>
             <button class="hamburger" data-toggle="mobile" aria-label="Menu">
@@ -369,7 +369,20 @@ class AeroNavbar extends HTMLElement {
     `;
   }
   
-  na
+  // ──────────────── HELPERS ────────────────
+  _brand(role) {
+    const badge = role === 'staf' ? '<span class="brand-badge">STAF</span>' : '';
+    return `
+      <a class="brand" href="${role === 'staf' 
+        ? '/staf/dashboard-staf/' 
+        : role === 'member' 
+        ? '/member/dashboard-member/' 
+        : '/'}">
+        <div class="brand-icon">✈</div>
+        <span class="brand-name">Aero<span class="brand-accent">Miles</span>${badge}</span>
+      </a>
+    `;
+  }
   _chevron() {
     return `<svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
   }
