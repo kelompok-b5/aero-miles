@@ -18,4 +18,5 @@ urlpatterns = [
     path('profil/', views.profil, name='profil'),
     path('dashboard-member/', views.dashboard_member, name='dashboard-member'),
     path('identitas/', views.identitas, name='identitas'),
+    path('validate-member-email/', views.validate_member_email, name='validate-member-email'),
 ]

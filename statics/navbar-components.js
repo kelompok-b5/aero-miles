@@ -222,6 +222,12 @@ class AeroNavbar extends HTMLElement {
   }
 
   connectedCallback() {
+    this._active = this.getAttribute('active') || '';
+    this._role   = this.getAttribute('role')   || 'member';
+
+    // Ambil dari window.AERO_USER yang diinject Django di template
+    this._user = window.AERO_USER || null;
+
     this._render();
     this._bindEvents();
   }
