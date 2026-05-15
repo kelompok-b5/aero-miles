@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
 from django.http import JsonResponse
-from django.contrib.auth.hashers import make_password, check_password
 from aeromiles.db import get_connection
 import json
 
@@ -18,23 +17,26 @@ def login_page(request):
 
 
 def handle_login(request, data):
-    email = data.get('email')
-    password = data.get('password')
+    email = data.get('email').strip()
+    password = data.get('password').strip()
 
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        cursor.execute(
+            "CALL verifikasi_login(%s, %s)",
+            [email, password]
+        )
+
+        conn.commit()
+
         cursor.execute("""
-            SELECT email, password, salutation, first_mid_name, last_name
-            FROM PENGGUNA WHERE email = %s
+            SELECT email, salutation, first_mid_name, last_name
+            FROM PENGGUNA
+            WHERE email = %s
         """, [email])
+
         user = cursor.fetchone()
-
-        if not user:
-            return JsonResponse({'error': 'Email atau password salah.'}, status=401)
-
-        if not check_password(password, user[1]):
-            return JsonResponse({'error': 'Email atau password salah.'}, status=401)
 
         cursor.execute("SELECT nomor_member, id_tier FROM MEMBER WHERE email = %s", [email])
         member = cursor.fetchone()
@@ -46,7 +48,7 @@ def handle_login(request, data):
             return JsonResponse({'error': 'Akun tidak terdaftar sebagai member atau staf.'}, status=401)
 
         request.session['email'] = user[0]
-        request.session['nama'] = f"{user[2]} {user[3]} {user[4]}"
+        request.session['nama'] = f"{user[1]} {user[2]} {user[3]}"
         request.session['role'] = 'member' if member else 'staf'
 
         if member:
@@ -56,7 +58,7 @@ def handle_login(request, data):
             nama_tier = tier[0] if tier else ''
 
             # Buat singkatan dari first_mid_name dan last_name
-            singkatan = (user[3][0] + user[4][0]).upper() if user[3] and user[4] else 'AM'
+            singkatan = (user[2][0] + user[3][0]).upper() if user[2] and user[3] else 'AM'
 
             request.session['nomor_member'] = member[0]
             request.session['id_tier'] = member[1]
@@ -64,7 +66,7 @@ def handle_login(request, data):
             request.session['singkatan'] = singkatan
             redirect_url = '/member/dashboard-member/'
         else:
-            singkatan = (user[3][0] + user[4][0]).upper() if user[3] and user[4] else 'AM'
+            singkatan = (user[2][0] + user[3][0]).upper() if user[2] and user[3] else 'AM'
             request.session['id_staf'] = staf[0]
             request.session['singkatan'] = singkatan
             redirect_url = '/staf/dashboard-staf/'
@@ -72,6 +74,7 @@ def handle_login(request, data):
         return JsonResponse({'success': True, 'redirect': redirect_url})
 
     except Exception as e:
+        print(f"ERROR LOGIN: {e}")  # tambah ini
         return JsonResponse({'error': str(e)}, status=500)
     finally:
         cursor.close()
@@ -101,14 +104,39 @@ def handle_register(data):
             if not cursor.fetchone():
                 return JsonResponse({'error': 'Kode maskapai tidak valid.'}, status=400)
 
-        hashed = make_password(password)
+        password = data.get('password')
 
         # Insert PENGGUNA
         cursor.execute("""
             INSERT INTO PENGGUNA 
-            (email, password, salutation, first_mid_name, last_name, country_code, mobile_number, tanggal_lahir, kewarganegaraan)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, [email, hashed, salutation, fname, lname, country_code, phone, dob, nationality])
+            (
+                email,
+                password,
+                salutation,
+                first_mid_name,
+                last_name,
+                country_code,
+                mobile_number,
+                tanggal_lahir,
+                kewarganegaraan
+            )
+            VALUES
+            (
+                %s,
+                crypt(%s, gen_salt('bf')),
+                %s, %s, %s, %s, %s, %s, %s
+            )
+        """, [
+            email,
+            password,
+            salutation,
+            fname,
+            lname,
+            country_code,
+            phone,
+            dob,
+            nationality
+        ])
 
         if role == 'member':
             cursor.execute("""

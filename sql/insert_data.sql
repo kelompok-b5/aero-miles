@@ -376,3 +376,5 @@ UPDATE MEMBER SET award_miles = 6000, total_miles = 6000 WHERE id_tier = 'T001';
 -- Set sequence untuk nomor_member dan id_staf agar tidak terjadi duplikasi saat penambahan data baru
 SELECT setval('aero_miles.member_seq', (SELECT MAX(CAST(SUBSTRING(nomor_member FROM 2) AS INT)) FROM aero_miles.MEMBER));
 SELECT setval('aero_miles.staf_seq', (SELECT MAX(CAST(SUBSTRING(id_staf FROM 2) AS INT)) FROM aero_miles.STAF));
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
