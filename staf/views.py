@@ -11,8 +11,9 @@ from django.contrib.auth.hashers import check_password, make_password
 def dashboard_staf(request):
     '''Menampilkan data dashboard staf dengan statistik klaim missing miles terkait maskapai yang dikelola.'''
 
-    # sementara hardcoded dulu
     email_staf = request.session.get('email')
+    if not email_staf or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -162,7 +163,6 @@ def claim_staff(request):
         cur.close()
         conn.close()
 
-
 def claim_proses(request, klaim_id):
     if not request.session.get('email') or request.session.get('role') != 'staf':
         return redirect('/auth/login/')
@@ -206,6 +206,9 @@ def kelola_hadiah(request):
     - daftar penyedia
     - statistik total hadiah, hadiah aktif, hadiah nonaktif
     """
+
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
  
     conn = get_connection()
     cursor = conn.cursor()
@@ -769,6 +772,9 @@ def kelola_mitra(request):
     - statistik mitra baru 30 hari terakhir
     """
 
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+    
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -1140,6 +1146,9 @@ def hapus_mitra(request):
         conn.close()
 
 def laporan_transaksi(request):
+    if not request.session.get('email') or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -1395,8 +1404,9 @@ def profile_staf(request):
     Menampilkan data profil staf ke halaman profile-staf.html
     """
 
-    # sementara hardcoded dulu
     email_staf = request.session.get('email')
+    if not email_staf or request.session.get('role') != 'staf':
+        return redirect('/auth/login/')
 
     conn = get_connection()
     cursor = conn.cursor()

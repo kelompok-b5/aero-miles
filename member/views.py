@@ -521,7 +521,9 @@ def profil(request):
     Menampilkan data detail profil pada form halaman profil.html menggunakan Raw SQL.
     """
     # Simulasi email dari session login
-    email_member = request.session.get('email')
+    email_member =  request.session.get('email')
+    if not email_member or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
 
     conn = get_connection() # Menggunakan connection bawaan Django
     cursor = conn.cursor()
@@ -756,7 +758,9 @@ def ubah_password(request):
         conn.close()
 
 def dashboard_member(request):
-    email_member = request.session.get('email')
+    email_member =  request.session.get('email')
+    if not email_member or request.session.get('role') != 'member':
+        return redirect('/auth/login/')
 
     conn = get_connection()
     cursor = conn.cursor()
