@@ -7,6 +7,14 @@
   <title>Kelola Hadiah & Penyedia - AeroMiles Staf</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="{% static 'navbar-components.js' %}" defer></script>
+  <script>
+    window.AERO_USER = {
+      nama: "{{ request.session.nama }}",
+      singkatan: "{{ request.session.singkatan }}",
+      sub: "Staf · {{ request.session.email }}"
+    };
+  </script>
+  <script src="{% static 'navbar-components.js' %}" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,8 +25,6 @@
       --gold: #f0a500;
       --muted: #6b8499;
     }
-
-    /* HERO */
     .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2rem 2rem 3.5rem; position:relative; overflow:hidden; }
     .hero-strip::before { content:''; position:absolute; right:-60px; top:-60px; width:300px; height:300px; border-radius:50%; background:rgba(240,165,0,0.06); }
     .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
@@ -26,25 +32,29 @@
     .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
     .btn-add { background:var(--gold); color:var(--navy); border:none; padding:0.65rem 1.4rem; border-radius:10px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; transition:all 0.18s; white-space:nowrap; }
     .btn-add:hover { background:#ffc12a; transform:translateY(-1px); box-shadow:0 6px 20px rgba(240,165,0,0.3); }
-
-    /* CONTENT */
     .content { max-width:1280px; margin:-1.75rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
 
-    /* CARD */
+    /* STATS */
+    .stats-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.25rem; }
+    .stat-mini-card { background:white; border-radius:14px; border:1.5px solid #e8f0f5; padding:1rem 1.3rem; display:flex; align-items:center; gap:1rem; }
+    .stat-mini-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+    .stat-mini-icon.blue  { background:#e0f0ff; }
+    .stat-mini-icon.green { background:#e0ffe8; }
+    .stat-mini-icon.red   { background:#ffe0e0; }
+    .stat-mini-label { font-size:0.7rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+    .stat-mini-val { font-size:1.35rem; font-weight:800; color:var(--navy); line-height:1.1; }
+    @media (max-width:640px) { .stats-mini { grid-template-columns:1fr; } }
+
     .card { background:white; border-radius:16px; border:1.5px solid #e8f0f5; overflow:hidden; margin-bottom:1.25rem; }
     .card-head { padding:1.1rem 1.5rem; border-bottom:1.5px solid #f0f5f8; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; }
     .card-title { font-size:0.88rem; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:0.5rem; }
     .card-body { padding:0; }
-
-    /* FILTER BAR */
     .filter-bar { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
     .search-box { display:flex; align-items:center; gap:0.5rem; background:#f4f8fb; border:1.5px solid #e0ecf4; border-radius:10px; padding:0.5rem 0.85rem; min-width:220px; }
     .search-box input { background:none; border:none; outline:none; font-family:inherit; font-size:0.82rem; color:var(--navy); width:100%; }
     .search-box input::placeholder { color:var(--muted); }
     .filter-select { background:#f4f8fb; border:1.5px solid #e0ecf4; border-radius:10px; padding:0.5rem 0.85rem; font-family:inherit; font-size:0.82rem; color:var(--navy); outline:none; cursor:pointer; }
     .filter-select:focus { border-color:var(--teal); }
-
-    /* TABLE */
     .table-wrap { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; }
     thead tr { background:#f7fafc; }
@@ -62,7 +72,7 @@
     .td-penyedia.partner { background:#f0ffe8; color:#2a7a3b; }
     .td-periode { font-size:0.78rem; color:var(--muted); }
     .status-badge { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; font-weight:700; padding:0.28rem 0.75rem; border-radius:20px; white-space:nowrap; }
-    .status-badge.aktif { background:#dcfce7; color:#166534; }
+    .status-badge.aktif    { background:#dcfce7; color:#166534; }
     .status-badge.nonaktif { background:#fee2e2; color:#991b1b; }
     .status-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
     .action-group { display:flex; align-items:center; gap:0.4rem; }
@@ -74,8 +84,7 @@
     .btn-icon:disabled { opacity:0.35; cursor:not-allowed; }
     .empty-state { padding:3rem; text-align:center; color:var(--muted); font-size:0.85rem; }
     .empty-icon { font-size:2.5rem; margin-bottom:0.5rem; opacity:0.5; }
-
-    /* MODAL */
+    .error-banner { background:#fce8e8; border:1.5px solid #e05252; color:#c0392b; border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.25rem; font-size:0.85rem; font-weight:600; }
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.open { display:flex; }
     .modal { background:white; border-radius:20px; width:520px; max-width:100%; max-height:90vh; overflow-y:auto; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
@@ -101,28 +110,21 @@
     .btn-simpan:hover { background:var(--teal-light); }
     .btn-hapus { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
     .btn-hapus:hover { background:#c0392b; }
-
-    /* DELETE CONFIRM MODAL */
     .del-modal { width:420px; }
     .del-modal .modal-head { background:linear-gradient(135deg,#c0392b,#e05252); }
     .del-info { background:#fff5f5; border:1px solid #fccaca; border-radius:10px; padding:1rem; font-size:0.82rem; color:#991b1b; }
     .del-info strong { display:block; font-weight:700; margin-bottom:0.3rem; }
-
-    /* TOAST */
     .toast { position:fixed; bottom:2rem; right:2rem; z-index:300; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--gold); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); pointer-events:none; }
     .toast.show { transform:none; opacity:1; }
     .toast.success { border-left-color:#27a96c; }
     .toast.error { border-left-color:#e05252; }
-
-    @media (max-width:640px) { .form-grid { grid-template-columns:1fr; } .modal { width:100%; border-radius:16px 16px 0 0; position:fixed; bottom:0; max-height:85vh; } }
+    @media (max-width:640px) { .form-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <aero-navbar role="staf" active="kelola-hadiah"></aero-navbar>
 
-<!-- HERO -->
 <div class="hero-strip">
   <div class="hero-inner">
     <div>
@@ -136,14 +138,43 @@
   </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
+
+  {% if error %}
+  <div class="error-banner">⚠ Terjadi kesalahan saat memuat data: {{ error }}</div>
+  {% endif %}
+
+  <!-- STATS — dari context views: total_hadiah, total_hadiah_aktif, total_hadiah_nonaktif -->
+  <div class="stats-mini">
+    <div class="stat-mini-card">
+      <div class="stat-mini-icon blue">🎁</div>
+      <div>
+        <div class="stat-mini-label">Total Hadiah</div>
+        <div class="stat-mini-val" id="stat-total">{{ total_hadiah|default:"0" }}</div>
+      </div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-icon green">✅</div>
+      <div>
+        <div class="stat-mini-label">Hadiah Aktif</div>
+        <div class="stat-mini-val" id="stat-aktif">{{ total_hadiah_aktif|default:"0" }}</div>
+      </div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-icon red">❌</div>
+      <div>
+        <div class="stat-mini-label">Tidak Aktif</div>
+        <div class="stat-mini-val" id="stat-nonaktif">{{ total_hadiah_nonaktif|default:"0" }}</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-head">
       <div class="card-title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
         Daftar Hadiah
-        <span id="badge-count" style="background:#f0f5f8;color:var(--muted);font-size:0.7rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">4</span>
+        <span id="badge-count" style="background:#f0f5f8;color:var(--muted);font-size:0.7rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">{{ total_hadiah|default:"0" }}</span>
       </div>
       <div class="filter-bar">
         <div class="search-box">
@@ -177,9 +208,7 @@
               <th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="hadiah-tbody">
-            <!-- Populated by JS -->
-          </tbody>
+          <tbody id="hadiah-tbody"></tbody>
         </table>
         <div id="empty-state" class="empty-state" style="display:none;">
           <div class="empty-icon">🎁</div>
@@ -190,7 +219,7 @@
   </div>
 </div>
 
-<!-- MODAL TAMBAH HADIAH -->
+<!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modal-tambah">
   <div class="modal">
     <div class="modal-head">
@@ -205,12 +234,9 @@
         </div>
         <div class="form-group">
           <label class="fl">Penyedia <span class="req">*</span></label>
+          {# Dropdown penyedia diisi dari penyedia_json — di-populate JS #}
           <select class="form-control" id="add-penyedia">
             <option value="">Pilih penyedia</option>
-            <option value="1|GA - Garuda Indonesia|airline">GA - Garuda Indonesia (Maskapai)</option>
-            <option value="2|SQ - Singapore Airlines|airline">SQ - Singapore Airlines (Maskapai)</option>
-            <option value="3|TravelokaPartner|partner">TravelokaPartner (Mitra)</option>
-            <option value="4|Plaza Premium|partner">Plaza Premium (Mitra)</option>
           </select>
         </div>
         <div class="form-group">
@@ -238,7 +264,7 @@
   </div>
 </div>
 
-<!-- MODAL EDIT HADIAH -->
+<!-- MODAL EDIT -->
 <div class="modal-overlay" id="modal-edit">
   <div class="modal">
     <div class="modal-head">
@@ -257,11 +283,9 @@
         </div>
         <div class="form-group">
           <label class="fl">Penyedia <span class="req">*</span></label>
+          {# Dropdown penyedia diisi dari penyedia_json — di-populate JS #}
           <select class="form-control" id="edit-penyedia">
-            <option value="1|GA - Garuda Indonesia|airline">GA - Garuda Indonesia (Maskapai)</option>
-            <option value="2|SQ - Singapore Airlines|airline">SQ - Singapore Airlines (Maskapai)</option>
-            <option value="3|TravelokaPartner|partner">TravelokaPartner (Mitra)</option>
-            <option value="4|Plaza Premium|partner">Plaza Premium (Mitra)</option>
+            <option value="">Pilih penyedia</option>
           </select>
         </div>
         <div class="form-group">
@@ -289,7 +313,7 @@
   </div>
 </div>
 
-<!-- MODAL HAPUS HADIAH -->
+<!-- MODAL HAPUS -->
 <div class="modal-overlay" id="modal-hapus">
   <div class="modal del-modal">
     <div class="modal-head">
@@ -298,10 +322,10 @@
     </div>
     <div class="modal-body">
       <div class="del-info">
-        <strong id="hapus-nama-info">Nama hadiah</strong>
+        <strong id="hapus-nama-info"></strong>
         Jika hadiah sudah pernah di-redeem oleh Member, riwayat redeem akan terpengaruh.
       </div>
-      <p style="font-size:0.82rem;color:var(--muted);">Staf hanya dapat menghapus hadiah yang sudah tidak berlaku (periode telah selesai).</p>
+      <p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Staf hanya dapat menghapus hadiah yang sudah tidak berlaku (periode telah selesai).</p>
     </div>
     <div class="modal-actions">
       <button class="btn-batal" onclick="closeModal('modal-hapus')">Batal</button>
@@ -310,34 +334,51 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-  // ===== DATA DUMMY =====
-  let hadiahData = [
-    { kode:'RWD-001', nama:'Free Ticket Domestik', deskripsi:'Tiket gratis rute domestik', penyedia_id:'1', penyedia_nama:'GA - Garuda Indonesia', penyedia_tipe:'airline', miles:15000, start:'2025-01-01', end:'2026-06-30' },
-    { kode:'RWD-002', nama:'Upgrade Business Class', deskripsi:'Upgrade ke business class', penyedia_id:'2', penyedia_nama:'QG - Citilink Indonesia', penyedia_tipe:'airline', miles:20000, start:'2025-03-01', end:'2027-03-01' },
-    { kode:'RWD-003', nama:'Lounge Access', deskripsi:'Akses lounge bandara', penyedia_id:'3', penyedia_nama:'JT - Lion Air', penyedia_tipe:'airline', miles:5000, start:'2024-07-01', end:'2026-12-31' },
-    { kode:'RWD-004', nama:'Extra Baggage 20kg', deskripsi:'Tambahan bagasi 20kg', penyedia_id:'4', penyedia_nama:'SJ - Sriwijaya Air', penyedia_tipe:'airline', miles:3000, start:'2025-06-01', end:'2026-06-01' },
-    { kode:'RWD-005', nama:'Hotel Voucher', deskripsi:'Voucher hotel bintang 4', penyedia_id:'5', penyedia_nama:'ID - Batik Air', penyedia_tipe:'airline', miles:25000, start:'2026-01-01', end:'2027-01-01' },
-    { kode:'RWD-006', nama:'Free Ticket Internasional', deskripsi:'Tiket gratis rute internasional', penyedia_id:'1', penyedia_nama:'GA - Garuda Indonesia', penyedia_tipe:'airline', miles:40000, start:'2025-01-01', end:'2027-12-31' },
-    { kode:'RWD-007', nama:'Airport Transfer', deskripsi:'Antar jemput bandara', penyedia_id:'2', penyedia_nama:'QG - Citilink Indonesia', penyedia_tipe:'airline', miles:2000, start:'2026-04-01', end:'2026-10-31' },
-    { kode:'RWD-008', nama:'Diskon 50% Tiket', deskripsi:'Diskon 50% untuk 1 tiket', penyedia_id:'3', penyedia_nama:'JT - Lion Air', penyedia_tipe:'airline', miles:8000, start:'2025-09-01', end:'2026-09-01' },
-    { kode:'RWD-009', nama:'Priority Check-in', deskripsi:'Priority check-in & boarding', penyedia_id:'4', penyedia_nama:'SJ - Sriwijaya Air', penyedia_tipe:'airline', miles:1500, start:'2024-11-01', end:'2026-04-30' },
-    { kode:'RWD-010', nama:'Free Meal Voucher', deskripsi:'Voucher makan di bandara', penyedia_id:'5', penyedia_nama:'ID - Batik Air', penyedia_tipe:'airline', miles:1000, start:'2026-03-01', end:'2026-08-31' },
-  ];
+  // ===== DATA DARI DJANGO VIEWS =====
+  // hadiah_json  → list hadiah dari kelola_hadiah()
+  // penyedia_json → list penyedia untuk dropdown
+  let hadiahData   = JSON.parse('{{ hadiah_json|escapejs }}');
+  const penyediaData = JSON.parse('{{ penyedia_json|escapejs }}');
 
-  let editIndex = -1;
-  let hapusIndex = -1;
-  let kodeCounter = 6;
+  // URL endpoints — resolved Django supaya tidak hardcode path
+  const URL_TAMBAH = "{% url 'tambah-hadiah' %}";
+  const URL_EDIT   = "{% url 'edit-hadiah' %}";
+  const URL_HAPUS  = "{% url 'hapus-hadiah' %}";
 
   const today = new Date().toISOString().split('T')[0];
 
-  function isAktif(item) {
-    return item.end >= today;
+  // Tracking kode yang sedang diedit/dihapus
+  let editKode  = null;
+  let hapusKode = null;
+
+  // ===== POPULATE DROPDOWN PENYEDIA =====
+  // Diisi dari penyedia_json: { id, nama, tipe }
+  function populatePenyediaDropdown(selectId, selectedId = null) {
+    const sel = document.getElementById(selectId);
+    // Kosongkan kecuali option pertama
+    sel.innerHTML = '<option value="">Pilih penyedia</option>';
+    penyediaData.forEach(p => {
+      const label = `${p.nama} (${p.tipe === 'airline' ? 'Maskapai ✈' : 'Mitra 🤝'})`;
+      const opt   = new Option(label, p.id);
+      if (selectedId !== null && String(p.id) === String(selectedId)) opt.selected = true;
+      sel.appendChild(opt);
+    });
   }
 
+  // ===== STATS UPDATE (lokal setelah operasi tanpa reload) =====
+  function updateStats() {
+    const totalAktif    = hadiahData.filter(h => h.is_aktif).length;
+    const totalNonaktif = hadiahData.length - totalAktif;
+    document.getElementById('stat-total').textContent    = hadiahData.length;
+    document.getElementById('stat-aktif').textContent    = totalAktif;
+    document.getElementById('stat-nonaktif').textContent = totalNonaktif;
+    document.getElementById('badge-count').textContent   = hadiahData.length;
+  }
+
+  // ===== RENDER TABLE =====
   function renderTable(data) {
     const tbody = document.getElementById('hadiah-tbody');
     const empty = document.getElementById('empty-state');
@@ -350,24 +391,37 @@
     }
     empty.style.display = 'none';
 
-    tbody.innerHTML = data.map((item, i) => {
-      const aktif = isAktif(item);
-      const realIdx = hadiahData.findIndex(h => h.kode === item.kode);
+    tbody.innerHTML = data.map(item => {
+      // is_aktif dikirim dari views (valid_start <= today <= program_end)
+      const aktif = item.is_aktif;
       return `
       <tr>
         <td class="td-kode">${item.kode}</td>
         <td class="td-nama">${item.nama}</td>
         <td class="td-desc" title="${item.deskripsi || '-'}">${item.deskripsi || '-'}</td>
-        <td><span class="td-penyedia ${item.penyedia_tipe}">${item.penyedia_nama} <small>${item.penyedia_tipe === 'airline' ? '✈' : '🤝'}</small></span></td>
-        <td class="td-miles">${item.miles.toLocaleString('id-ID')}</td>
+        <td>
+          <span class="td-penyedia ${item.penyedia_tipe}">
+            ${item.penyedia_nama}
+            <small>${item.penyedia_tipe === 'airline' ? '✈' : '🤝'}</small>
+          </span>
+        </td>
+        <td class="td-miles">${Number(item.miles).toLocaleString('id-ID')}</td>
         <td class="td-periode">${item.start} — ${item.end}</td>
-        <td><span class="status-badge ${aktif ? 'aktif' : 'nonaktif'}">${aktif ? 'Aktif' : 'Tidak Aktif'}</span></td>
+        <td>
+          <span class="status-badge ${aktif ? 'aktif' : 'nonaktif'}">
+            ${aktif ? 'Aktif' : 'Tidak Aktif'}
+          </span>
+        </td>
         <td>
           <div class="action-group">
-            <button class="btn-icon edit" title="Edit hadiah" onclick="openEdit(${realIdx})">
+            <button class="btn-icon edit" title="Edit hadiah"
+              onclick="openEdit('${item.kode}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
-            <button class="btn-icon del" title="${aktif ? 'Hanya bisa hapus hadiah yang sudah tidak berlaku' : 'Hapus hadiah'}" onclick="openHapus(${realIdx})" ${aktif ? 'disabled' : ''}>
+            <button class="btn-icon del"
+              title="${aktif ? 'Hanya bisa hapus hadiah yang sudah tidak berlaku' : 'Hapus hadiah'}"
+              onclick="openHapus('${item.kode}', '${item.nama.replace(/'/g, "\\'")}')"
+              ${aktif ? 'disabled' : ''}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             </button>
           </div>
@@ -377,106 +431,191 @@
   }
 
   function filterTable() {
-    const q = document.getElementById('search-input').value.toLowerCase();
+    const q  = document.getElementById('search-input').value.toLowerCase();
     const fp = document.getElementById('filter-penyedia').value;
     const fs = document.getElementById('filter-status').value;
-    let filtered = hadiahData.filter(item => {
-      const matchQ = !q || item.nama.toLowerCase().includes(q) || item.kode.toLowerCase().includes(q) || item.penyedia_nama.toLowerCase().includes(q);
+
+    const filtered = hadiahData.filter(item => {
+      const matchQ = !q  || item.nama.toLowerCase().includes(q) || item.kode.toLowerCase().includes(q) || item.penyedia_nama.toLowerCase().includes(q);
       const matchP = !fp || item.penyedia_tipe === fp;
-      const aktif = isAktif(item);
-      const matchS = !fs || (fs === 'aktif' && aktif) || (fs === 'nonaktif' && !aktif);
+      const matchS = !fs || (fs === 'aktif' && item.is_aktif) || (fs === 'nonaktif' && !item.is_aktif);
       return matchQ && matchP && matchS;
     });
     renderTable(filtered);
   }
 
-  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  // ===== MODAL HELPERS =====
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  function openEdit(idx) {
-    editIndex = idx;
-    const item = hadiahData[idx];
-    document.getElementById('edit-kode').value = item.kode;
+  // ===== EDIT =====
+  function openEdit(kode) {
+    const item = hadiahData.find(h => h.kode === kode);
+    if (!item) return;
+    editKode = kode;
+    document.getElementById('edit-kode').value      = item.kode;
     document.getElementById('edit-kode-info').textContent = `Kode: ${item.kode} — tidak dapat diubah`;
-    document.getElementById('edit-nama').value = item.nama;
-    document.getElementById('edit-miles').value = item.miles;
-    document.getElementById('edit-start').value = item.start;
-    document.getElementById('edit-end').value = item.end;
+    document.getElementById('edit-nama').value      = item.nama;
+    document.getElementById('edit-miles').value     = item.miles;
+    document.getElementById('edit-start').value     = item.start;
+    document.getElementById('edit-end').value       = item.end;
     document.getElementById('edit-deskripsi').value = item.deskripsi || '';
-    const penyediaVal = `${item.penyedia_id}|${item.penyedia_nama}|${item.penyedia_tipe}`;
-    document.getElementById('edit-penyedia').value = penyediaVal;
+    // Populate dropdown dan set selected sesuai penyedia_id item
+    populatePenyediaDropdown('edit-penyedia', item.penyedia_id);
     openModal('modal-edit');
   }
 
-  function openHapus(idx) {
-    const item = hadiahData[idx];
-    if (isAktif(item)) { showToast('Hanya hadiah yang sudah tidak berlaku yang dapat dihapus.', 'error'); return; }
-    hapusIndex = idx;
-    document.getElementById('hapus-nama-info').textContent = `${item.kode} — ${item.nama}`;
+  async function simpanEdit() {
+    const nama       = document.getElementById('edit-nama').value.trim();
+    const id_penyedia = document.getElementById('edit-penyedia').value;
+    const miles      = parseInt(document.getElementById('edit-miles').value);
+    const start      = document.getElementById('edit-start').value;
+    const end        = document.getElementById('edit-end').value;
+    const deskripsi  = document.getElementById('edit-deskripsi').value.trim();
+
+    if (!nama || !id_penyedia || !miles || !start || !end) {
+      showToast('Mohon isi semua field yang wajib diisi.', 'error'); return;
+    }
+    if (start > end) {
+      showToast('Tanggal mulai tidak boleh lebih dari tanggal akhir.', 'error'); return;
+    }
+
+    try {
+      // Kirim ke endpoint edit_hadiah di views.py
+      // views menerima: { kode, nama, deskripsi, miles, start, end, id_penyedia }
+      const res  = await fetch(URL_EDIT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kode: editKode, nama, deskripsi, miles, start, end, id_penyedia })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Update data lokal tanpa reload
+        const penyedia  = penyediaData.find(p => String(p.id) === String(id_penyedia));
+        const idx       = hadiahData.findIndex(h => h.kode === editKode);
+        const isAktif   = start <= today && today <= end;
+        if (idx !== -1) {
+          hadiahData[idx] = {
+            ...hadiahData[idx],
+            nama, deskripsi, miles, start, end,
+            penyedia_id:   id_penyedia,
+            penyedia_nama: penyedia ? penyedia.nama : hadiahData[idx].penyedia_nama,
+            penyedia_tipe: penyedia ? penyedia.tipe : hadiahData[idx].penyedia_tipe,
+            is_aktif:      isAktif,
+          };
+        }
+        closeModal('modal-edit');
+        filterTable();
+        updateStats();
+        showToast('Data hadiah berhasil diperbarui!', 'success');
+      } else {
+        showToast(data.message || 'Gagal memperbarui hadiah.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
+  }
+
+  // ===== HAPUS =====
+  function openHapus(kode, nama) {
+    const item = hadiahData.find(h => h.kode === kode);
+    if (!item) return;
+    if (item.is_aktif) {
+      showToast('Hanya hadiah yang sudah tidak berlaku yang dapat dihapus.', 'error');
+      return;
+    }
+    hapusKode = kode;
+    document.getElementById('hapus-nama-info').textContent = `${kode} — ${nama}`;
     openModal('modal-hapus');
   }
 
-  function tambahHadiah() {
-    const nama = document.getElementById('add-nama').value.trim();
-    const penyediaRaw = document.getElementById('add-penyedia').value;
-    const miles = parseInt(document.getElementById('add-miles').value);
-    const start = document.getElementById('add-start').value;
-    const end = document.getElementById('add-end').value;
-    const deskripsi = document.getElementById('add-deskripsi').value.trim();
+  async function konfirmasiHapus() {
+    if (!hapusKode) return;
 
-    if (!nama || !penyediaRaw || !miles || !start || !end) { showToast('Mohon isi semua field yang wajib diisi.', 'error'); return; }
-    if (start > end) { showToast('Tanggal mulai tidak boleh lebih dari tanggal akhir.', 'error'); return; }
+    try {
+      // Kirim ke endpoint hapus_hadiah di views.py
+      // views menerima: { kode }
+      const res  = await fetch(URL_HAPUS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kode: hapusKode })
+      });
+      const data = await res.json();
 
-    const [pid, pnama, ptipe] = penyediaRaw.split('|');
-    const kode = `RWD-${String(kodeCounter).padStart(3,'0')}`;
-    kodeCounter++;
-
-    hadiahData.push({ kode, nama, deskripsi, penyedia_id: pid, penyedia_nama: pnama, penyedia_tipe: ptipe, miles, start, end });
-    closeModal('modal-tambah');
-    document.getElementById('add-nama').value = '';
-    document.getElementById('add-penyedia').value = '';
-    document.getElementById('add-miles').value = '';
-    document.getElementById('add-start').value = '';
-    document.getElementById('add-end').value = '';
-    document.getElementById('add-deskripsi').value = '';
-    filterTable();
-    showToast(`Hadiah ${kode} berhasil ditambahkan!`, 'success');
+      if (data.success) {
+        hadiahData = hadiahData.filter(h => h.kode !== hapusKode);
+        hapusKode  = null;
+        closeModal('modal-hapus');
+        filterTable();
+        updateStats();
+        showToast(data.message || 'Hadiah berhasil dihapus.', 'success');
+      } else {
+        showToast(data.message || 'Gagal menghapus hadiah.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
   }
 
-  function simpanEdit() {
-    const nama = document.getElementById('edit-nama').value.trim();
-    const penyediaRaw = document.getElementById('edit-penyedia').value;
-    const miles = parseInt(document.getElementById('edit-miles').value);
-    const start = document.getElementById('edit-start').value;
-    const end = document.getElementById('edit-end').value;
-    const deskripsi = document.getElementById('edit-deskripsi').value.trim();
+  // ===== TAMBAH =====
+  async function tambahHadiah() {
+    const nama        = document.getElementById('add-nama').value.trim();
+    const id_penyedia = document.getElementById('add-penyedia').value;
+    const miles       = parseInt(document.getElementById('add-miles').value);
+    const start       = document.getElementById('add-start').value;
+    const end         = document.getElementById('add-end').value;
+    const deskripsi   = document.getElementById('add-deskripsi').value.trim();
 
-    if (!nama || !penyediaRaw || !miles || !start || !end) { showToast('Mohon isi semua field yang wajib diisi.', 'error'); return; }
-    if (start > end) { showToast('Tanggal mulai tidak boleh lebih dari tanggal akhir.', 'error'); return; }
+    if (!nama || !id_penyedia || !miles || !start || !end) {
+      showToast('Mohon isi semua field yang wajib diisi.', 'error'); return;
+    }
+    if (start > end) {
+      showToast('Tanggal mulai tidak boleh lebih dari tanggal akhir.', 'error'); return;
+    }
 
-    const [pid, pnama, ptipe] = penyediaRaw.split('|');
-    hadiahData[editIndex] = { ...hadiahData[editIndex], nama, deskripsi, penyedia_id: pid, penyedia_nama: pnama, penyedia_tipe: ptipe, miles, start, end };
-    closeModal('modal-edit');
-    filterTable();
-    showToast('Data hadiah berhasil diperbarui!', 'success');
+    try {
+      // Kirim ke endpoint tambah_hadiah di views.py
+      // views menerima: { nama, deskripsi, miles, start, end, id_penyedia }
+      const res  = await fetch(URL_TAMBAH, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nama, deskripsi, miles, start, end, id_penyedia })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // data.data berisi hadiah baru lengkap dari views
+        hadiahData.push(data.data);
+        closeModal('modal-tambah');
+        document.getElementById('add-nama').value      = '';
+        document.getElementById('add-penyedia').value  = '';
+        document.getElementById('add-miles').value     = '';
+        document.getElementById('add-start').value     = '';
+        document.getElementById('add-end').value       = '';
+        document.getElementById('add-deskripsi').value = '';
+        filterTable();
+        updateStats();
+        showToast(`Hadiah ${data.data.kode} berhasil ditambahkan!`, 'success');
+      } else {
+        showToast(data.message || 'Gagal menambahkan hadiah.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
   }
 
-  function konfirmasiHapus() {
-    if (hapusIndex < 0) return;
-    const kode = hadiahData[hapusIndex].kode;
-    hadiahData.splice(hapusIndex, 1);
-    hapusIndex = -1;
-    closeModal('modal-hapus');
-    filterTable();
-    showToast(`Hadiah ${kode} berhasil dihapus.`, 'success');
-  }
-
+  // ===== TOAST =====
   function showToast(msg, type='success') {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = `toast ${type} show`;
     setTimeout(() => t.classList.remove('show'), 3200);
   }
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  });
 
   function toggleDropdown(id) {
     const el = document.getElementById(id);
@@ -485,16 +624,12 @@
       if (!el.closest('.dropdown-wrap').contains(e.target)) { el.classList.remove('open'); document.removeEventListener('click', handler); }
     });
   }
-
   function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
 
-  // Close modal on overlay click
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-  });
-
-  // Init
+  // Init — populate dropdown tambah lalu render tabel
+  populatePenyediaDropdown('add-penyedia');
   renderTable(hadiahData);
+  updateStats();
 </script>
 </body>
 </html>

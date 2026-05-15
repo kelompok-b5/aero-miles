@@ -10,6 +10,8 @@ urlpatterns = [
     path('transfer-miles/', views.transfer_miles, name='transfer-miles'),
     path('claim-member/', views.claim_member, name='claim-member'),
     path('profil/', views.profil, name='profil'),
+    path('profil/update/', views.update_profil, name='update_profil'),
+    path('profil/ubah-password/', views.ubah_password, name='ubah_password'),
     path('dashboard-member/', views.dashboard_member, name='dashboard-member'),
     path('identitas/', views.identitas, name='identitas'),
 ]
