@@ -278,15 +278,15 @@
         showToast('Gagal: ' + data.error);
         return;
     }
-    awardMiles = data.sisa_miles;
+    awardMiles = data.sisa_miles;  // ← di sini
     const now = new Date().toISOString().replace('T',' ').slice(0,16);
-    const namaHadiah = selected.nama;  // simpan dulu sebelum closeModal()
+    const namaHadiah = selected.nama;
     riwayat.unshift({ nama: selected.nama, timestamp: now, miles: selected.miles });
     document.getElementById('miles-display').textContent = awardMiles.toLocaleString('id-ID');
     closeModal();
     renderKatalog();
     renderRiwayat();
-    showToast('Redeem ' + namaHadiah + ' berhasil!');  // pakai variabel lokal
+    showToast(data.notice || 'Redeem ' + namaHadiah + ' berhasil!');
 })
 .catch(err => {
     console.error('Error detail:', err);

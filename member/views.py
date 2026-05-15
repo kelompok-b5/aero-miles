@@ -85,17 +85,18 @@ def redeem_hadiah_post(request):
         cursor = conn.cursor()
         try:
             # Langsung insert, trigger yang bakal handle validasi & potong miles
+            conn.notices = []
             cursor.execute("""
                 INSERT INTO REDEEM (email_member, kode_hadiah)
                 VALUES (%s, %s)
             """, [email_member, kode_hadiah])
+            notice = conn.notices[-1].strip().replace('NOTICE:  ', '') if conn.notices else ''
 
-            # Ambil sisa miles setelah trigger jalan
             cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
             sisa_miles = cursor.fetchone()[0]
 
             conn.commit()
-            return JsonResponse({'success': True, 'sisa_miles': sisa_miles})
+            return JsonResponse({'success': True, 'sisa_miles': sisa_miles, 'notice': notice})
 
         except Exception as e:
             conn.rollback()
@@ -175,18 +176,23 @@ def beli_package_post(request):
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            # Insert ke MEMBER_AWARD_MILES_PACKAGE
+            conn.notices = []
             cursor.execute("""
                 INSERT INTO MEMBER_AWARD_MILES_PACKAGE (id_award_miles_package, email_member)
                 VALUES (%s, %s)
             """, [id_package, email_member])
 
-            # Ambil sisa miles setelah trigger jalan
+            print("Notices captured:", conn.notices)
+
+            # Ambil semua notices (bisa dari sync_miles + update_tier)
+            notices = [n.strip().replace('NOTICE:  ', '') for n in conn.notices]
+            notices.reverse()  # balik urutan agar sync_miles muncul sebelum update_tier
+
             cursor.execute("SELECT award_miles FROM MEMBER WHERE email = %s", [email_member])
             award_miles_baru = cursor.fetchone()[0]
 
             conn.commit()
-            return JsonResponse({'success': True, 'award_miles': award_miles_baru})
+            return JsonResponse({'success': True, 'award_miles': award_miles_baru, 'notices': notices})
 
         except Exception as e:
             conn.rollback()

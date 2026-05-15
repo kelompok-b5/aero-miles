@@ -285,7 +285,10 @@
           closeModal();
           renderKatalog();
           renderRiwayat();
-          showToast('Berhasil membeli ' + namaPackage + '! +' + milesDidapat.toLocaleString('id-ID') + ' miles');
+          const notices = data.notices && data.notices.length ? data.notices : ['Berhasil membeli ' + namaPackage + '! +' + milesDidapat.toLocaleString('id-ID') + ' miles'];
+          notices.forEach((msg, i) => {
+              setTimeout(() => showToast(msg), i * 5000);
+          });
       })
       .catch(err => {
           console.error('Error:', err);
