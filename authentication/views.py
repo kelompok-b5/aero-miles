@@ -74,8 +74,9 @@ def handle_login(request, data):
         return JsonResponse({'success': True, 'redirect': redirect_url})
 
     except Exception as e:
-        print(f"ERROR LOGIN: {e}")  # tambah ini
-        return JsonResponse({'error': str(e)}, status=500)
+        error_msg = str(e).split('\n')[0].strip()
+        print(f"ERROR LOGIN: {error_msg}")
+        return JsonResponse({'error': error_msg}, status=500)
     finally:
         cursor.close()
         conn.close()
