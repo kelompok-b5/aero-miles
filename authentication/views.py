@@ -6,15 +6,16 @@ import json
 def login_page(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        action = data.get('action', 'login')
-
-        if action == 'register':
-            return handle_register(data)
-        else:
-            return handle_login(request, data)
+        return handle_login(request, data)
 
     return render(request, 'authentication/login.html')
 
+def register_page(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        return handle_register(data)
+ 
+    return render(request, 'authentication/register.html')
 
 def handle_login(request, data):
     email = data.get('email').strip()

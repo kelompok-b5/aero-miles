@@ -274,7 +274,7 @@ class AeroNavbar extends HTMLElement {
           ${this._brand('guest')}
           <div class="right">
             <a class="btn-outline" href="/auth/login/">Login</a>
-            <a class="btn-solid"   href="/auth/login/">Registrasi</a>
+            <a class="btn-solid"   href="/auth/register/">Registrasi</a>
           </div>
         </div>
       </nav>
