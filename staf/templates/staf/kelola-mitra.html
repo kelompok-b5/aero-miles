@@ -7,6 +7,14 @@
   <title>Kelola Mitra - AeroMiles Staf</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="{% static 'navbar-components.js' %}" defer></script>
+  <script>
+    window.AERO_USER = {
+      nama: "{{ request.session.nama }}",
+      singkatan: "{{ request.session.singkatan }}",
+      sub: "Staf · {{ request.session.email }}"
+    };
+  </script>
+  <script src="{% static 'navbar-components.js' %}" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,8 +25,6 @@
       --gold: #f0a500;
       --muted: #6b8499;
     }
-
-    /* HERO */
     .hero-strip { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%); padding:2rem 2rem 3.5rem; position:relative; overflow:hidden; }
     .hero-strip::before { content:''; position:absolute; right:-60px; top:-60px; width:300px; height:300px; border-radius:50%; background:rgba(240,165,0,0.06); }
     .hero-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
@@ -26,11 +32,7 @@
     .hero-sub { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:0.25rem; }
     .btn-add { background:var(--gold); color:var(--navy); border:none; padding:0.65rem 1.4rem; border-radius:10px; font-family:inherit; font-size:0.83rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; transition:all 0.18s; white-space:nowrap; }
     .btn-add:hover { background:#ffc12a; transform:translateY(-1px); box-shadow:0 6px 20px rgba(240,165,0,0.3); }
-
-    /* CONTENT */
     .content { max-width:1280px; margin:-1.75rem auto 0; padding:0 2rem 3rem; position:relative; z-index:2; }
-
-    /* STATS MINI */
     .stats-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.25rem; }
     .stat-mini-card { background:white; border-radius:14px; border:1.5px solid #e8f0f5; padding:1rem 1.3rem; display:flex; align-items:center; gap:1rem; }
     .stat-mini-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
@@ -40,20 +42,14 @@
     .stat-mini-label { font-size:0.7rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
     .stat-mini-val { font-size:1.35rem; font-weight:800; color:var(--navy); line-height:1.1; }
     @media (max-width:640px) { .stats-mini { grid-template-columns:1fr; } }
-
-    /* CARD */
     .card { background:white; border-radius:16px; border:1.5px solid #e8f0f5; overflow:hidden; }
     .card-head { padding:1.1rem 1.5rem; border-bottom:1.5px solid #f0f5f8; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; }
     .card-title { font-size:0.88rem; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:0.5rem; }
     .card-body { padding:0; }
-
-    /* FILTER BAR */
     .filter-bar { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
     .search-box { display:flex; align-items:center; gap:0.5rem; background:#f4f8fb; border:1.5px solid #e0ecf4; border-radius:10px; padding:0.5rem 0.85rem; min-width:240px; }
     .search-box input { background:none; border:none; outline:none; font-family:inherit; font-size:0.82rem; color:var(--navy); width:100%; }
     .search-box input::placeholder { color:var(--muted); }
-
-    /* TABLE */
     .table-wrap { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; }
     thead tr { background:#f7fafc; }
@@ -75,8 +71,7 @@
     .btn-icon.del:hover { background:#fccaca; }
     .empty-state { padding:3rem; text-align:center; color:var(--muted); font-size:0.85rem; }
     .empty-icon { font-size:2.5rem; margin-bottom:0.5rem; opacity:0.5; }
-
-    /* MODAL */
+    .error-banner { background:#fce8e8; border:1.5px solid #e05252; color:#c0392b; border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.25rem; font-size:0.85rem; font-weight:600; }
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,33,55,0.65); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.open { display:flex; }
     .modal { background:white; border-radius:20px; width:480px; max-width:100%; max-height:90vh; overflow-y:auto; animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
@@ -101,14 +96,10 @@
     .btn-simpan:hover { background:var(--teal-light); }
     .btn-hapus { background:#e05252; color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.82rem; font-weight:700; transition:all 0.18s; }
     .btn-hapus:hover { background:#c0392b; }
-
-    /* DELETE CONFIRM MODAL */
     .del-modal { width:420px; }
     .del-modal .modal-head { background:linear-gradient(135deg,#c0392b,#e05252); }
     .del-info { background:#fff5f5; border:1px solid #fccaca; border-radius:10px; padding:1rem; font-size:0.82rem; color:#991b1b; }
     .del-info strong { display:block; font-weight:700; margin-bottom:0.3rem; }
-
-    /* TOAST */
     .toast { position:fixed; bottom:2rem; right:2rem; z-index:300; background:var(--navy); color:white; padding:0.85rem 1.4rem; border-radius:12px; font-size:0.82rem; font-weight:500; border-left:3px solid var(--gold); display:flex; align-items:center; gap:0.6rem; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(13,33,55,0.2); pointer-events:none; }
     .toast.show { transform:none; opacity:1; }
     .toast.success { border-left-color:#27a96c; }
@@ -117,10 +108,8 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <aero-navbar role="staf" active="kelola-mitra"></aero-navbar>
 
-<!-- HERO -->
 <div class="hero-strip">
   <div class="hero-inner">
     <div>
@@ -134,30 +123,36 @@
   </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
-  <!-- STATS -->
+  {% if error %}
+  <div class="error-banner">⚠ Terjadi kesalahan saat memuat data: {{ error }}</div>
+  {% endif %}
+
+  <!-- STATS — nilai dari context views: total_mitra, total_hadiah, total_mitra_baru -->
   <div class="stats-mini">
     <div class="stat-mini-card">
       <div class="stat-mini-icon blue">🤝</div>
       <div>
         <div class="stat-mini-label">Total Mitra</div>
-        <div class="stat-mini-val" id="stat-total">5</div>
+        {# total_mitra = len(mitra_list) dari views #}
+        <div class="stat-mini-val" id="stat-total">{{ total_mitra|default:"0" }}</div>
       </div>
     </div>
     <div class="stat-mini-card">
       <div class="stat-mini-icon green">🎁</div>
       <div>
         <div class="stat-mini-label">Total Hadiah Aktif</div>
-        <div class="stat-mini-val" id="stat-hadiah">8</div>
+        {# total_hadiah = akumulasi jumlah hadiah aktif semua mitra dari views #}
+        <div class="stat-mini-val" id="stat-hadiah">{{ total_hadiah|default:"0" }}</div>
       </div>
     </div>
     <div class="stat-mini-card">
       <div class="stat-mini-icon gold">📅</div>
       <div>
         <div class="stat-mini-label">Mitra Baru (30 hari)</div>
-        <div class="stat-mini-val" id="stat-baru">2</div>
+        {# total_mitra_baru = count mitra dengan tanggal_kerja_sama >= 30 hari lalu dari views #}
+        <div class="stat-mini-val" id="stat-baru">{{ total_mitra_baru|default:"0" }}</div>
       </div>
     </div>
   </div>
@@ -168,7 +163,7 @@
       <div class="card-title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Daftar Mitra
-        <span id="badge-count" style="background:#f0f5f8;color:var(--muted);font-size:0.7rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">5</span>
+        <span id="badge-count" style="background:#f0f5f8;color:var(--muted);font-size:0.7rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">{{ total_mitra|default:"0" }}</span>
       </div>
       <div class="filter-bar">
         <div class="search-box">
@@ -190,9 +185,7 @@
               <th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="mitra-tbody">
-            <!-- Populated by JS -->
-          </tbody>
+          <tbody id="mitra-tbody"></tbody>
         </table>
         <div id="empty-state" class="empty-state" style="display:none;">
           <div class="empty-icon">🤝</div>
@@ -203,7 +196,7 @@
   </div>
 </div>
 
-<!-- MODAL TAMBAH MITRA -->
+<!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modal-tambah">
   <div class="modal">
     <div class="modal-head">
@@ -236,7 +229,7 @@
   </div>
 </div>
 
-<!-- MODAL EDIT MITRA -->
+<!-- MODAL EDIT -->
 <div class="modal-overlay" id="modal-edit">
   <div class="modal">
     <div class="modal-head">
@@ -250,7 +243,7 @@
       </div>
       <div class="form-group">
         <label class="fl">ID Penyedia <span class="ro">Read-only</span></label>
-        <input type="text" class="form-control" id="edit-id" disabled/>
+        <input type="text" class="form-control" id="edit-id-display" disabled/>
       </div>
       <div class="form-group">
         <label class="fl">Nama Mitra <span class="req">*</span></label>
@@ -268,7 +261,7 @@
   </div>
 </div>
 
-<!-- MODAL HAPUS MITRA -->
+<!-- MODAL HAPUS -->
 <div class="modal-overlay" id="modal-hapus">
   <div class="modal del-modal">
     <div class="modal-head">
@@ -277,7 +270,7 @@
     </div>
     <div class="modal-body">
       <div class="del-info">
-        <strong id="hapus-nama-info">Nama mitra</strong>
+        <strong id="hapus-nama-info"></strong>
         Penghapusan mitra akan berpengaruh pada hadiah yang disediakan oleh mitra ini. Semua hadiah dari mitra ini akan ikut terhapus.
       </div>
     </div>
@@ -288,34 +281,31 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-  // ===== DATA DUMMY =====
-  let mitraData = [
-    { id: 1, email: 'mitra@garuda.com',    nama: 'Garuda Miles Partner', tgl: '2020-01-15', hadiah: 2 },
-    { id: 2, email: 'mitra@citilink.com',  nama: 'Citilink Rewards',     tgl: '2020-03-20', hadiah: 3 },
-    { id: 3, email: 'mitra@lionair.com',   nama: 'Lion Miles',           tgl: '2021-06-10', hadiah: 1 },
-    { id: 4, email: 'mitra@sriwijaya.com', nama: 'Sriwijaya Club',       tgl: '2021-09-05', hadiah: 0 },
-    { id: 5, email: 'mitra@batik.com',     nama: 'Batik Miles',          tgl: '2022-02-28', hadiah: 2 },
-  ];
+  // ===== DATA DARI DJANGO VIEWS =====
+  // mitra_json dikirim dari kelola_mitra() via json.dumps(mitra_list)
+  // struktur tiap item: { id, email, nama, tgl, hadiah }
+  let mitraData = JSON.parse('{{ mitra_json|escapejs }}');
 
-  let editIndex = -1;
-  let hapusIndex = -1;
-  let idCounter = 8;
+  // Simpan id mitra yang sedang diedit/dihapus
+  let editId   = null;
+  let hapusId  = null;
 
-  const today = new Date().toISOString().split('T')[0];
   const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
 
+  // ===== STATS =====
+  // Stat cards di-render dari Django template (total_mitra, total_hadiah, total_mitra_baru)
+  // tapi perlu diupdate secara lokal setelah tambah/hapus tanpa reload
   function updateStats() {
-    document.getElementById('stat-total').textContent = mitraData.length;
-    const totalHadiah = mitraData.reduce((s, m) => s + m.hadiah, 0);
-    document.getElementById('stat-hadiah').textContent = totalHadiah;
-    const baru = mitraData.filter(m => m.tgl >= thirtyDaysAgo).length;
-    document.getElementById('stat-baru').textContent = baru;
+    document.getElementById('stat-total').textContent  = mitraData.length;
+    document.getElementById('stat-hadiah').textContent = mitraData.reduce((s, m) => s + m.hadiah, 0);
+    document.getElementById('stat-baru').textContent   = mitraData.filter(m => m.tgl >= thirtyDaysAgo).length;
+    document.getElementById('badge-count').textContent = mitraData.length;
   }
 
+  // ===== RENDER TABLE =====
   function renderTable(data) {
     const tbody = document.getElementById('mitra-tbody');
     const empty = document.getElementById('empty-state');
@@ -329,7 +319,6 @@
     empty.style.display = 'none';
 
     tbody.innerHTML = data.map(item => {
-      const realIdx = mitraData.findIndex(m => m.id === item.id);
       const isBaru = item.tgl >= thirtyDaysAgo;
       return `
       <tr>
@@ -337,20 +326,16 @@
         <td class="td-email">${item.email}</td>
         <td>
           <div class="td-nama">${item.nama}</div>
-          ${isBaru ? '<span style="font-size:0.68rem;background:#dcfce7;color:#166534;padding:0.15rem 0.55rem;border-radius:10px;font-weight:700;">Baru</span>' : ''}
+          ${isBaru ? '<span style="font-size:0.68rem;background:#dcfce7;color:#166534;padding:0.15rem 0.55rem;border-radius:10px;font-weight:700;margin-top:3px;display:inline-block;">Baru</span>' : ''}
         </td>
         <td class="td-tgl">${item.tgl}</td>
-        <td>
-          <span class="hadiah-count">
-            🎁 ${item.hadiah} hadiah
-          </span>
-        </td>
+        <td><span class="hadiah-count">🎁 ${item.hadiah} hadiah</span></td>
         <td>
           <div class="action-group">
-            <button class="btn-icon edit" title="Edit mitra" onclick="openEdit(${realIdx})">
+            <button class="btn-icon edit" title="Edit mitra" onclick="openEdit(${item.id})">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
-            <button class="btn-icon del" title="Hapus mitra" onclick="openHapus(${realIdx})">
+            <button class="btn-icon del" title="Hapus mitra" onclick="openHapus(${item.id}, '${item.nama.replace(/'/g,"\\'")}', '${item.email}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             </button>
           </div>
@@ -361,86 +346,144 @@
 
   function filterTable() {
     const q = document.getElementById('search-input').value.toLowerCase();
-    let filtered = mitraData.filter(item =>
+    const filtered = mitraData.filter(item =>
       !q || item.nama.toLowerCase().includes(q) || item.email.toLowerCase().includes(q)
     );
     renderTable(filtered);
   }
 
-  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  // ===== MODAL HELPERS =====
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  function openEdit(idx) {
-    editIndex = idx;
-    const item = mitraData[idx];
-    document.getElementById('edit-email').value = item.email;
-    document.getElementById('edit-id').value = `#${item.id}`;
-    document.getElementById('edit-nama').value = item.nama;
-    document.getElementById('edit-tgl').value = item.tgl;
+  // ===== EDIT =====
+  function openEdit(id) {
+    const item = mitraData.find(m => m.id === id);
+    if (!item) return;
+    editId = id;
+    document.getElementById('edit-email').value      = item.email;
+    document.getElementById('edit-id-display').value = `#${item.id}`;
+    document.getElementById('edit-nama').value        = item.nama;
+    document.getElementById('edit-tgl').value         = item.tgl;
     openModal('modal-edit');
   }
 
-  function openHapus(idx) {
-    hapusIndex = idx;
-    const item = mitraData[idx];
-    document.getElementById('hapus-nama-info').textContent = `${item.nama} (${item.email})`;
+  async function simpanEdit() {
+    const nama = document.getElementById('edit-nama').value.trim();
+    const tgl  = document.getElementById('edit-tgl').value;
+    if (!nama || !tgl) { showToast('Mohon isi semua field yang wajib diisi.', 'error'); return; }
+
+    try {
+      // Kirim ke endpoint edit_mitra di views.py
+      // views menerima: { id, nama, tgl }
+      const res = await fetch('edit/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editId, nama, tgl })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Update data lokal tanpa reload
+        const idx = mitraData.findIndex(m => m.id === editId);
+        if (idx !== -1) { mitraData[idx].nama = nama; mitraData[idx].tgl = tgl; }
+        closeModal('modal-edit');
+        filterTable();
+        updateStats();
+        showToast('Informasi mitra berhasil diperbarui!', 'success');
+      } else {
+        showToast(data.message || 'Gagal memperbarui mitra.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
+  }
+
+  // ===== HAPUS =====
+  function openHapus(id, nama, email) {
+    hapusId = id;
+    document.getElementById('hapus-nama-info').textContent = `${nama} (${email})`;
     openModal('modal-hapus');
   }
 
-  function isEmailExists(email, excludeIdx = -1) {
-    return mitraData.some((m, i) => i !== excludeIdx && m.email.toLowerCase() === email.toLowerCase());
+  async function konfirmasiHapus() {
+    if (!hapusId) return;
+
+    try {
+      // Kirim ke endpoint hapus_mitra di views.py
+      // views menerima: { id }
+      const res = await fetch('hapus/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: hapusId })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Hapus dari data lokal tanpa reload
+        mitraData = mitraData.filter(m => m.id !== hapusId);
+        hapusId = null;
+        closeModal('modal-hapus');
+        filterTable();
+        updateStats();
+        showToast(data.message || 'Mitra berhasil dihapus.', 'success');
+      } else {
+        showToast(data.message || 'Gagal menghapus mitra.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
   }
 
-  function tambahMitra() {
+  // ===== TAMBAH =====
+  async function tambahMitra() {
     const email = document.getElementById('add-email').value.trim();
-    const nama = document.getElementById('add-nama').value.trim();
-    const tgl = document.getElementById('add-tgl').value;
+    const nama  = document.getElementById('add-nama').value.trim();
+    const tgl   = document.getElementById('add-tgl').value;
 
     if (!email || !nama || !tgl) { showToast('Mohon isi semua field yang wajib diisi.', 'error'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Format email tidak valid.', 'error'); return; }
-    if (isEmailExists(email)) { showToast('Email mitra sudah terdaftar di sistem.', 'error'); return; }
 
-    mitraData.push({ id: idCounter++, email, nama, tgl, hadiah: 0 });
-    closeModal('modal-tambah');
-    document.getElementById('add-email').value = '';
-    document.getElementById('add-nama').value = '';
-    document.getElementById('add-tgl').value = '';
-    filterTable();
-    updateStats();
-    showToast(`Mitra ${nama} berhasil didaftarkan!`, 'success');
+    try {
+      // Kirim ke endpoint tambah_mitra di views.py
+      // views menerima: { email, nama, tgl }
+      const res = await fetch('tambah/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, nama, tgl })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Tambah ke data lokal tanpa reload — data.data berisi { id, email, nama, tgl, hadiah }
+        mitraData.push(data.data);
+        closeModal('modal-tambah');
+        document.getElementById('add-email').value = '';
+        document.getElementById('add-nama').value  = '';
+        document.getElementById('add-tgl').value   = '';
+        filterTable();
+        updateStats();
+        showToast(`Mitra ${nama} berhasil didaftarkan!`, 'success');
+      } else {
+        showToast(data.message || 'Gagal menambahkan mitra.', 'error');
+      }
+    } catch (e) {
+      showToast('Terjadi kesalahan koneksi.', 'error');
+    }
   }
 
-  function simpanEdit() {
-    const nama = document.getElementById('edit-nama').value.trim();
-    const tgl = document.getElementById('edit-tgl').value;
-
-    if (!nama || !tgl) { showToast('Mohon isi semua field yang wajib diisi.', 'error'); return; }
-
-    mitraData[editIndex].nama = nama;
-    mitraData[editIndex].tgl = tgl;
-    closeModal('modal-edit');
-    filterTable();
-    updateStats();
-    showToast('Informasi mitra berhasil diperbarui!', 'success');
-  }
-
-  function konfirmasiHapus() {
-    if (hapusIndex < 0) return;
-    const nama = mitraData[hapusIndex].nama;
-    mitraData.splice(hapusIndex, 1);
-    hapusIndex = -1;
-    closeModal('modal-hapus');
-    filterTable();
-    updateStats();
-    showToast(`Mitra ${nama} berhasil dihapus.`, 'success');
-  }
-
+  // ===== TOAST =====
   function showToast(msg, type='success') {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = `toast ${type} show`;
     setTimeout(() => t.classList.remove('show'), 3200);
   }
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  });
 
   function toggleDropdown(id) {
     const el = document.getElementById(id);
@@ -449,16 +492,11 @@
       if (!el.closest('.dropdown-wrap').contains(e.target)) { el.classList.remove('open'); document.removeEventListener('click', handler); }
     });
   }
-
   function toggleMobile(id) { document.getElementById(id).classList.toggle('open'); }
-
-  // Close modal on overlay click
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-  });
 
   // Init
   renderTable(mitraData);
+  // Stats sudah di-render oleh Django template, tapi sync dengan JS supaya konsisten setelah operasi
   updateStats();
 </script>
 </body>
