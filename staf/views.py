@@ -610,18 +610,6 @@ def kelola_member(request):
         'members_diamond_count': members_diamond_count,
     })
 
-def _generate_nomor_member(cur):
-    cur.execute("SELECT nomor_member FROM MEMBER ORDER BY nomor_member DESC LIMIT 1")
-    row = cur.fetchone()
-    if row:
-        # Ambil angka dari 'M0052' → 52, lalu increment
-        last_number = int(row[0][1:])  # hapus huruf 'M' di depan
-        new_number = last_number + 1
-    else:
-        new_number = 1
-    return f"M{new_number:04d}"
-
-
 def _get_lowest_tier_id(cur):
     cur.execute("SELECT id_tier FROM TIER ORDER BY minimal_tier_miles ASC LIMIT 1")
     row = cur.fetchone()
@@ -630,12 +618,12 @@ def _get_lowest_tier_id(cur):
     raise ValueError("Tidak ada tier yang terdaftar di database.")
  
 def member_create(request):
- 
+
     if request.method != 'POST':
         return redirect('staf:kelola-member')
     if not request.session.get('email') or request.session.get('role') != 'staf':
         return redirect('/auth/login/')
- 
+
     email           = request.POST.get('email', '').strip().lower()
     password        = request.POST.get('password', '').strip()
     salutation      = request.POST.get('salutation', '').strip()
@@ -645,54 +633,49 @@ def member_create(request):
     mobile_number   = request.POST.get('mobile_number', '').strip()
     tanggal_lahir   = request.POST.get('tanggal_lahir', '').strip()
     kewarganegaraan = request.POST.get('kewarganegaraan', '').strip()
- 
+
     if not all([email, password, salutation, first_mid_name, last_name,
                 country_code, mobile_number, tanggal_lahir, kewarganegaraan]):
         messages.error(request, 'Semua field wajib diisi.')
         return redirect('staf:kelola-member')
- 
+
     conn = get_connection()
     cur = conn.cursor()
     try:
-        # Cek duplikasi email — trigger di DB juga cek ini,
-        # tapi kita cek duluan biar pesan error lebih bersih
-        cur.execute(
-            "SELECT 1 FROM PENGGUNA WHERE LOWER(email) = LOWER(%s)",
-            [email]
-        )
-        if cur.fetchone():
-            messages.error(request, f'Email "{email}" sudah terdaftar, silakan gunakan email lain.')
-            return redirect('staf:kelola-member')
- 
-        hashed_pw    = make_password(password)
-        nomor_member = _generate_nomor_member(cur)
         id_tier_awal = _get_lowest_tier_id(cur)
- 
+
+        # Duplikasi email ditangani trigger DB (Trigger No.1 wajib)
         cur.execute("""
             INSERT INTO PENGGUNA
                 (email, password, salutation, first_mid_name, last_name,
                  country_code, mobile_number, tanggal_lahir, kewarganegaraan)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, [email, hashed_pw, salutation, first_mid_name, last_name,
+            VALUES (%s, crypt(%s, gen_salt('bf')), %s, %s, %s, %s, %s, %s, %s)
+        """, [email, password, salutation, first_mid_name, last_name,
               country_code, mobile_number, tanggal_lahir, kewarganegaraan])
- 
+
+        # nomor_member di-generate otomatis oleh sequence DB
         cur.execute("""
             INSERT INTO MEMBER
-                (email, nomor_member, tanggal_bergabung, id_tier, award_miles, total_miles)
-            VALUES (%s, %s, CURRENT_DATE, %s, 0, 0)
-        """, [email, nomor_member, id_tier_awal])
- 
+                (email, tanggal_bergabung, id_tier, award_miles, total_miles)
+            VALUES (%s, CURRENT_DATE, %s, 0, 0)
+        """, [email, id_tier_awal])
+
         conn.commit()
+
+        cur.execute("SELECT nomor_member FROM MEMBER WHERE email = %s", [email])
+        nomor_member = cur.fetchone()[0]
+
         messages.success(request, f'Member {first_mid_name} {last_name} berhasil ditambahkan ({nomor_member}).')
     except Exception as e:
         conn.rollback()
-        messages.error(request, f'Gagal menambahkan member: {e}')
+        # Pesan error dari trigger DB langsung ditampilkan ke user
+        error_msg = str(e).split('\n')[0].strip()
+        messages.error(request, error_msg)
     finally:
         cur.close()
         conn.close()
- 
-    return redirect('staf:kelola-member')
- 
+
+    return redirect('staf:kelola-member') 
  
 def member_edit(request, email):
     if request.method != 'POST':
