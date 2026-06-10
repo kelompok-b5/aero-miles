@@ -609,7 +609,25 @@ def kelola_member(request):
         'members_active_count': members_active_count,
         'members_diamond_count': members_diamond_count,
     })
- 
+
+def _generate_nomor_member(cur):
+    cur.execute("SELECT nomor_member FROM MEMBER ORDER BY nomor_member DESC LIMIT 1")
+    row = cur.fetchone()
+    if row:
+        # Ambil angka dari 'M0052' → 52, lalu increment
+        last_number = int(row[0][1:])  # hapus huruf 'M' di depan
+        new_number = last_number + 1
+    else:
+        new_number = 1
+    return f"M{new_number:04d}"
+
+
+def _get_lowest_tier_id(cur):
+    cur.execute("SELECT id_tier FROM TIER ORDER BY minimal_tier_miles ASC LIMIT 1")
+    row = cur.fetchone()
+    if row:
+        return row[0]
+    raise ValueError("Tidak ada tier yang terdaftar di database.")
  
 def member_create(request):
  
@@ -646,7 +664,7 @@ def member_create(request):
             messages.error(request, f'Email "{email}" sudah terdaftar, silakan gunakan email lain.')
             return redirect('staf:kelola-member')
  
-        hashed_pw    = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        hashed_pw    = make_password(password)
         nomor_member = _generate_nomor_member(cur)
         id_tier_awal = _get_lowest_tier_id(cur)
  
